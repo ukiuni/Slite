@@ -15,6 +15,9 @@ myapp.config([ "$locationProvider", "$httpProvider", "$routeProvider", function(
 		templateUrl : "template/activationView.html",
 		controller : "activationController"
 	});
+	$routeProvider.when("/home", {
+		templateUrl : "template/home.html"
+	});
 	$routeProvider.otherwise({
 		redirectTo : "/"
 	});
@@ -76,22 +79,22 @@ var activationController = [ "$rootScope", "$scope", "$resource", "$location", f
 		console.log("error " + error);
 	});
 } ];
-var activationController = [ "$rootScope", "$scope", "$resource", "$location", function($rootScope, $scope, $resource, $location) {
-	var activationKey = $location.search()["key"];
-	console.log("####activationKey = " + activationKey);
-	var Account = $resource('/api/account/activation?key=:activationKey');
-	Account.get({
-		activationKey : activationKey
-	}, function(account) {
-		console.log("account " + JSON.stringify(account));
-		$scope.account = account;
-		$scope.toLogin = function() {
-			$location.path("/signin");
-		};
-	}, function(error) {
-		// TODO error
-		console.log("error " + error);
-	});
+var signinController = [ "$rootScope", "$scope", "$resource", "$location", function($rootScope, $scope, $resource, $location) {
+	$scope.signinAccount = {}
+	$scope.signin = function() {
+		var Signin = $resource('/api/account/signin?mail=:mail&password=:password');
+		Signin.get({
+			mail : $scope.signinAccount.mail,
+			password : $scope.signinAccount.password
+		}, function(account) {
+			$rootScope.myAccount = account;
+			$location.path("/home");
+		}, function(error) {
+			// TODO error
+			console.log("error " + error);
+		})
+	}
 } ];
 myapp.controller('indexController', indexController);
 myapp.controller('activationController', activationController);
+myapp.controller('signinController', signinController);

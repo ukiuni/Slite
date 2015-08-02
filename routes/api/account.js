@@ -124,28 +124,31 @@ router.get('/activation', function(req, res) {
 	})
 });
 router.get('/signin', function(req, res) {
-	if (null == req.body.mail || "" == req.body.mail || null == req.body.password || "" == req.body.password) {
+	if (null == req.query.mail || "" == req.query.mail || null == req.query.password || "" == req.query.password) {
 		res.status(400).send();
 		return;
 	}
 	Account.find({
 		where : {
-			mail : req.body.mail
+			mail : req.query.mail
 		}
 	}).then(function(account) {
-		return AccessKey.find({
+		AccessKey.find({
 			where : {
 				accountId : account.id,
-				secret : hash(req.body.password),
+				secret : hash(req.query.password),
 				type : AccessKey.TYPE_LOGIN
 			}
+		}).then(function(activationKey) {
+			if (!activationKey) {
+				res.status(400).end();
+			} else {
+				res.status(200).json(account);
+			}
+		})["catch"](function(error) {
+			console.log(error);
+			res.status(500).end();
 		});
-	}).then(function(activationKey) {
-		if (!activationKey) {
-			res.status(400).end();
-		} else {
-			res.status(200).json(account);
-		}
 	})["catch"](function(error) {
 		console.log(error);
 		res.status(500).end();
