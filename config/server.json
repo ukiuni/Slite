@@ -1,0 +1,11 @@
+{
+	"development":{
+		"hostURL":"http://localhost:3030",
+		"app":{
+		"name":"Slite"
+		},
+		"admin":{
+			"mail":"no_replay@ukiuni.com"
+		}
+	}
+}
