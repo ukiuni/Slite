@@ -20,6 +20,7 @@ module.exports = function(sequelize, DataTypes) {
 	}
 	AccessKey.TYPE_ACTIVATION = 1;
 	AccessKey.TYPE_LOGIN = 2;
+	AccessKey.TYPE_RESETMAIL = 3;
 	AccessKey.STATUS_CREATED = 1;
 	AccessKey.STATUS_DISABLED = 2;
 	return AccessKey;
