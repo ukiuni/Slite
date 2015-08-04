@@ -1,0 +1,12 @@
+{
+	"default" : {
+		"signin" : {
+			"error" : "Wrong mail or password."
+		}
+	},
+	"ja" : {
+		"signin" : {
+			"error" : "メールアドレスかパスワードが違います。"
+		}
+	}
+}
