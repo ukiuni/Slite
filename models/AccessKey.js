@@ -1,16 +1,13 @@
 module.exports = function(sequelize, DataTypes) {
 	var AccessKey = sequelize.define("AccessKey", {
-		token : DataTypes.TEXT,
 		secret : DataTypes.TEXT,
 		status : DataTypes.INTEGER,
-		type : DataTypes.INTEGER
+		type : DataTypes.INTEGER,
+		expires : DataTypes.DATE
 	}, {
 		paranoid : true,
 		classMethods : {},
 		indexes : [ {
-			name : "tokenIndex",
-			fields : [ "token" ]
-		}, {
 			name : "secretIndex",
 			fields : [ "secret" ]
 		} ]
@@ -20,6 +17,7 @@ module.exports = function(sequelize, DataTypes) {
 	}
 	AccessKey.TYPE_ACTIVATION = 1;
 	AccessKey.TYPE_LOGIN = 2;
+	AccessKey.TYPE_SESSION = 3;
 	AccessKey.TYPE_RESETMAIL = 3;
 	AccessKey.STATUS_CREATED = 1;
 	AccessKey.STATUS_DISABLED = 2;

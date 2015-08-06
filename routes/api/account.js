@@ -41,12 +41,15 @@ router.post('/', function(req, res) {
 							type : AccessKey.TYPE_ACTIVATION,
 							status : AccessKey.STATUS_CREATED
 						}).then(function(accessKey) {
-							accessKey.setAccount(account);
-						}).then(function() {
-							sendActivationMail(account.mail, accessKey.secret, function() {
-								res.status(424).send();
+							accessKey.setAccount(account).then(function() {
+								sendActivationMail(account.mail, accessKey.secret, function() {
+									res.status(424).send();
+								});
+								res.status(201).send();
+							})["catch"](function(error) {
+								console.log("error = " + error);
+								res.status(500).json(error);
 							});
-							res.status(201).send();
 						})["catch"](function(error) {
 							console.log("error = " + error);
 							res.status(500).json(error);
@@ -138,7 +141,19 @@ router.get('/signin', function(req, res) {
 			if (!activationKey) {
 				res.status(400).end();
 			} else {
-				res.status(200).json(account);
+				createRandomBase62(function(sessionKey) {
+					return AccessKey.create({
+						AccountId : account.id,
+						secret : sessionKey,
+						type : AccessKey.TYPE_SESSION,
+						status : AccessKey.STATUS_CREATED
+					}).then(function(accessKey) {
+						res.status(200).json({
+							sessionKey : accessKey,
+							account : account
+						});
+					});
+				});
 			}
 		})["catch"](function(error) {
 			console.log(error);

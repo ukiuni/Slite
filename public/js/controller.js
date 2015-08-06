@@ -19,7 +19,8 @@ myapp.config([ "$locationProvider", "$httpProvider", "$routeProvider", function(
 		controller : "activationController"
 	});
 	$routeProvider.when("/home", {
-		templateUrl : "template/home.html"
+		templateUrl : "template/home.html",
+		controller : "homeController"
 	});
 	$routeProvider.when("/requestResetPassword", {
 		templateUrl : "template/requestResetPassword.html",
@@ -131,8 +132,10 @@ var signinController = [ "$rootScope", "$scope", "$resource", "$location", funct
 		Signin.get({
 			mail : $scope.signinAccount.mail,
 			password : $scope.signinAccount.password
-		}, function(account) {
-			$rootScope.myAccount = account;
+		}, function(loginInfo) {
+			$rootScope.myAccount = loginInfo.account;
+			$rootScope.sessionId = loginInfo.sessionKey.secret;
+			console.log("loginInfo = "+JSON.stringify(loginInfo));
 			$location.path("/home");
 		}, function(error) {
 			toastr.error($rootScope.messages.signin.error);
@@ -167,8 +170,14 @@ var resetPasswordController = [ "$rootScope", "$scope", "$resource", "$location"
 		});
 	}
 } ];
+var homeController = [ "$rootScope", "$scope", "$resource", "$location", "$http", function($rootScope, $scope, $resource, $location, $http) {
+	if (!$rootScope.myAccount) {
+		$location.path("/signin");
+	}
+} ];
 myapp.controller('indexController', indexController);
 myapp.controller('activationController', activationController);
 myapp.controller('signinController', signinController);
 myapp.controller('requestResetPasswordController', requestResetPasswordController);
 myapp.controller('resetPasswordController', resetPasswordController);
+myapp.controller('homeController', homeController);

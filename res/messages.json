@@ -2,11 +2,17 @@
 	"default" : {
 		"signin" : {
 			"error" : "Wrong mail or password."
+		},
+		"app" : {
+			"title" : "Slite" 
 		}
 	},
 	"ja" : {
 		"signin" : {
 			"error" : "メールアドレスかパスワードが違います。"
+		},
+		"app" : {
+			"title" : "Slite" 
 		}
 	}
 }
