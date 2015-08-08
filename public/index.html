@@ -10,6 +10,7 @@
 <script src="assets/angular.js"></script>
 <script src="assets/angular-route.min.js"></script>
 <script src="assets/angular-resource.min.js"></script>
+<script src="assets/angular-cookies.min.js"></script>
 <script src="assets/ui-bootstrap-tpls-0.13.0.min.js"></script>
 
 <link
@@ -28,21 +29,22 @@
 			<a class="navbar-brand" href="/" ng-bind="messages.app.title"></a>
 		</div>
 		<div id="navbar" class="navbar-collapse collapse">
-			<ul class="nav navbar-nav navbar-right">
-				<li><a href="/home" ng-bind="myAccount.name"></a></li>
+			<ul class="nav navbar-nav navbar-right" ng-show="myAccount">
 				<li class="dropdown"><a href="#" class="dropdown-toggle"
 					data-toggle="dropdown" role="button" aria-haspopup="true"
-					aria-expanded="false">Dropdown <span class="caret"></span></a>
+					aria-expanded="false"><span ng-bind="myAccount.name"></span><span
+						class="caret"></span></a>
 					<ul class="dropdown-menu">
 						<li><a href="#">Action</a></li>
 						<li><a href="#">Another action</a></li>
 						<li><a href="#">Something else here</a></li>
 						<li role="separator" class="divider"></li>
-						<li class="dropdown-header">Nav header</li>
-						<li><a href="#">Separated link</a></li>
-						<li><a href="#">One more separated link</a></li>
+						<li class="dropdown-header">Setting</li>
+						<li><a href="#">Profile</a></li>
+						<li><a href="#">Change Password</a></li>
+						<li role="separator" class="divider"></li>
+						<li><a href="#" ng-click="signout()">Sign out</a></li>
 					</ul></li>
-				<li><a href="/setting">Setting</a></li>
 			</ul>
 		</div>
 		<!--/.nav-collapse -->

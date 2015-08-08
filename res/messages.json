@@ -5,6 +5,9 @@
 		},
 		"app" : {
 			"title" : "Slite" 
+		},
+		"error" : {
+			"withServer" : "Something happen with Server, please try again later."
 		}
 	},
 	"ja" : {
@@ -13,6 +16,9 @@
 		},
 		"app" : {
 			"title" : "Slite" 
+		},
+		"error" : {
+			"withServer" : "サーバーとの通信で問題が発生しました。後ほど再実行してください。"
 		}
 	}
 }

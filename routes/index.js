@@ -12,7 +12,6 @@ module.exports = function(app) {
 				var name = file.substr(0, file.indexOf('.'));
 				var router = require(path.join(rootDirectory, postfix, file));
 				var route = path.join("/" + postfix, name);
-				console.log("$$$$$$$$$$$$$route add = " + route);
 				app.use(route, router);
 			}
 		});

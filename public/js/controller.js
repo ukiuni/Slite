@@ -1,7 +1,7 @@
 toastr.options = {
 	"positionClass" : "toast-top-center"
 }
-var myapp = angular.module('app', [ 'ui.bootstrap', 'ngRoute', 'ngResource' ]);
+var myapp = angular.module('app', [ 'ui.bootstrap', 'ngRoute', 'ngResource', "ngCookies" ]);
 myapp.config([ "$locationProvider", "$httpProvider", "$routeProvider", function($locationProvider, $httpProvider, $routeProvider, $rootScope, $location) {
 	$locationProvider.html5Mode(true);
 	$httpProvider.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded;charset=utf-8';
@@ -36,20 +36,69 @@ myapp.config([ "$locationProvider", "$httpProvider", "$routeProvider", function(
 	$routeProvider.when("/passwordReseted", {
 		templateUrl : "template/passwordResetedView.html"
 	});
+	$routeProvider.when("/signout", {
+		templateUrl : "template/signouted.html"
+	});
 	$routeProvider.otherwise({
 		redirectTo : "/"
 	});
 } ]);
-myapp.run([ "$rootScope", "$location", "$resource", function($rootScope, $location, $resource) {
+myapp.run([ "$rootScope", "$location", "$resource", "$cookies", function($rootScope, $location, $resource, $cookies) {
 	$resource('/api/resource/messages?lang=:lang').get({
 		lang : ((navigator.languages && navigator.languages[0]) || navigator.browserLanguage || navigator.language || navigator.userLanguage).substr(0, 2)
 	}, function(messages) {
 		$rootScope.messages = messages;
 	}, function() {
-		toastr.warning("Fail to load message resource.");
+		$rootScope.showError("Fail to load message resource.");
 	});
+	$rootScope.showError = function(message) {
+		toastr.error(message);
+	}
 	$rootScope.toLogin = function() {
 		$location.path("/signin");
+	};
+	var SESSION_KEY = "session_key"
+	$rootScope.setSessionKey = function(sessionKey, expires) {
+		if (expires) {
+			$cookies.putObject(SESSION_KEY, sessionKey, {
+				expires : expires
+			})
+		} else {
+			$cookies.putObject(SESSION_KEY, sessionKey);
+		}
+	}
+	$rootScope.removeSessionKey = function() {
+		$rootScope.setSessionKey(null);
+	}
+	$rootScope.getSessionKey = function() {
+		var sessionKey = $cookies.getObject(SESSION_KEY);
+		return sessionKey;
+	}
+	$rootScope.signout = function() {
+		$resource('/api/account/accessKey?key=:sessionKey').remove({
+			sessionKey : $rootScope.sessionKey
+		}, function() {
+			$rootScope.removeSessionKey();
+			$rootScope.myAccount = null;
+			$rootScope.sessionKey = null;
+			$location.path("/signout");
+		}, function() {
+			$rootScope.showError($rootScope.messages.error.withServer);
+		})
+	}
+	var sessionKey = $rootScope.getSessionKey();
+	if (sessionKey) {
+		$resource('/api/account?sessionKey=:sessionKey').get({
+			sessionKey : sessionKey
+		}, function(account) {
+			$rootScope.myAccount = account;
+			$rootScope.sessionKey = sessionKey;
+			if ("/" == ($location.path()) || "/signin" == ($location.path())) {
+				$location.path("/home");
+			}
+		}, function() {
+			$rootScope.removeSessionKey();
+		});
 	}
 } ]);
 var indexController = [ "$rootScope", "$scope", "$modal", "$location", "$http", "$window", function($rootScope, $scope, $modal, $location, $http, $window) {
@@ -121,8 +170,8 @@ var activationController = [ "$rootScope", "$scope", "$resource", "$location", f
 			$location.path("/signin");
 		};
 	}, function(error) {
-		// TODO error
-		console.log("error " + error);
+		// TODO switch message with error
+		$rootScope.showError($rootScope.messages.error.withServer);
 	});
 } ];
 var signinController = [ "$rootScope", "$scope", "$resource", "$location", function($rootScope, $scope, $resource, $location) {
@@ -135,10 +184,14 @@ var signinController = [ "$rootScope", "$scope", "$resource", "$location", funct
 		}, function(loginInfo) {
 			$rootScope.myAccount = loginInfo.account;
 			$rootScope.sessionId = loginInfo.sessionKey.secret;
-			console.log("loginInfo = "+JSON.stringify(loginInfo));
+			if ($scope.persist) {
+				$rootScope.setSessionKey($rootScope.sessionId, "Tue, 1-Jan-2030 00:00:00 GMT;");
+			} else {
+				$rootScope.setSessionKey($rootScope.sessionId);
+			}
 			$location.path("/home");
 		}, function(error) {
-			toastr.error($rootScope.messages.signin.error);
+			$rootScope.showError($rootScope.messages.signin.error);
 		})
 	}
 } ];
@@ -150,8 +203,8 @@ var requestResetPasswordController = [ "$rootScope", "$scope", "$resource", "$lo
 		}).success(function(account) {
 			$location.path("/resetPasswordRequested");
 		}).error(function(error) {
-			// TODO error
-			console.log("error " + error);
+			// TODO switch message with error
+			$rootScope.showError($rootScope.messages.error.withServer);
 		});
 	}
 } ];
@@ -165,8 +218,7 @@ var resetPasswordController = [ "$rootScope", "$scope", "$resource", "$location"
 		}).success(function(account) {
 			$location.path("/passwordReseted");
 		}).error(function(error) {
-			// TODO error
-			console.log("error " + error);
+			$rootScope.showError($rootScope.messages.error.withServer);
 		});
 	}
 } ];

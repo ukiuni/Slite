@@ -121,6 +121,35 @@ router.get('/activation', function(req, res) {
 		res.status(500).end();
 	})
 });
+router.get('/', function(req, res) {
+	if (req.query.sessionKey) {
+		AccessKey.find({
+			where : {
+				secret : req.query.sessionKey,
+				type : AccessKey.TYPE_SESSION
+			}
+		}).then(function(accessKey) {
+			if (!accessKey) {
+				res.status(400).send();
+				return;
+			}
+			return Account.find({
+				where : {
+					id : accessKey.AccountId
+				}
+			});
+		}).then(function(account) {
+			if (!account) {
+				res.status(400).send();
+				return;
+			}
+			res.status(200).json(account);
+		})
+		return;
+	} else {
+		res.status(400).send();
+	}
+});
 router.get('/signin', function(req, res) {
 	if (null == req.query.mail || "" == req.query.mail || null == req.query.password || "" == req.query.password) {
 		res.status(400).send();
@@ -249,6 +278,19 @@ router.put('/resetPassword', function(req, res) {
 	})["catch"](function(error) {
 		console.log(error);
 		res.status(500).end();
+	});
+});
+router["delete"]('/accessKey', function(req, res) {
+	if (!req.query.key) {
+		res.status(400).end();
+		return;
+	}
+	AccessKey.destroy({
+		where : {
+			secret : req.query.key
+		}
+	}).then(function(count) {
+		res.status(200).end();
 	});
 });
 var sendResetPasswordMail = function(account, resetKey, errorFunc) {
