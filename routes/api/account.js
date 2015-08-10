@@ -9,16 +9,21 @@ var renderer = require('ect')({
 });
 var sendmail = require('sendmail')();
 var crypto = require('crypto');
+var Jimp = require("jimp");
+var Storage = require(__dirname + "/../../util/storage");
+var ERROR_NOT_ACCESSIBLE = "ERROR_NOT_ACCESSIBLE";
 router.post('/', function(req, res) {
 	if (null == req.body.name || "" == req.body.name || null == req.body.mail || "" == req.body.mail || null == req.body.password || "" == req.body.password) {
-		res.status(400).send();
+		res.status(400).end();
 		return;
 	}
 	Account.find({
-		where : [ 'mail = ?', req.body.mail ]
+		where : {
+			mail : req.body.mail
+		}
 	}).then(function(account) {
 		if (account) {
-			res.status(409).send();
+			res.status(409).end();
 			return;
 		}
 		createRandomBase62(function(accountKey) {
@@ -43,29 +48,29 @@ router.post('/', function(req, res) {
 						}).then(function(accessKey) {
 							accessKey.setAccount(account).then(function() {
 								sendActivationMail(account.mail, accessKey.secret, function() {
-									res.status(424).send();
+									res.status(424).end();
 								});
-								res.status(201).send();
+								res.status(201).end();
 							})["catch"](function(error) {
-								console.log("error = " + error);
+								console.trace(error);
 								res.status(500).json(error);
 							});
 						})["catch"](function(error) {
-							console.log("error = " + error);
+							console.trace(error);
 							res.status(500).json(error);
 						});
 					})
 				})["catch"](function(error) {
-					console.log("error = " + error);
+					console.trace(error);
 					res.status(500).json(error);
 				});
 			})["catch"](function(error) {
-				console.log("error = " + error);
+				console.trace(error);
 				res.status(500).json(error);
 			});
 		});
 	})["catch"](function(error) {
-		console.log("error = " + error);
+		console.trace(error);
 		res.status(500).json(error);
 	});
 });
@@ -113,11 +118,11 @@ router.get('/activation', function(req, res) {
 		activationKey.getAccount().then(function(account) {
 			res.status(200).json(account);
 		})["catch"](function(error) {
-			console.log(error);
+			console.trace(error);
 			res.status(500).end();
 		})
 	})["catch"](function(error) {
-		console.log(error);
+		console.trace(error);
 		res.status(500).end();
 	})
 });
@@ -130,8 +135,8 @@ router.get('/', function(req, res) {
 			}
 		}).then(function(accessKey) {
 			if (!accessKey) {
-				res.status(400).send();
-				return;
+				res.status(400).end();
+				throw ERROR_NOT_ACCESSIBLE;
 			}
 			return Account.find({
 				where : {
@@ -140,19 +145,25 @@ router.get('/', function(req, res) {
 			});
 		}).then(function(account) {
 			if (!account) {
-				res.status(400).send();
+				res.status(400).end();
 				return;
 			}
 			res.status(200).json(account);
-		})
+		})["catch"](function(error) {
+			if (error == ERROR_NOT_ACCESSIBLE) {
+				res.status(400).end();
+			} else {
+				res.status(500).end();
+			}
+		});
 		return;
 	} else {
-		res.status(400).send();
+		res.status(400).end();
 	}
 });
 router.get('/signin', function(req, res) {
 	if (null == req.query.mail || "" == req.query.mail || null == req.query.password || "" == req.query.password) {
-		res.status(400).send();
+		res.status(400).end();
 		return;
 	}
 	Account.find({
@@ -160,6 +171,10 @@ router.get('/signin', function(req, res) {
 			mail : req.query.mail
 		}
 	}).then(function(account) {
+		if (!account) {
+			res.status(400).end();
+			return;
+		}
 		AccessKey.find({
 			where : {
 				AccountId : account.id,
@@ -185,17 +200,17 @@ router.get('/signin', function(req, res) {
 				});
 			}
 		})["catch"](function(error) {
-			console.log(error);
+			console.trace(error);
 			res.status(500).end();
 		});
 	})["catch"](function(error) {
-		console.log(error);
+		console.trace(error);
 		res.status(500).end();
 	})
 });
 router.post('/sendResetpasswordMail', function(req, res) {
 	if (null == req.body.mail || "" == req.body.mail) {
-		res.status(400).send();
+		res.status(400).end();
 		return;
 	}
 	Account.find({
@@ -204,7 +219,7 @@ router.post('/sendResetpasswordMail', function(req, res) {
 		}
 	}).then(function(account) {
 		if (!account) {
-			res.status(400).send();
+			res.status(400).end();
 			return;
 		}
 		createRandomBase62(function(random) {
@@ -221,35 +236,106 @@ router.post('/sendResetpasswordMail', function(req, res) {
 					sendResetPasswordMail(account, random);
 				}
 			})["catch"](function(error) {
-				console.log(error);
+				console.trace(error);
 				res.status(500).end();
 			});
 		});
 	})["catch"](function(error) {
-		console.log(error);
+		console.trace(error);
 		res.status(500).end();
 	})
 });
-router.put('/resetPassword', function(req, res) {
+router.put('/', function(req, res) {
+	if (!req.body.key) {
+		res.status(400).end();
+		return;
+	}
+	AccessKey.find({
+		where : {
+			secret : req.body.key,
+			status : AccessKey.STATUS_CREATED,
+			type : AccessKey.TYPE_SESSION
+		}
+	}).then(function(accessKey) {
+		if (!accessKey) {
+			throw ERROR_NOT_ACCESSIBLE;
+		}
+		return Account.find({
+			where : {
+				id : accessKey.AccountId
+			}
+		});
+	}).then(function(account) {
+		if (!account) {
+			throw ERROR_NOT_ACCESSIBLE;
+		}
+		var saveAccount = function(iconUrl) {
+			if (req.body.name) {
+				account.name = req.body.name;
+			}
+			if (req.body.information) {
+				account.information = req.body.information;
+			}
+			if (iconUrl) {
+				account.iconUrl = iconUrl;
+			}
+			account.save().then(function() {
+				res.status(200).send(account);
+			})["catch"](function() {
+				res.status(500).end();
+			});
+		}
+		if (req.files.imageFile && req.files.imageFile[0] && req.files.imageFile[0].buffer) {
+			new Jimp(req.files.imageFile[0].buffer, function(error, image) {
+				if (error) {
+					res.status(422).end("parse error cant load image");
+					return;
+				}
+				image.resize(100, 100);
+				createRandomBase62(function(imageFileKey) {
+					Storage.store(imageFileKey, req.files.imageFile[0].mimetype, req.files.imageFile[0].buffer).then(function(url) {
+						saveAccount(url);
+					})["catch"](function(error) {
+						res.status(500).end();
+					})
+				});
+			});
+		} else {
+			saveAccount();
+		}
+	})["catch"](function(error) {
+		if (error === ERROR_NOT_ACCESSIBLE) {
+			res.status(400).end();
+		} else {
+			console.trace(error);
+			res.status(500).end();
+			throw error;
+		}
+	});
+});
+router.put('/password', function(req, res) {
 	if (null == req.body.password || "" == req.body.password || null == req.body.key || "" == req.body.key) {
-		res.status(400).send();
+		res.status(400).end();
 		return;
 	}
 	var accountId;
 	AccessKey.find({
 		where : {
 			secret : req.body.key,
-			type : AccessKey.TYPE_RESETMAIL,
 			status : AccessKey.STATUS_CREATED
 		}
-	}).then(function(passwordResetAccessKey) {
-		if (!passwordResetAccessKey) {
-			res.status(400).send();
+	}).then(function(accessKey) {
+		if (!accessKey || (!AccessKey.TYPE_RESETMAIL == accessKey.type && !AccessKey.TYPE_SESSION == accessKey.type)) {
+			res.status(400).end();
 			throw "accessKey not found";
 		}
-		accountId = passwordResetAccessKey.AccountId;
-		return passwordResetAccessKey.destroy();
-	}).then(function(passwordResetAccessKey) {
+		accountId = accessKey.AccountId;
+		if (AccessKey.TYPE_RESETMAIL == accessKey.type) {
+			return accessKey.destroy();
+		} else {
+			return;
+		}
+	}).then(function() {
 		return Account.find({
 			where : {
 				id : accountId
@@ -257,7 +343,7 @@ router.put('/resetPassword', function(req, res) {
 		})
 	}).then(function(account) {
 		if (!account) {
-			res.status(400).send();
+			res.status(400).end();
 			throw "account not found";
 		}
 		return AccessKey.destroy({
@@ -276,7 +362,7 @@ router.put('/resetPassword', function(req, res) {
 	}).then(function(accessKey) {
 		res.status(200).end();
 	})["catch"](function(error) {
-		console.log(error);
+		console.trace(error);
 		res.status(500).end();
 	});
 });

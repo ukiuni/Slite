@@ -1,7 +1,7 @@
 toastr.options = {
 	"positionClass" : "toast-top-center"
 }
-var myapp = angular.module('app', [ 'ui.bootstrap', 'ngRoute', 'ngResource', "ngCookies" ]);
+var myapp = angular.module('app', [ 'ui.bootstrap', 'ngRoute', 'ngResource', "ngCookies", 'ngFileUpload' ]);
 myapp.config([ "$locationProvider", "$httpProvider", "$routeProvider", function($locationProvider, $httpProvider, $routeProvider, $rootScope, $location) {
 	$locationProvider.html5Mode(true);
 	$httpProvider.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded;charset=utf-8';
@@ -36,6 +36,17 @@ myapp.config([ "$locationProvider", "$httpProvider", "$routeProvider", function(
 	$routeProvider.when("/passwordReseted", {
 		templateUrl : "template/passwordResetedView.html"
 	});
+	$routeProvider.when("/changePassword", {
+		templateUrl : "template/changePasswordView.html",
+		controller : "changePasswordController"
+	});
+	$routeProvider.when("/editProfile", {
+		templateUrl : "template/editProfileView.html",
+		controller : "editProfileController"
+	});
+	$routeProvider.when("/passwordChanged", {
+		templateUrl : "template/passwordChangedView.html"
+	});
 	$routeProvider.when("/signout", {
 		templateUrl : "template/signouted.html"
 	});
@@ -55,6 +66,9 @@ myapp.run([ "$rootScope", "$location", "$resource", "$cookies", function($rootSc
 		toastr.error(message);
 	}
 	$rootScope.toLogin = function() {
+		$location.path("/signin");
+	};
+	$rootScope.toHome = function() {
 		$location.path("/signin");
 	};
 	var SESSION_KEY = "session_key"
@@ -183,11 +197,11 @@ var signinController = [ "$rootScope", "$scope", "$resource", "$location", funct
 			password : $scope.signinAccount.password
 		}, function(loginInfo) {
 			$rootScope.myAccount = loginInfo.account;
-			$rootScope.sessionId = loginInfo.sessionKey.secret;
+			$rootScope.sessionKey = loginInfo.sessionKey.secret;
 			if ($scope.persist) {
-				$rootScope.setSessionKey($rootScope.sessionId, "Tue, 1-Jan-2030 00:00:00 GMT;");
+				$rootScope.setSessionKey($rootScope.sessionKey, "Tue, 1-Jan-2030 00:00:00 GMT;");
 			} else {
-				$rootScope.setSessionKey($rootScope.sessionId);
+				$rootScope.setSessionKey($rootScope.sessionKey);
 			}
 			$location.path("/home");
 		}, function(error) {
@@ -212,11 +226,55 @@ var resetPasswordController = [ "$rootScope", "$scope", "$resource", "$location"
 	var passwordResetKey = $location.search()["key"];
 	$scope.resetPasswordAccount = {}
 	$scope.resetPassword = function() {
-		put($http, '/api/account/resetPassword', {
+		put($http, '/api/account/password', {
 			password : $scope.resetPasswordAccount.password,
 			key : passwordResetKey
 		}).success(function(account) {
 			$location.path("/passwordReseted");
+		}).error(function(error) {
+			$rootScope.showError($rootScope.messages.error.withServer);
+		});
+	}
+} ];
+var changePasswordController = [ "$rootScope", "$scope", "$resource", "$location", "$http", function($rootScope, $scope, $resource, $location, $http) {
+	$scope.changePassword = function() {
+		put($http, '/api/account/password', {
+			password : $scope.password,
+			key : $rootScope.sessionKey
+		}).success(function(account) {
+			$location.path("/passwordChanged");
+		}).error(function(error) {
+			$rootScope.showError($rootScope.messages.error.withServer);
+		});
+	}
+} ];
+var editProfileController = [ "$rootScope", "$scope", "$resource", "$location", "$http", "Upload", function($rootScope, $scope, $resource, $location, $http, $uploader) {
+	if (!$rootScope.myAccount) {
+		$location.path("/home");
+		return;
+	}
+	$scope.settingAccount = {}
+	$scope.settingAccount.name = $rootScope.myAccount.name
+	$scope.settingAccount.information = $rootScope.myAccount.information
+	$scope.$watch('imageFile', function() {
+		if ($scope.imageFile) {
+			$scope.fileName = $scope.imageFile.name;
+		}
+	});
+	$scope.save = function() {
+		$uploader.upload({
+			url : '/api/account',
+			fields : {
+				name : $scope.settingAccount.name,
+				information : $scope.settingAccount.information,
+				key : $rootScope.sessionKey
+			},
+			file : $scope.imageFile,
+			fileFormDataName : "imageFile",
+			sendFieldsAs : "form",
+			method : "PUT"
+		}).success(function(account) {
+			$location.path("/home");
 		}).error(function(error) {
 			$rootScope.showError($rootScope.messages.error.withServer);
 		});
@@ -232,4 +290,6 @@ myapp.controller('activationController', activationController);
 myapp.controller('signinController', signinController);
 myapp.controller('requestResetPasswordController', requestResetPasswordController);
 myapp.controller('resetPasswordController', resetPasswordController);
+myapp.controller('editProfileController', editProfileController);
+myapp.controller('changePasswordController', changePasswordController);
 myapp.controller('homeController', homeController);

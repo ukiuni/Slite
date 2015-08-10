@@ -3,6 +3,7 @@ module.exports = function(sequelize, DataTypes) {
 		accountKey : DataTypes.TEXT,
 		mail : DataTypes.TEXT,
 		name : DataTypes.TEXT,
+		information : DataTypes.TEXT,
 		iconUrl : DataTypes.TEXT,
 		status : DataTypes.INTEGER
 	}, {
