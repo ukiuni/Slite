@@ -2,6 +2,7 @@ var express = require('express');
 var http = require('http');
 var path = require('path');
 var bodyParser = require('body-parser');
+var multer = require('multer');
 var ECT = require('ect');
 var db = require('./models');
 var ectRenderer = ECT({
@@ -17,6 +18,12 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
 	extended : true
 }));
+app.use(multer({
+	storage : multer.memoryStorage()
+}).fields([ {
+	name : "imageFile",
+	maxCount : 1
+} ]));
 app.use(express.static(path.join(__dirname, 'public')));
 require('./routes')(app);
 db.sequelize.sync().done(function(param) {
