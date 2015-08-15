@@ -1,46 +1,44 @@
 <div style="height: 100%;">
 	<div class="row">
-		<div class="col-sm-10 col-sm-offset-1">
-			<div class="row">
-				<form class="form-signin">
-					<div class="row">
-						<div class="form-group">
-							<label for="titleImage" class="col-sm-2 control-label">Image</label>
-							<div class="col-sm-10">
-								<button ngf-drop ngf-select ng-model="editingContent.contentImageFile" class="btn btn-lg btn-default btn-block drop-box" ngf-drag-over-class="dragover" ngf-allow-dir="true" ngf-accept="'image/jpeg,image/png,image/bmp'">
-									Image file<span ng-show="fileName">(<span ng-bind="fileName"></span>)
-									</span> <span ng-show="!fileName">(select JPEG or PNG) </span>
-									</buttoSn>
-							</div>
-						</div>
-					</div>
-					<div class="row">
-						<div class="form-group">
-							<label for="inputTitle" class="col-sm-2 control-label">Title</label>
-							<div class="col-sm-10">
-								<input type="text" class="form-control" id="inputTitle" placeholder="Title" ng-model="editingContent.title" required>
-							</div>
-						</div>
-					</div>
-					<div class="row">
-						<div class="form-group">
-							<label for="article" class="col-sm-2 control-label">Article</label>
-							<div class="col-sm-10">
-								<textarea id="article" class="form-control" rows="10" style="resize: none; width: 100%" ng-model="editingContent.article" placeholder="Article"></textarea>
-							</div>
-						</div>
-					</div>
-					<div style="height: 10px"></div>
+		<div class="col-xs-10 col-xs-offset-1">
+			<form class="form-signin">
+				<div class="row">
 					<div class="form-group">
-						<label for="status" class="col-sm-2 control-label">Accessibility</label>
+						<label for="titleImage" class="col-sm-2 control-label">Image</label>
 						<div class="col-sm-10">
-							<select ng-model="editingContent.status" ng-options="status as status.message for status in statuses"></select>
+							<button ngf-drop ngf-select ng-model="editingContent.contentImageFile" class="btn btn-lg btn-default btn-block drop-box" ngf-drag-over-class="dragover" ngf-allow-dir="true" ngf-accept="'image/jpeg,image/png,image/bmp'">
+								Image file<span ng-show="fileName">(<span ng-bind="fileName"></span>)
+								</span> <span ng-show="!fileName">(select JPEG or PNG) </span>
+								</buttoSn>
 						</div>
 					</div>
-					<div style="height: 10px"></div>
-					<button class="btn btn-lg btn-primary btn-block" type="submit" ng-click="save()">Save</button>
-				</form>
-			</div>
+				</div>
+				<div class="row">
+					<div class="form-group">
+						<label for="inputTitle" class="col-sm-2 control-label">Title</label>
+						<div class="col-sm-10">
+							<input type="text" class="form-control" id="inputTitle" placeholder="Title" ng-model="editingContent.title" required>
+						</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="form-group">
+						<label for="article" class="col-sm-2 control-label">Article</label>
+						<div class="col-sm-10">
+							<textarea id="article" class="form-control" rows="10" style="resize: none; width: 100%" ng-model="editingContent.article" placeholder="Article"></textarea>
+						</div>
+					</div>
+				</div>
+				<div style="height: 10px"></div>
+				<div class="form-group">
+					<label for="status" class="col-sm-2 control-label">Accessibility</label>
+					<div class="col-sm-10">
+						<select ng-model="editingContent.status" ng-options="status as status.message for status in statuses"></select>
+					</div>
+				</div>
+				<div style="height: 10px"></div>
+				<button class="btn btn-lg btn-primary btn-block" type="submit" ng-click="save()">Save</button>
+			</form>
 		</div>
 	</div>
 </div>

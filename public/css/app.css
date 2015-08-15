@@ -12,10 +12,17 @@
 }
 
 /* home */
-.contentColmun {
+.contentListColmun {
 	border: solid 1px #DDD;
 	border-left: solid 10px #DDD;
 	border-right: solid 10px #DDD;
 	border-radius: 3px;
-	margin-bottom:3px;
+	margin-bottom: 3px;
+	border-right: solid 10px #DDD;
+}
+
+.contentListTitle {
+	padding-left: 5px;
+	font-size: 20px;
+	font-size: 20px;
 }

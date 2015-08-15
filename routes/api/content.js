@@ -2,6 +2,7 @@ var Account = global.db.Account;
 var AccessKey = global.db.AccessKey;
 var Content = global.db.Content;
 var ContentBody = global.db.ContentBody;
+var Promise = require("bluebird");
 var express = require('express');
 var router = express.Router();
 var ERROR_NOTACCESSIBLE = "ERROR_NOTACCESSIBLE";
@@ -155,17 +156,13 @@ router.post('/', function(req, res) {
 	}).then(function(content) {
 		createdContent = content;
 		if (!(req.files.imageFile && req.files.imageFile[0] && req.files.imageFile[0].buffer)) {
-			console.log("------------ --1");
 			return;
 		}
-		console.log("-------------0 ");
 		var trimmedImage;
 		return ImageTrimmer.trim(req.files.imageFile[0].buffer, 100, 100).then(function(image) {
-			console.log("-------------1 " + JSON.stringify(image));
 			trimmedImage = image;
 			return Random.createRandomBase62();
 		}).then(function(imageFileKey) {
-			console.log("-------------2 " + JSON.stringify(imageFileKey));
 			return Storage.store(imageFileKey, trimmedImage.contentType, trimmedImage.buffer);
 		});
 	}).then(function(savedImageUrl) {
@@ -195,6 +192,7 @@ router.put('/', function(req, res) {
 		res.status(404).send();
 		return;
 	}
+	var lastContentVersion;
 	var loadedAccessKey;
 	var loadedContent;
 	AccessKey.find({
@@ -215,17 +213,38 @@ router.put('/', function(req, res) {
 		if (!content || loadedAccessKey.AccountId != content.ownerId) {
 			throw ERROR_NOTACCESSIBLE;
 		}
+		lastContentVersion = content.currentVersion;
 		return content.increment("currentVersion");
 	}).then(function(content) {
 		return content.reload();
 	}).then(function(content) {
 		loadedContent = content;
+		if (!(req.files.imageFile && req.files.imageFile[0] && req.files.imageFile[0].buffer)) {
+			return ContentBody.find({
+				where : {
+					ContentId : loadedContent.id,
+					version : lastContentVersion
+				}
+			}).then(function(contentBody) {
+				return new Promise(function(onSuccess) {
+					onSuccess(contentBody.topImageUrl);
+				})
+			});
+		}
+		var trimmedImage;
+		return ImageTrimmer.trim(req.files.imageFile[0].buffer, 100, 100).then(function(image) {
+			trimmedImage = image;
+			return Random.createRandomBase62();
+		}).then(function(imageFileKey) {
+			return Storage.store(imageFileKey, trimmedImage.contentType, trimmedImage.buffer);
+		});
+	}).then(function(imageUrl) {
 		return ContentBody.create({
-			ContentId : content.id,
-			version : content.currentVersion,
+			ContentId : loadedContent.id,
+			version : loadedContent.currentVersion,
 			title : req.body.title,
 			article : req.body.article,
-			topImageUrl : req.query.topImageUrl,
+			topImageUrl : imageUrl,
 			status : req.body.status
 		});
 	}).then(function(contentBody) {

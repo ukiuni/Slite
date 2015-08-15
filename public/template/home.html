@@ -1,8 +1,8 @@
 <div style="height: 100%;">
 	<div class="row">
 		<div class="col-sm-6 col-sm-offset-3">
-			<div class="row">Home</div>
-			<div class="row">
+			<div>Home</div>
+			<div>
 				<div class="container" ng-show="myAccount">
 					<p>
 						Hi, &nbsp;<span ng-bind="myAccount.name"></span>.
@@ -13,9 +13,11 @@
 				<h2 ng-bind="messages.contents.content"></h2>
 			</div>
 			<div class="row" ng-repeat="content in myContents track by content.id">
-				<div class="contentColmun">
-					<a class="col-sm-8 col-sm-offset-1" href="/content/{{content.accessKey}}"><span ng-bind="content.ContentBodies[0].title"></span></a>
-					<button class="col-sm-2 col-sm-offset-1 btn btn-lg btn-primary" type="submit" ng-click="goto('/editContent/'+content.accessKey)">Edit</button>
+				<div class="col-xs-12 contentListColmun">
+					<div class="row">
+						<a class="contentListTitle col-sm-9 col-xs-12" href="/content/{{content.accessKey}}"><span ng-bind="content.ContentBodies[0].title"></span></a>
+						<button class="col-sm-2 col-sm-offset-1 col-xs-12 btn btn-lg btn-primary" type="submit" ng-click="goto('/editContent/'+content.accessKey)">Edit</button>
+					</div>
 				</div>
 			</div>
 		</div>
