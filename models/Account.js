@@ -1,6 +1,5 @@
 module.exports = function(sequelize, DataTypes) {
 	var Account = sequelize.define("Account", {
-		accountKey : DataTypes.TEXT,
 		mail : DataTypes.TEXT,
 		name : DataTypes.TEXT,
 		information : DataTypes.TEXT,
@@ -12,12 +11,19 @@ module.exports = function(sequelize, DataTypes) {
 		instanceMethods : {
 			sanitize : function() {
 				return {
-					accountKey : this.accountKey,
 					name : this.name,
 					iconUrl : this.iconUrl
 				}
 			}
 		}
 	});
+	Account.associate = function(sequelize) {
+		Account.hasMany(sequelize.Content, {
+			foreignKey : "ownerId"
+		});
+		Account.hasMany(sequelize.ContentBody, {
+			foreignKey : "updatorId"
+		});
+	}
 	return Account;
 };

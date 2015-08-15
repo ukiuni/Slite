@@ -10,38 +10,28 @@
 						<div class="form-group">
 							<label for="inputName" class="col-sm-2 control-label">Name</label>
 							<div class="col-sm-10">
-								<input type="text" class="form-control" id="inputName"
-									placeholder="Name" ng-model="settingAccount.name" required>
+								<input type="text" class="form-control" id="inputName" placeholder="Name" ng-model="settingAccount.name" required>
 							</div>
 						</div>
 						<div class="form-group">
 							<label for="information" class="col-sm-2 control-label">Information</label>
 							<div class="col-sm-10">
-								<textarea id="information" class="form-control" rows="3"
-									style="resize: none; width: 100%"
-									ng-model="settingAccount.information" placeholder="Information"></textarea>
+								<textarea id="information" class="form-control" rows="3" style="resize: none; width: 100%" ng-model="settingAccount.information" placeholder="Information"></textarea>
 							</div>
 						</div>
 
 						<div class="form-group">
 							<label for="information" class="col-sm-2 control-label">Image</label>
 							<div class="col-sm-10">
-								<button ngf-drop ngf-select ng-model="imageFile"
-									class="btn btn-lg btn-default btn-block drop-box"
-									ngf-drag-over-class="dragover" ngf-allow-dir="true"
-									ngf-accept="'image/jpeg,image/png,image/bmp'">
-									Image file<span ng-show="fileName">(<span
-										ng-bind="fileName"></span>)
-									</span>
-									<span ng-show="!fileName">(select JPEG or PNG)
-									</span>
+								<button ngf-drop ngf-select ng-model="imageFile" class="btn btn-lg btn-default btn-block drop-box" ngf-drag-over-class="dragover" ngf-allow-dir="true" ngf-accept="'image/jpeg,image/png,image/bmp'">
+									Image file<span ng-show="fileName">(<span ng-bind="fileName"></span>)
+									</span> <span ng-show="!fileName">(select JPEG or PNG) </span>
 									</buttoSn>
 							</div>
 						</div>
 					</div>
 					<div style="height: 10px"></div>
-					<button class="btn btn-lg btn-primary btn-block" type="submit"
-						ng-click="save()">Save</button>
+					<button class="btn btn-lg btn-primary btn-block" type="submit" ng-click="save()">Save</button>
 				</form>
 			</div>
 		</div>
