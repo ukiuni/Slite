@@ -9,14 +9,16 @@ var renderer = require('ect')({
 });
 var sendmail = require('sendmail')();
 var crypto = require('crypto');
-var Jimp = require("jimp");
+var ImageTrimmer = require(__dirname + "/../../util/imageTrimmer");
 var Storage = require(__dirname + "/../../util/storage");
+var Random = require(__dirname + "/../../util/random");
 var ERROR_NOT_ACCESSIBLE = "ERROR_NOT_ACCESSIBLE";
 router.post('/', function(req, res) {
 	if (null == req.body.name || "" == req.body.name || null == req.body.mail || "" == req.body.mail || null == req.body.password || "" == req.body.password) {
 		res.status(400).end();
 		return;
 	}
+	var createdAccount;
 	Account.find({
 		where : {
 			mail : req.body.mail
@@ -26,48 +28,40 @@ router.post('/', function(req, res) {
 			res.status(409).end();
 			return;
 		}
-		createRandomBase62(function(accountKey) {
-			Account.create({
-				name : req.body.name,
-				mail : req.body.mail,
-				accountKey : accountKey
-			}).then(function(account) {
-				var passwordHashed = hash(req.body.password);
-				AccessKey.create({
-					secret : passwordHashed,
-					type : AccessKey.TYPE_LOGIN,
-					status : AccessKey.STATUS_CREATED
-				}).then(function(loginAccessKey) {
-					return loginAccessKey.setAccount(account);
-				}).then(function() {
-					createRandomBase62(function(secret) {
-						AccessKey.create({
-							secret : secret,
-							type : AccessKey.TYPE_ACTIVATION,
-							status : AccessKey.STATUS_CREATED
-						}).then(function(accessKey) {
-							accessKey.setAccount(account).then(function() {
-								sendActivationMail(account.mail, accessKey.secret, function() {
-									res.status(424).end();
-								});
-								res.status(201).end();
-							})["catch"](function(error) {
-								console.trace(error);
-								res.status(500).json(error);
-							});
-						})["catch"](function(error) {
-							console.trace(error);
-							res.status(500).json(error);
-						});
-					})
-				})["catch"](function(error) {
-					console.trace(error);
-					res.status(500).json(error);
-				});
-			})["catch"](function(error) {
-				console.trace(error);
-				res.status(500).json(error);
+		return Random.createRandomBase62();
+	}).then(function(accountKey) {
+		return Account.create({
+			name : req.body.name,
+			mail : req.body.mail,
+			accountKey : accountKey
+		})
+	}).then(function(account) {
+		var passwordHashed = hash(req.body.password);
+		createdAccount = account;
+		return AccessKey.create({
+			secret : passwordHashed,
+			type : AccessKey.TYPE_LOGIN,
+			status : AccessKey.STATUS_CREATED
+		})
+	}).then(function(loginAccessKey) {
+		return loginAccessKey.setAccount(createdAccount);
+	}).then(function() {
+		return Random.createRandomBase62()
+	}).then(function(secret) {
+		return AccessKey.create({
+			secret : secret,
+			type : AccessKey.TYPE_ACTIVATION,
+			status : AccessKey.STATUS_CREATED
+		})
+	}).then(function(accessKey) {
+		accessKey.setAccount(createdAccount).then(function() {
+			sendActivationMail(createdAccount.mail, accessKey.secret, function() {
+				res.status(424).end();
 			});
+			res.status(201).end();
+		})["catch"](function(error) {
+			console.trace(error);
+			res.status(500).json(error);
 		});
 	})["catch"](function(error) {
 		console.trace(error);
@@ -185,7 +179,7 @@ router.get('/signin', function(req, res) {
 			if (!activationKey) {
 				res.status(400).end();
 			} else {
-				createRandomBase62(function(sessionKey) {
+				Random.createRandomBase62().then(function(sessionKey) {
 					return AccessKey.create({
 						AccountId : account.id,
 						secret : sessionKey,
@@ -213,6 +207,8 @@ router.post('/sendResetpasswordMail', function(req, res) {
 		res.status(400).end();
 		return;
 	}
+	var createdAccount;
+	var createdRandom;
 	Account.find({
 		where : {
 			mail : req.body.mail
@@ -222,24 +218,23 @@ router.post('/sendResetpasswordMail', function(req, res) {
 			res.status(400).end();
 			return;
 		}
-		createRandomBase62(function(random) {
-			AccessKey.create({
-				AccountId : account.id,
-				secret : random,
-				type : AccessKey.TYPE_RESETMAIL,
-				status : AccessKey.STATUS_CREATED
-			}).then(function(activationKey) {
-				if (!activationKey) {
-					res.status(400).end();
-				} else {
-					res.status(200).json(activationKey);
-					sendResetPasswordMail(account, random);
-				}
-			})["catch"](function(error) {
-				console.trace(error);
-				res.status(500).end();
-			});
-		});
+		createdAccount = account
+		return Random.createRandomBase62();
+	}).then(function(random) {
+		createdRandom = random;
+		return AccessKey.create({
+			AccountId : createdAccount.id,
+			secret : random,
+			type : AccessKey.TYPE_RESETMAIL,
+			status : AccessKey.STATUS_CREATED
+		})
+	}).then(function(activationKey) {
+		if (!activationKey) {
+			res.status(400).end();
+		} else {
+			res.status(200).json(activationKey);
+			sendResetPasswordMail(createdAccount, createdRandom);
+		}
 	})["catch"](function(error) {
 		console.trace(error);
 		res.status(500).end();
@@ -286,20 +281,15 @@ router.put('/', function(req, res) {
 			});
 		}
 		if (req.files.imageFile && req.files.imageFile[0] && req.files.imageFile[0].buffer) {
-			new Jimp(req.files.imageFile[0].buffer, function(error, image) {
-				if (error) {
-					res.status(422).end("parse error cant load image");
-					return;
-				}
-				image.resize(100, 100);
-				createRandomBase62(function(imageFileKey) {
-					Storage.store(imageFileKey, req.files.imageFile[0].mimetype, req.files.imageFile[0].buffer).then(function(url) {
-						saveAccount(url);
-					})["catch"](function(error) {
-						res.status(500).end();
-					})
-				});
-			});
+			ImageTrimmer.trim(req.files.imageFile[0].buffer, 100, 100).then(function() {
+				return Random.createRandomBase62();
+			}).then(function(imageFileKey) {
+				return Storage.store(imageFileKey, req.files.imageFile[0].mimetype, req.files.imageFile[0].buffer).then(function(url) {
+					saveAccount(url);
+				})
+			})["catch"](function(error) {
+				res.status(500).end();
+			})
 		} else {
 			saveAccount();
 		}
@@ -395,12 +385,6 @@ var sendResetPasswordMail = function(account, resetKey, errorFunc) {
 		if (err) {
 			errorFunc(error.stack, replay);
 		}
-	});
-}
-var createRandomBase62 = function(callbackFunc) {
-	crypto.randomBytes(48, function(ex, buf) {
-		var base62 = buf.toString('base64').replace(/\//g, '_').replace(/\+/g, '-');
-		callbackFunc(base62);
 	});
 }
 module.exports = router;

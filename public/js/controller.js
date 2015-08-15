@@ -47,6 +47,18 @@ myapp.config([ "$locationProvider", "$httpProvider", "$routeProvider", function(
 	$routeProvider.when("/passwordChanged", {
 		templateUrl : "template/passwordChangedView.html"
 	});
+	$routeProvider.when("/editContent", {
+		templateUrl : "template/editContentView.html",
+		controller : "editContentController"
+	});
+	$routeProvider.when("/editContent/:contentKey", {
+		templateUrl : "template/editContentView.html",
+		controller : "editContentController"
+	});
+	$routeProvider.when("/content/:contentKey", {
+		templateUrl : "template/contentView.html",
+		controller : "contentController"
+	});
 	$routeProvider.when("/signout", {
 		templateUrl : "template/signouted.html"
 	});
@@ -70,6 +82,9 @@ myapp.run([ "$rootScope", "$location", "$resource", "$cookies", function($rootSc
 	};
 	$rootScope.toHome = function() {
 		$location.path("/signin");
+	};
+	$rootScope["goto"] = function(url) {
+		$location.path(url);
 	};
 	var SESSION_KEY = "session_key"
 	$rootScope.setSessionKey = function(sessionKey, expires) {
@@ -274,16 +289,96 @@ var editProfileController = [ "$rootScope", "$scope", "$resource", "$location", 
 			sendFieldsAs : "form",
 			method : "PUT"
 		}).success(function(account) {
+			$rootScope.myAccount = account;
 			$location.path("/home");
 		}).error(function(error) {
 			$rootScope.showError($rootScope.messages.error.withServer);
 		});
 	}
 } ];
+var editContentController = [ "$rootScope", "$scope", "$resource", "$location", "$http", "Upload", "$routeParams", function($rootScope, $scope, $resource, $location, $http, $uploader, $routeParams) {
+	if (!$rootScope.myAccount) {
+		$location.path("/home");
+		return;
+	}
+	$scope.statuses = [ {
+		message : $rootScope.messages.contents.open,
+		keyNumber : 1
+	}, {
+		message : $rootScope.messages.contents.hidden,
+		keyNumber : 2
+	}, {
+		message : $rootScope.messages.contents.urlAccess,
+		keyNumber : 3
+	}, {
+		message : $rootScope.messages.contents.authenticated,
+		keyNumber : 4
+	} ];
+	if ($routeParams.contentKey) {
+		$resource('/api/content/:contentKey?sessionKey=:sessionKey').get({
+			contentKey : $routeParams.contentKey,
+			sessionKey : $rootScope.getSessionKey()
+		}, function(content) {
+			$scope.editingContent = {}
+			$scope.editingContent.status = $scope.statuses[content.ContentBodies[0].status - 1];
+			$scope.editingContent.contentKey = content.accessKey
+			$scope.editingContent.title = content.ContentBodies[0].title
+			$scope.editingContent.article = content.ContentBodies[0].article
+		}, function(error) {
+			$rootScope.showError($rootScope.messages.error.withServer);
+		});
+	} else {
+		$scope.editingContent = {}
+		$scope.editingContent.status = $scope.statuses[0];
+		$scope.editingContent.title
+		$scope.editingContent.article
+	}
+	$scope.$watch('editingContent.contentImageFile', function() {
+		if ($scope.editingContent && $scope.editingContent.contentImageFile) {
+			$scope.fileName = $scope.editingContent.contentImageFile.name;
+		}
+	});
+	$scope.save = function() {
+		$uploader.upload({
+			url : '/api/content',
+			fields : {
+				title : $scope.editingContent.title,
+				article : $scope.editingContent.article,
+				contentKey : $scope.editingContent.contentKey,
+				sessionKey : $rootScope.sessionKey,
+				status : $scope.editingContent.status.keyNumber
+			},
+			file : $scope.editingContent.contentImageFile,
+			fileFormDataName : "imageFile",
+			sendFieldsAs : "form",
+			method : $scope.editingContent.contentKey ? "PUT" : "POST"
+		}).success(function(account) {
+			$location.path("/home");
+		}).error(function(error) {
+			$rootScope.showError($rootScope.messages.error.withServer);
+		});
+	}
+} ];
+var contentController = [ "$rootScope", "$scope", "$resource", "$location", "$http", "$routeParams", function($rootScope, $scope, $resource, $location, $http, $routeParams) {
+	$resource('/api/content/:contentKey?sessionKey=:sessionKey').get({
+		contentKey : $routeParams.contentKey,
+		sessionKey : $rootScope.getSessionKey()
+	}, function(content) {
+		$scope.content = content;
+	}, function(error) {
+	});
+} ];
 var homeController = [ "$rootScope", "$scope", "$resource", "$location", "$http", function($rootScope, $scope, $resource, $location, $http) {
 	if (!$rootScope.myAccount) {
 		$location.path("/signin");
+		return;
 	}
+	$resource('/api/content/?sessionKey=:sessionKey').get({
+		sessionKey : $rootScope.sessionKey
+	}, function(response) {
+		$scope.myContents = response.contents;
+	}, function(error) {
+	});
 } ];
 myapp.controller('indexController', indexController);
 myapp.controller('activationController', activationController);
@@ -292,4 +387,6 @@ myapp.controller('requestResetPasswordController', requestResetPasswordControlle
 myapp.controller('resetPasswordController', resetPasswordController);
 myapp.controller('editProfileController', editProfileController);
 myapp.controller('changePasswordController', changePasswordController);
+myapp.controller('editContentController', editContentController);
+myapp.controller('contentController', contentController);
 myapp.controller('homeController', homeController);

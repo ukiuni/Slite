@@ -6,6 +6,13 @@
 		"app" : {
 			"title" : "Slite" 
 		},
+		"contents" : {
+			"content" : "content",
+			"open" : "open",
+			"hidden" : "hidden",
+			"urlAccess" : "URL access",
+			"authenticated" : "Authenticated Only"
+		},
 		"error" : {
 			"withServer" : "Something happen with Server, please try again later."
 		}
@@ -16,6 +23,13 @@
 		},
 		"app" : {
 			"title" : "Slite" 
+		},
+		"contents" : {
+			"content" : "自分の投稿",
+			"open" : "公開",
+			"hidden" : "非公開",
+			"urlAccess" : "URLアクセス",
+			"authenticated" : "許可されたユーザのみ"
 		},
 		"error" : {
 			"withServer" : "サーバーとの通信で問題が発生しました。後ほど再実行してください。"

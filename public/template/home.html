@@ -4,7 +4,18 @@
 			<div class="row">Home</div>
 			<div class="row">
 				<div class="container" ng-show="myAccount">
-					<p>Hi, &nbsp;<span ng-bind="myAccount.name"></span>.</p>
+					<p>
+						Hi, &nbsp;<span ng-bind="myAccount.name"></span>.
+					</p>
+				</div>
+			</div>
+			<div>
+				<h2 ng-bind="messages.contents.content"></h2>
+			</div>
+			<div class="row" ng-repeat="content in myContents track by content.id">
+				<div class="contentColmun">
+					<a class="col-sm-8 col-sm-offset-1" href="/content/{{content.accessKey}}"><span ng-bind="content.ContentBodies[0].title"></span></a>
+					<button class="col-sm-2 col-sm-offset-1 btn btn-lg btn-primary" type="submit" ng-click="goto('/editContent/'+content.accessKey)">Edit</button>
 				</div>
 			</div>
 		</div>
