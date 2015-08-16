@@ -113,8 +113,6 @@ router.get('/:contentKey', function(req, res) {
 			});
 		}
 	})["catch"](function(error) {
-		// console.trace(error);
-		throw error
 		if (error == ERROR_NOTACCESSIBLE) {
 			res.status(403).end();
 			return;
