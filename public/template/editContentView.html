@@ -19,7 +19,7 @@
 					</div>
 				</div>
 				<div class="row" align="center">
-					<span ng-bind="content.owner.name" style="width: 100px; text-align: left"></span> <img ng-src="{{content.owner.iconUrl}}" style="height: 80px; margin-top: -40px" class="img-circle"> <span ng-bind="content.updatedAt | date:'yyyy-MM-dd'"></span>
+					<span ng-bind="myAccount.name" style="width: 100px; text-align: left"></span> <img ng-src="{{myAccount.iconUrl}}" style="height: 80px; margin-top: -40px" class="img-circle"> <span ng-bind="currentTime | date:'yyyy-MM-dd'"></span>
 				</div>
 				<div class="row">
 					<textarea rows="30" id="article" class="article" ng-model="editingContent.article" placeholder="Article"></textarea>

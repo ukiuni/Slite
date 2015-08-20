@@ -339,6 +339,7 @@ var editContentController = [ "$rootScope", "$scope", "$resource", "$location", 
 			}
 		});
 	}
+	$scope.currentTime = new Date().getTime();
 	if ($routeParams.contentKey) {
 		$resource('/api/content/:contentKey?sessionKey=:sessionKey').get({
 			contentKey : $routeParams.contentKey,
