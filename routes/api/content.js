@@ -6,6 +6,7 @@ var Promise = require("bluebird");
 var express = require('express');
 var router = express.Router();
 var ERROR_NOTACCESSIBLE = "ERROR_NOTACCESSIBLE";
+var ERROR_NOTFOUND = "ERROR_NOTFOUND";
 var Random = require(__dirname + "/../../util/random");
 var ImageTrimmer = require(__dirname + "/../../util/imageTrimmer");
 var Storage = require(__dirname + "/../../util/storage");
@@ -27,7 +28,6 @@ function FindContentCriteria() {
 	this.order = [ [ "updatedAt", "DESC" ] ]
 }
 router.get('/', function(req, res) {
-	console.log("rootGetAccessed");
 	var accessKey = req.query.sessionKey || req.query.access_token;
 	if (accessKey) {
 		AccessKey.find({
@@ -82,13 +82,13 @@ router.get('/:contentKey', function(req, res) {
 	delete findContentCriteria.include[0].attributes;
 	Content.find(findContentCriteria).then(function(content) {
 		if (!content) {
-			throw ERROR_NOTACCESSIBLE;
+			throw ERROR_NOTFOUND;
 		}
-		if (ContentBody.STATUS_AUTHENTICATEDONLY != content.ContentBodies[0].type) {
+		if (ContentBody.STATUS_OPEN == content.ContentBodies[0].type || ContentBody.STATUS_URLACCESS == content.ContentBodies[0].type) {
 			res.status(200).json(content);
 			return;
 		} else {
-			var accessKey = req.params.sessiontKey || req.params.auth_token;
+			var accessKey = req.query.sessionKey || req.query.auth_token;
 			AccessKey.find({
 				where : {
 					secret : accessKey
@@ -96,6 +96,11 @@ router.get('/:contentKey', function(req, res) {
 			}).then(function(accessKey) {
 				if (!accessKey) {
 					throw ERROR_NOTACCESSIBLE;
+				}
+				if (accessKey.AccountId == content.ownerId) {
+					return new Promise(function(success) {
+						success("accessible");
+					});
 				}
 				return content.isAccessible(accessKey.AccountId);
 			}).then(function(accessible) {
@@ -115,9 +120,11 @@ router.get('/:contentKey', function(req, res) {
 	})["catch"](function(error) {
 		if (error == ERROR_NOTACCESSIBLE) {
 			res.status(403).end();
-			return;
+		} else if (error == ERROR_NOTFOUND) {
+			res.status(404).end();
+		} else {
+			res.status(500).end();
 		}
-		res.status(500).end();
 	});
 });
 router.post('/', function(req, res) {
@@ -217,32 +224,12 @@ router.put('/', function(req, res) {
 		return content.reload();
 	}).then(function(content) {
 		loadedContent = content;
-		if (!(req.files.imageFile && req.files.imageFile[0] && req.files.imageFile[0].buffer)) {
-			return ContentBody.find({
-				where : {
-					ContentId : loadedContent.id,
-					version : lastContentVersion
-				}
-			}).then(function(contentBody) {
-				return new Promise(function(onSuccess) {
-					onSuccess(contentBody.topImageUrl);
-				})
-			});
-		}
-		var trimmedImage;
-		return ImageTrimmer.trim(req.files.imageFile[0].buffer, 100, 100).then(function(image) {
-			trimmedImage = image;
-			return Random.createRandomBase62();
-		}).then(function(imageFileKey) {
-			return Storage.store(imageFileKey, trimmedImage.contentType, trimmedImage.buffer);
-		});
-	}).then(function(imageUrl) {
 		return ContentBody.create({
 			ContentId : loadedContent.id,
 			version : loadedContent.currentVersion,
 			title : req.body.title,
 			article : req.body.article,
-			topImageUrl : imageUrl,
+			topImageUrl : req.body.topImageUrl,
 			status : req.body.status
 		});
 	}).then(function(contentBody) {

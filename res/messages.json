@@ -14,7 +14,9 @@
 			"authenticated" : "Authenticated Only"
 		},
 		"error" : {
-			"withServer" : "Something happen with Server, please try again later."
+			"withServer" : "Something happen with Server, please try again later.",
+			"notAccessible" : "Can't access to this resource",
+			"notFound" : "This resource is not fouded."
 		}
 	},
 	"ja" : {
@@ -32,7 +34,9 @@
 			"authenticated" : "許可されたユーザのみ"
 		},
 		"error" : {
-			"withServer" : "サーバーとの通信で問題が発生しました。後ほど再実行してください。"
+			"withServer" : "サーバーとの通信で問題が発生しました。後ほど再実行してください。",
+			"notAccessible" : "アクセスできませんでした。",
+			"notFound" : "ページがみつかりません。"
 		}
 	}
 }

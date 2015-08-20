@@ -314,6 +314,31 @@ var editContentController = [ "$rootScope", "$scope", "$resource", "$location", 
 		message : $rootScope.messages.contents.authenticated,
 		keyNumber : 4
 	} ];
+	$scope.save = function(func, successCallback, errorCallback) {
+		if (!func) {
+			func = put;
+		}
+		func($http, '/api/content', {
+			title : $scope.editingContent.title,
+			article : $scope.editingContent.article,
+			contentKey : $scope.editingContent.contentKey,
+			sessionKey : $rootScope.sessionKey,
+			status : $scope.editingContent.status.keyNumber,
+			topImageUrl : $scope.editingContent.topImageUrl
+		}).success(function(account) {
+			if (successCallback) {
+				successCallback(content);
+			} else {
+				$location.path("/home");
+			}
+		}).error(function(error) {
+			if (errorCallback) {
+				errorCallback();
+			} else {
+				$rootScope.showError($rootScope.messages.error.withServer);
+			}
+		});
+	}
 	if ($routeParams.contentKey) {
 		$resource('/api/content/:contentKey?sessionKey=:sessionKey').get({
 			contentKey : $routeParams.contentKey,
@@ -321,43 +346,39 @@ var editContentController = [ "$rootScope", "$scope", "$resource", "$location", 
 		}, function(content) {
 			$scope.editingContent = {}
 			$scope.editingContent.status = $scope.statuses[content.ContentBodies[0].status - 1];
-			$scope.editingContent.contentKey = content.accessKey
-			$scope.editingContent.title = content.ContentBodies[0].title
-			$scope.editingContent.article = content.ContentBodies[0].article
+			$scope.editingContent.contentKey = content.accessKey;
+			$scope.editingContent.title = content.ContentBodies[0].title;
+			$scope.editingContent.article = content.ContentBodies[0].article;
+			$scope.editingContent.topImageUrl = content.ContentBodies[0].topImageUrl;
 		}, function(error) {
 			$rootScope.showError($rootScope.messages.error.withServer);
 		});
 	} else {
 		$scope.editingContent = {}
-		$scope.editingContent.status = $scope.statuses[0];
-		$scope.editingContent.title
-		$scope.editingContent.article
+		$scope.editingContent.status = $scope.statuses[0]
+		$scope.save(post, function(content) {
+			$scope.editingContent.contentKey = content.accessKey
+		});
 	}
 	$scope.$watch('editingContent.contentImageFile', function() {
 		if ($scope.editingContent && $scope.editingContent.contentImageFile) {
 			$scope.fileName = $scope.editingContent.contentImageFile.name;
+			$uploader.upload({
+				url : '/api/image/' + $scope.editingContent.contentKey,
+				fields : {
+					sessionKey : $rootScope.sessionKey
+				},
+				file : $scope.editingContent.contentImageFile,
+				fileFormDataName : "imageFile",
+				sendFieldsAs : "form",
+				method : "POST"
+			}).success(function(response) {
+				$scope.editingContent.topImageUrl = response.url;
+			}).error(function(error) {
+				$rootScope.showError($rootScope.messages.error.withServer);
+			});
 		}
 	});
-	$scope.save = function() {
-		$uploader.upload({
-			url : '/api/content',
-			fields : {
-				title : $scope.editingContent.title,
-				article : $scope.editingContent.article,
-				contentKey : $scope.editingContent.contentKey,
-				sessionKey : $rootScope.sessionKey,
-				status : $scope.editingContent.status.keyNumber
-			},
-			file : $scope.editingContent.contentImageFile,
-			fileFormDataName : "imageFile",
-			sendFieldsAs : "form",
-			method : $scope.editingContent.contentKey ? "PUT" : "POST"
-		}).success(function(account) {
-			$location.path("/home");
-		}).error(function(error) {
-			$rootScope.showError($rootScope.messages.error.withServer);
-		});
-	}
 } ];
 var contentController = [ "$rootScope", "$scope", "$resource", "$location", "$http", "$routeParams", function($rootScope, $scope, $resource, $location, $http, $routeParams) {
 	$resource('/api/content/:contentKey?sessionKey=:sessionKey').get({
@@ -366,6 +387,13 @@ var contentController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 	}, function(content) {
 		$scope.content = content;
 	}, function(error) {
+		if (403 == error.status) {
+			$rootScope.showError($rootScope.messages.error.notAccessible);
+		} else if (404 == error.status) {
+			$rootScope.showError($rootScope.messages.error.notFound);
+		} else {
+			$rootScope.showError($rootScope.messages.error.withServer);
+		}
 	});
 } ];
 var homeController = [ "$rootScope", "$scope", "$resource", "$location", "$http", function($rootScope, $scope, $resource, $location, $http) {

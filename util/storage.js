@@ -20,6 +20,16 @@ try {
 module.exports = {
 	store : function(key, contentType, data) {
 		return new Promise(function(onFulfilled, onRejected) {
+			if (key.indexOf("/") > 0) {
+				try {
+					fs.mkdirSync(path.join(__dirname, STORAGE_PATH, key.split("/")[0]));
+				} catch (ignored) {
+				}
+				try {
+					fs.mkdirSync(path.join(__dirname, STORAGE_CONTENTTYPE_PATH, key.split("/")[0]));
+				} catch (ignored) {
+				}
+			}
 			fs.writeFile(path.join(__dirname, STORAGE_PATH, key), data, function() {
 				fs.writeFile(path.join(__dirname, STORAGE_CONTENTTYPE_PATH, key), contentType, {
 					encoding : "utf8"
