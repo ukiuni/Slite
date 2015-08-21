@@ -15,7 +15,11 @@
 			<div class="row" ng-repeat="content in myContents track by content.id">
 				<div class="col-xs-12 contentListColmun">
 					<div class="row">
-						<a class="contentListTitle col-sm-9 col-xs-12" href="/content/{{content.accessKey}}"><span ng-bind="content.ContentBodies[0].title"></span></a>
+						<a class="contentListTitle col-sm-7 col-xs-12" href="/content/{{content.accessKey}}"><span ng-bind="content.ContentBodies[0].title"></span></a>
+						<div class="col-sm-2 col-xs-12">
+							<span class="contentListStatus row" ng-bind="statuses[content.ContentBodies[0].status - 1].message"></span>
+							<span class="contentListStatus row" ng-bind="content.updatedAt | date:'yyyy-MM-dd'"></span>
+						</div>
 						<button class="col-sm-2 col-sm-offset-1 col-xs-12 btn btn-lg btn-primary" type="submit" ng-click="goto('/editContent/'+content.accessKey)">Edit</button>
 					</div>
 				</div>

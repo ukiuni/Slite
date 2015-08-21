@@ -71,6 +71,19 @@ myapp.run([ "$rootScope", "$location", "$resource", "$cookies", function($rootSc
 		lang : ((navigator.languages && navigator.languages[0]) || navigator.browserLanguage || navigator.language || navigator.userLanguage).substr(0, 2)
 	}, function(messages) {
 		$rootScope.messages = messages;
+		$rootScope.statuses = [ {
+			message : $rootScope.messages.contents.open,
+			keyNumber : 1
+		}, {
+			message : $rootScope.messages.contents.hidden,
+			keyNumber : 2
+		}, {
+			message : $rootScope.messages.contents.urlAccess,
+			keyNumber : 3
+		}, {
+			message : $rootScope.messages.contents.authenticated,
+			keyNumber : 4
+		} ];
 	}, function() {
 		$rootScope.showError("Fail to load message resource.");
 	});
@@ -296,24 +309,12 @@ var editProfileController = [ "$rootScope", "$scope", "$resource", "$location", 
 		});
 	}
 } ];
+
 var editContentController = [ "$rootScope", "$scope", "$resource", "$location", "$http", "Upload", "$routeParams", function($rootScope, $scope, $resource, $location, $http, $uploader, $routeParams) {
 	if (!$rootScope.myAccount) {
 		$location.path("/home");
 		return;
 	}
-	$scope.statuses = [ {
-		message : $rootScope.messages.contents.open,
-		keyNumber : 1
-	}, {
-		message : $rootScope.messages.contents.hidden,
-		keyNumber : 2
-	}, {
-		message : $rootScope.messages.contents.urlAccess,
-		keyNumber : 3
-	}, {
-		message : $rootScope.messages.contents.authenticated,
-		keyNumber : 4
-	} ];
 	$scope.save = function(func, successCallback, errorCallback) {
 		if (!func) {
 			func = put;
@@ -346,7 +347,7 @@ var editContentController = [ "$rootScope", "$scope", "$resource", "$location", 
 			sessionKey : $rootScope.getSessionKey()
 		}, function(content) {
 			$scope.editingContent = {}
-			$scope.editingContent.status = $scope.statuses[content.ContentBodies[0].status - 1];
+			$scope.editingContent.status = $rootScope.statuses[content.ContentBodies[0].status - 1];
 			$scope.editingContent.contentKey = content.accessKey;
 			$scope.editingContent.title = content.ContentBodies[0].title;
 			$scope.editingContent.article = content.ContentBodies[0].article;
@@ -356,7 +357,7 @@ var editContentController = [ "$rootScope", "$scope", "$resource", "$location", 
 		});
 	} else {
 		$scope.editingContent = {}
-		$scope.editingContent.status = $scope.statuses[0]
+		$scope.editingContent.status = $rootScope.statuses[0]
 		$scope.save(post, function(content) {
 			$scope.editingContent.contentKey = content.accessKey
 		});
