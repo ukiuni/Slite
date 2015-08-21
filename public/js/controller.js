@@ -309,7 +309,6 @@ var editProfileController = [ "$rootScope", "$scope", "$resource", "$location", 
 		});
 	}
 } ];
-
 var editContentController = [ "$rootScope", "$scope", "$resource", "$location", "$http", "Upload", "$routeParams", function($rootScope, $scope, $resource, $location, $http, $uploader, $routeParams) {
 	if (!$rootScope.myAccount) {
 		$location.path("/home");
@@ -326,7 +325,7 @@ var editContentController = [ "$rootScope", "$scope", "$resource", "$location", 
 			sessionKey : $rootScope.sessionKey,
 			status : $scope.editingContent.status.keyNumber,
 			topImageUrl : $scope.editingContent.topImageUrl
-		}).success(function(account) {
+		}).success(function(content) {
 			if (successCallback) {
 				successCallback(content);
 			} else {
@@ -359,7 +358,7 @@ var editContentController = [ "$rootScope", "$scope", "$resource", "$location", 
 		$scope.editingContent = {}
 		$scope.editingContent.status = $rootScope.statuses[0]
 		$scope.save(post, function(content) {
-			$scope.editingContent.contentKey = content.accessKey
+			$scope.editingContent.contentKey = content.accessKey;
 		});
 	}
 	$scope.$watch('editingContent.contentImageFile', function() {

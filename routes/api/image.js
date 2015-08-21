@@ -75,7 +75,7 @@ router.get('/:contentKey/:imageKey', function(req, res) {
 			res.status(200).send(data.buffer);
 		})
 	})["catch"](function(error) {
-		console.trace(error);
+		console.log(error);
 		res.status(404).send();
 	});
 });

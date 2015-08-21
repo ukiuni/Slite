@@ -109,7 +109,7 @@ router.get('/:contentKey', function(req, res) {
 				}
 				res.status(200).json(content);
 			})["catch"](function(error) {
-				console.trace(error);
+				console.log(error.stack);
 				if (error == ERROR_NOTACCESSIBLE) {
 					res.status(403).end();
 					return;
@@ -160,31 +160,20 @@ router.post('/', function(req, res) {
 		});
 	}).then(function(content) {
 		createdContent = content;
-		if (!(req.files.imageFile && req.files.imageFile[0] && req.files.imageFile[0].buffer)) {
-			return;
-		}
-		var trimmedImage;
-		return ImageTrimmer.trim(req.files.imageFile[0].buffer, 100, 100).then(function(image) {
-			trimmedImage = image;
-			return Random.createRandomBase62();
-		}).then(function(imageFileKey) {
-			return Storage.store(imageFileKey, trimmedImage.contentType, trimmedImage.buffer);
-		});
-	}).then(function(savedImageUrl) {
 		return ContentBody.create({
 			ContentId : createdContent.id,
 			updatorId : accessAccount.id,
 			version : createdContent.currentVersion,
 			title : req.body.title,
 			article : req.body.article,
-			topImageUrl : savedImageUrl,
+			topImageUrl : req.body.topImageUrl,
 			status : req.body.status ? parseInt(req.body.status) : Content.STATUS_OPEN
 		});
 	}).then(function(contentBody) {
 		createdContent.body = contentBody;
 		res.status(201).json(createdContent);
 	})["catch"](function(error) {
-		console.trace(error)
+		console.log(error.stack);
 		if (ERROR_NOTACCESSIBLE == error) {
 			res.status(403).end();
 		} else {
@@ -236,7 +225,7 @@ router.put('/', function(req, res) {
 		loadedContent.body = contentBody;
 		res.status(201).json(loadedContent);
 	})["catch"](function(error) {
-		console.trace(error);
+		console.log(error.stack);
 		if (ERROR_NOTACCESSIBLE == error) {
 			res.status(403).end();
 		} else {
