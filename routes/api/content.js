@@ -31,7 +31,9 @@ router.get('/', function(req, res) {
 	var accessKey = req.query.sessionKey || req.query.access_token;
 	if (accessKey) {
 		AccessKey.find({
-			secret : accessKey
+			where : {
+				secret : accessKey
+			}
 		}).then(function(accessKey) {
 			if (!accessKey) {
 				throw ERROR_NOTACCESSIBLE;
