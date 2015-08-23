@@ -5,21 +5,13 @@
 		</div>
 		<div class="row">
 			<form class="form-signin">
-				<label for="inputEmail" class="sr-only">Email address</label> <input
-					type="email" id="inputEmail" class="form-control"
-					placeholder="Email address" required autofocus
-					ng-model="signinAccount.mail"> <label for="inputPassword"
-					class="sr-only">Password</label> <input type="password"
-					id="inputPassword" class="form-control" placeholder="Password"
-					required ng-model="signinAccount.password">
+				<label for="inputEmail" class="sr-only">Email address</label> <input type="email" id="inputMail" class="form-control" placeholder="Email address" required autofocus ng-model="signinAccount.mail"> <label for="inputPassword" class="sr-only">Password</label> <input type="password" id="inputPassword" class="form-control" placeholder="Password" required ng-model="signinAccount.password">
 				<div class="checkbox">
-					<label> <input type="checkbox" value="remember-me"
-						ng-model="persist"> Remember me
+					<label> <input type="checkbox" value="remember-me" ng-model="persist"> Remember me
 					</label>
 				</div>
 				<a href="/requestResetPassword">Forget password?</a>
-				<button class="btn btn-lg btn-primary btn-block" type="submit"
-					ng-click="signin()">Sign in</button>
+				<button class="btn btn-lg btn-primary btn-block" type="submit" id="signinButton" ng-click="signin()">Sign in</button>
 			</form>
 		</div>
 	</div>

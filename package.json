@@ -24,6 +24,9 @@
     "sqlite3": "^3.0.5"
   },
   "devDependencies": {
-    "node-dev": "^2.6.2"
+    "chromedriver": "^2.16.0",
+    "nightwatch": "^0.7.11",
+    "node-dev": "^2.6.2",
+    "selenium-standalone": "^4.5.3"
   }
 }
