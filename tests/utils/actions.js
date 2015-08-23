@@ -36,6 +36,6 @@ module.exports = {
 		client.click("div > div > a > span");
 		client.waitForElementVisible("h2", 1000);
 		client.assert.containsText("h2", contentTitle);
-		
+		client.assert.containsText("div > div > div > p", article);
 	}
 }
