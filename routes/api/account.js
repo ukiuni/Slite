@@ -30,10 +30,12 @@ router.post('/', function(req, res) {
 		}
 		return Random.createRandomBase62();
 	}).then(function(accountKey) {
+		var iconUrl = serverConfig.hostURL + "/images/icons." + (Date.now() % 3 + 1) + ".png"
 		return Account.create({
 			name : req.body.name,
 			mail : req.body.mail,
-			accountKey : accountKey
+			accountKey : accountKey,
+			iconUrl : iconUrl
 		})
 	}).then(function(account) {
 		var passwordHashed = hash(req.body.password);

@@ -24,6 +24,12 @@ module.exports = function(sequelize, DataTypes) {
 		Account.hasMany(sequelize.ContentBody, {
 			foreignKey : "updatorId"
 		});
+		Account.hasMany(sequelize.ContentComment, {
+			foreignKey : "ownerId"
+		});
+		Account.hasMany(sequelize.ContentCommentMessage, {
+			foreignKey : "updatorId"
+		});
 	}
 	return Account;
 };

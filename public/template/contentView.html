@@ -16,6 +16,22 @@
 				<div class="row">
 					<p id="article" class="article" ng-bind="content.ContentBodies[0].article"></p>
 				</div>
+				<div id="commentArea" style="background-color: #F8F8F8; padding: 10px">
+					<div class="row" ng-repeat="comment in comments track by comment.id" style="border: solid 1px #EEE; margin: 5px">
+						<img class="col-xs-1 img-circle" ng-src="{{comment.owner.iconUrl}}" />
+						<div class="col-xs-10">
+							<div class="col-xs-12" style="white-space: pre" ng-bind="comment.owner.name"></div>
+							<div class="col-xs-12" style="white-space: pre" ng-bind="comment.ContentCommentMessages[0].message"></div>
+						</div>
+					</div>
+					<div class="row">
+						<img ng-show="myAccount.iconUrl" class="col-xs-1 img-circle" ng-src="{{myAccount.iconUrl}}" />
+						<textarea ng-model="newComment.message" class="col-xs-10" placeholder="{{messages.contents.comment}}" rows="4"></textarea>
+						<div class="col-xs-3 col-xs-offset-8">
+							<button class="btn btn-lg btn-primary btn-block" ng-bind="messages.contents.comment" ng-click="comment()"></button>
+						</div>
+					</div>
+				</div>
 			</div>
 		</div>
 	</div>

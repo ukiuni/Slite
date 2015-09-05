@@ -396,6 +396,36 @@ var contentController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 			$rootScope.showError($rootScope.messages.error.withServer);
 		}
 	});
+	$resource('/api/content/comment/:contentKey?sessionKey=:sessionKey').get({
+		contentKey : $routeParams.contentKey,
+		sessionKey : $rootScope.getSessionKey()
+	}, function(response) {
+		$scope.comments = response.comments;
+	}, function(error) {
+		if (403 == error.status) {
+			$rootScope.showError($rootScope.messages.error.notAccessible);
+		} else if (404 == error.status) {
+			$rootScope.showError($rootScope.messages.error.notFound);
+		} else {
+			$rootScope.showError($rootScope.messages.error.withServer);
+		}
+	});
+	$scope.newComment = {};
+	$scope.comment = function() {
+		if (!$scope.newComment) {
+			return;
+		}
+		post($http, '/api/content/comment', {
+			contentKey : $routeParams.contentKey,
+			sessionKey : $rootScope.getSessionKey(),
+			message : $scope.newComment.message
+		}).success(function(data, status, headers, config) {
+			$scope.comments.push(data);
+			$scope.newComment = {};
+		}).error(function(data, status, headers, config) {
+			$rootScope.showError($rootScope.messages.contents.failToComment);
+		});
+	}
 } ];
 var homeController = [ "$rootScope", "$scope", "$resource", "$location", "$http", function($rootScope, $scope, $resource, $location, $http) {
 	if (!$rootScope.myAccount) {

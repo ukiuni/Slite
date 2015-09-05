@@ -21,6 +21,9 @@ module.exports = function(sequelize, DataTypes) {
 			as : 'owner'
 		});
 		Content.hasMany(sequelize.ContentBody);
+		Content.hasMany(sequelize.ContentComment, {
+			as : "comment"
+		});
 	}
 	return Content;
 };

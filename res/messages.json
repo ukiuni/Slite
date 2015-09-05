@@ -11,7 +11,9 @@
 			"open" : "open",
 			"hidden" : "hidden",
 			"urlAccess" : "URL access",
-			"authenticated" : "Authenticated Only"
+			"authenticated" : "Authenticated Only",
+			"comment":"comment",
+			"failToComment" : "Fail to comment"
 		},
 		"error" : {
 			"withServer" : "Something happen with Server, please try again later.",
@@ -31,7 +33,9 @@
 			"open" : "公開",
 			"hidden" : "非公開",
 			"urlAccess" : "URLアクセス",
-			"authenticated" : "許可されたユーザのみ"
+			"authenticated" : "許可されたユーザのみ",
+			"comment" : "コメント",
+			"failToComment" : "コメントに失敗しました。"
 		},
 		"error" : {
 			"withServer" : "サーバーとの通信で問題が発生しました。後ほど再実行してください。",

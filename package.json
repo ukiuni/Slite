@@ -3,7 +3,10 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "testReady" : "./node_modules/selenium-standalone/bin/selenium-standalone start &",
+    "test" : "./node_modules/nightwatch/bin/nightwatch -t tests/test*.js",
+    "main" : "./index.js",
+    "devMain : "./node_modules/node-dev/bin/node-dev index.js"
   },
   "author": "ukiuni",
   "license": "ASL2.0",
