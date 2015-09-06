@@ -412,7 +412,7 @@ var contentController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 	});
 	$scope.newComment = {};
 	$scope.comment = function() {
-		if (!$scope.newComment) {
+		if (!$scope.newComment || null == $scope.newComment.message || "" == $scope.newComment.message) {
 			return;
 		}
 		post($http, '/api/content/comment', {

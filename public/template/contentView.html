@@ -20,8 +20,8 @@
 					<div class="row" ng-repeat="comment in comments track by comment.id" style="border: solid 1px #EEE; margin: 5px">
 						<img class="col-xs-1 img-circle" ng-src="{{comment.owner.iconUrl}}" />
 						<div class="col-xs-10">
-							<div class="col-xs-12" style="white-space: pre" ng-bind="comment.owner.name"></div>
-							<div class="col-xs-12" style="white-space: pre" ng-bind="comment.ContentCommentMessages[0].message"></div>
+							<div class="col-xs-12 commentName" style="white-space: pre" ng-bind="comment.owner.name"></div>
+							<div class="col-xs-12 commentMessage" style="white-space: pre" ng-bind="comment.ContentCommentMessages[0].message"></div>
 						</div>
 					</div>
 					<div class="row">

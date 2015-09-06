@@ -1,6 +1,13 @@
 var url = 'http://localhost:3030';
 module.exports = {
-	createAccountAndSignin : function(client) {
+	signout : function(client) {
+		client.click('a.dropdown-toggle');
+		client.waitForElementVisible('#signoutButton', 1000);
+		client.click('#signoutButton');
+		client.waitForElementVisible('#createAccountButton', 1000);
+		client.assert.containsText("h1", "Signout");
+	},
+	createAccountAndSignin : function(client, done) {
 		var accountRandom = new Date().getTime();
 		client.url(url);
 		client.waitForElementVisible('body', 1000);
@@ -19,8 +26,16 @@ module.exports = {
 		client.click('#signinButton');
 		client.pause(1000);
 		client.assert.containsText("p", "Hi");
+		return {
+			name : 'testAccount' + accountRandom,
+			mail : 'testAccount' + accountRandom + "@example.com",
+			password : accountRandom
+		}
+		if (done) {
+			done();
+		}
 	},
-	createContentAndCheckExists : function(client) {
+	createContentAndCheckExists : function(client, done) {
 		var contentRandom = new Date().getTime();
 		var contentTitle = "contentTitle" + contentRandom;
 		var article = "article" + contentRandom;
@@ -30,12 +45,32 @@ module.exports = {
 		client.waitForElementVisible('#contentTitle', 1000);
 		client.setValue('#contentTitle', contentTitle);
 		client.setValue('#article', article);
+		client.click('select');
+		client.waitForElementVisible('option:first-child', 1000);
+		client.click('option:first-child');
 		client.click('.btn-primary');
 		client.waitForElementVisible("div > div > a > span", 1000);
 		client.assert.containsText("div > div > a > span", contentTitle);
-		client.click("div > div > a > span");
-		client.waitForElementVisible("h2", 1000);
-		client.assert.containsText("h2", contentTitle);
-		client.assert.containsText("div > div > div > p", article);
+		client.getAttribute(".contentListTitle", "href", function(result) {
+			client.click("div > div > a > span");
+			client.waitForElementVisible("h2", 1000);
+			client.assert.containsText("h2", contentTitle);
+			client.assert.containsText("div > div > div > p", article);
+			if (done) {
+				done(result.value);
+			}
+		});
+	},
+	createContentAndCheckExistsAndComment : function(client, contentUrl, comment) {
+		var contentRandom = new Date().getTime();
+		var contentComment = "contentComment" + contentRandom;
+		var article = "article" + contentRandom;
+		client.url(contentUrl);
+		client.waitForElementVisible('textarea', 1000);
+		client.setValue('textarea', contentComment);
+		client.click('.btn-primary');
+		client.waitForElementVisible(".commentName", 1000);
+		client.assert.containsText(".commentName", comment.account.name);
+		client.assert.containsText(".commentMessage", contentComment);
 	}
 }

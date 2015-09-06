@@ -6,7 +6,19 @@ module.exports = {
 	},
 	'Create Content' : function(client) {
 		Actions.createAccountAndSignin(client);
-		Actions.createContentAndCheckExists(client);
-		client.end();
+		Actions.createContentAndCheckExists(client, function(contentUrl) {
+			client.end();
+		});
+	},
+	'Create Comment' : function(client) {
+		Actions.createAccountAndSignin(client);
+		Actions.createContentAndCheckExists(client, function(contentUrl) {
+			Actions.signout(client);
+			var commentAccount = Actions.createAccountAndSignin(client);
+			Actions.createContentAndCheckExistsAndComment(client, contentUrl, {
+				account : commentAccount
+			});
+			client.end();
+		});
 	}
 };

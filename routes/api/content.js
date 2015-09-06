@@ -4,6 +4,7 @@ var Content = global.db.Content;
 var ContentBody = global.db.ContentBody;
 var ContentComment = global.db.ContentComment;
 var ContentCommentMessage = global.db.ContentCommentMessage;
+var ContentAuthorized = global.db.ContentAuthorized;
 var Promise = require("bluebird");
 var express = require('express');
 var router = express.Router();
@@ -88,7 +89,7 @@ router.get('/:contentKey', function(req, res) {
 		if (!content) {
 			throw ERROR_NOTFOUND;
 		}
-		if (ContentBody.STATUS_OPEN == content.ContentBodies[0].type || ContentBody.STATUS_URLACCESS == content.ContentBodies[0].type) {
+		if (ContentBody.STATUS_OPEN == content.ContentBodies[0].status || ContentBody.STATUS_URLACCESS == content.ContentBodies[0].status) {
 			res.status(200).json(content);
 			return;
 		} else {
@@ -106,7 +107,12 @@ router.get('/:contentKey', function(req, res) {
 						success("accessible");
 					});
 				}
-				return content.isAccessible(accessKey.AccountId);
+				return ContentAuthorized.find({
+					where : {
+						ContentId : content.id,
+						AccountId : accessKey.AccountId
+					}
+				});
 			}).then(function(accessible) {
 				if (!accessible) {
 					throw ERROR_NOTACCESSIBLE;
@@ -166,7 +172,7 @@ router.get('/comment/:contentKey', function(req, res) {
 				attributes : [ "name", "iconUrl" ]
 			} ]
 		}
-		if (ContentBody.STATUS_OPEN == content.ContentBodies[0].type || ContentBody.STATUS_URLACCESS == content.ContentBodies[0].type) {
+		if (ContentBody.STATUS_OPEN == content.ContentBodies[0].status || ContentBody.STATUS_URLACCESS == content.ContentBodies[0].status) {
 			ContentComment.findAll(commentQuery).then(function(comments) {
 				res.status(200).json({
 					comments : comments
@@ -192,7 +198,12 @@ router.get('/comment/:contentKey', function(req, res) {
 						success("accessible");
 					});
 				}
-				return content.isAccessible(accessKey.AccountId);
+				return ContentAuthorized.find({
+					where : {
+						ContentId : content.id,
+						AccountId : accessKey.AccountId
+					}
+				});
 			}).then(function(accessible) {
 				if (!accessible) {
 					throw ERROR_NOTACCESSIBLE;
@@ -318,7 +329,7 @@ router.put('/', function(req, res) {
 			title : req.body.title,
 			article : req.body.article,
 			topImageUrl : req.body.topImageUrl,
-			status : req.body.status
+			status : req.body.status ? parseInt(req.body.status) : Content.STATUS_OPEN
 		});
 	}).then(function(contentBody) {
 		loadedContent.body = contentBody;
