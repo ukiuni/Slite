@@ -13,7 +13,8 @@
 			"urlAccess" : "URL access",
 			"authenticated" : "Authenticated Only",
 			"comment":"comment",
-			"failToComment" : "Fail to comment"
+			"failToComment" : "Fail to comment",
+			"tags" : "tags"
 		},
 		"error" : {
 			"withServer" : "Something happen with Server, please try again later.",
@@ -35,7 +36,8 @@
 			"urlAccess" : "URLアクセス",
 			"authenticated" : "許可されたユーザのみ",
 			"comment" : "コメント",
-			"failToComment" : "コメントに失敗しました。"
+			"failToComment" : "コメントに失敗しました。",
+			"tags" : "タグ"
 		},
 		"error" : {
 			"withServer" : "サーバーとの通信で問題が発生しました。後ほど再実行してください。",

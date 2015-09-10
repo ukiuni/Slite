@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "testReady" : "./node_modules/selenium-standalone/bin/selenium-standalone start &",
-    "test" : "./node_modules/nightwatch/bin/nightwatch -t tests/test*.js",
-    "main" : "./index.js",
-    "devMain : "./node_modules/node-dev/bin/node-dev index.js"
+    "testReady": "./node_modules/selenium-standalone/bin/selenium-standalone start &",
+    "test": "./node_modules/nightwatch/bin/nightwatch -t tests/test*.js",
+    "main": "./index.js",
+    "devMain": "./node_modules/node-dev/bin/node-dev index.js"
   },
   "author": "ukiuni",
   "license": "ASL2.0",
@@ -20,6 +20,7 @@
     "jimp": "^0.2.4",
     "multer": "^1.0.3",
     "ng-file-upload": "^6.0.4",
+    "ng-tags-input": "^3.0.0",
     "pg": "^4.3.0",
     "pg-hstore": "^2.3.1",
     "sendmail": "^0.2.1",

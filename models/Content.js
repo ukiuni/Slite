@@ -24,6 +24,7 @@ module.exports = function(sequelize, DataTypes) {
 		Content.hasMany(sequelize.ContentComment, {
 			as : "comment"
 		});
+		Content.belongsToMany(sequelize.Tag);
 	}
 	return Content;
 };

@@ -5,6 +5,7 @@ var ContentBody = global.db.ContentBody;
 var ContentComment = global.db.ContentComment;
 var ContentCommentMessage = global.db.ContentCommentMessage;
 var ContentAuthorized = global.db.ContentAuthorized;
+var Tag = global.db.Tag;
 var Promise = require("bluebird");
 var express = require('express');
 var router = express.Router();
@@ -27,6 +28,8 @@ function FindContentCriteria() {
 		model : Account,
 		as : "owner",
 		attributes : [ "name", "iconUrl" ]
+	}, {
+		model : Tag
 	} ]
 	this.order = [ [ "updatedAt", "DESC" ] ]
 }
@@ -47,9 +50,7 @@ router.get('/', function(req, res) {
 			}
 			return Content.findAll(findAllContentCriteria);
 		}).then(function(contents) {
-			res.status(200).json({
-				contents : contents
-			});
+			res.status(200).json(contents);
 		})["catch"](function(error) {
 			console.trace(error)
 			if (ERROR_NOTACCESSIBLE == error) {
@@ -62,9 +63,7 @@ router.get('/', function(req, res) {
 		var findContentCriteria = new FindContentCriteria();
 		findContentCriteria.include[0].where.push("'ContentBodies'.'version' = " + Content.STATUS_OPEN)
 		Content.findAll(findContentCriteria).then(function(contents) {
-			res.status(200).json({
-				contents : contents
-			});
+			res.status(200).json(contents);
 		})["catch"](function(error) {
 			console.trace(error)
 			if (ERROR_NOTACCESSIBLE == error) {
@@ -174,10 +173,7 @@ router.get('/comment/:contentKey', function(req, res) {
 		}
 		if (ContentBody.STATUS_OPEN == content.ContentBodies[0].status || ContentBody.STATUS_URLACCESS == content.ContentBodies[0].status) {
 			ContentComment.findAll(commentQuery).then(function(comments) {
-				res.status(200).json({
-					comments : comments
-				});
-				res.status(200).json(content);
+				res.status(200).json(comments);
 			})["catch"](function(error) {
 				console.log(error.stack);
 				res.status(500).end();
@@ -209,9 +205,7 @@ router.get('/comment/:contentKey', function(req, res) {
 					throw ERROR_NOTACCESSIBLE;
 				}
 				ContentComment.findAll(commentQuery).then(function(comments) {
-					res.status(200).json({
-						comments : comments
-					});
+					res.status(200).json(comments);
 				})["catch"](function(error) {
 					console.log(error.stack);
 					res.status(500).end();
@@ -237,6 +231,40 @@ router.get('/comment/:contentKey', function(req, res) {
 		}
 	});
 });
+function saveTag(content, tagsString) {
+	var dummyPromise = new Promise(function(success) {
+		success();
+	});
+	var appendedTag = [];
+	if (tagsString) {
+		var tags = tagsString.split(",");
+		tags.forEach(function(tag) {
+			dummyPromise = dummyPromise.then(function(lastTag) {
+				return Tag.findOrCreate({
+					where : {
+						name : tag
+					},
+					defaults : {
+						name : tag
+					}
+				}).spread(function(tag, created) {
+					appendedTag.push(tag);
+				});
+			})
+		});
+	}
+	dummyPromise = dummyPromise.then(function() {
+		return content.setTags([]);
+	});
+	dummyPromise = dummyPromise.then(function() {
+		appendedTag.forEach(function(tag) {
+			dummyPromise = dummyPromise.then(function() {
+				content.addTag(tag)
+			});
+		});
+	});
+	return dummyPromise;
+}
 router.post('/', function(req, res) {
 	var accessKey = req.body.sessionKey || req.body.access_token;
 	if (!accessKey) {
@@ -246,6 +274,7 @@ router.post('/', function(req, res) {
 	var accessAccount;
 	var createdContentAccessKey;
 	var createdContent;
+	var appendedTag = [];
 	AccessKey.find({
 		where : {
 			secret : accessKey
@@ -281,6 +310,8 @@ router.post('/', function(req, res) {
 		});
 	}).then(function(contentBody) {
 		createdContent.body = contentBody;
+		return saveTag(createdContent, req.body.tags);
+	}).then(function() {
 		res.status(201).json(createdContent);
 	})["catch"](function(error) {
 		console.log(error.stack);
@@ -333,6 +364,8 @@ router.put('/', function(req, res) {
 		});
 	}).then(function(contentBody) {
 		loadedContent.body = contentBody;
+		return saveTag(loadedContent, req.body.tags);
+	}).then(function() {
 		res.status(201).json(loadedContent);
 	})["catch"](function(error) {
 		console.log(error.stack);

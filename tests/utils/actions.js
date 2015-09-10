@@ -38,12 +38,14 @@ module.exports = {
 	createContentAndCheckExists : function(client, done) {
 		var contentRandom = new Date().getTime();
 		var contentTitle = "contentTitle" + contentRandom;
+		var tags = "contentTag1" + contentRandom + "," + "contentTag2" + contentRandom;
 		var article = "article" + contentRandom;
 		client.url(url + "/editContent");
 		client.click('#userNameInMenu');
 		client.click('#toEditContentLink');
 		client.waitForElementVisible('#contentTitle', 1000);
 		client.setValue('#contentTitle', contentTitle);
+		client.setValue('tags-input > div > div > input', tags);
 		client.setValue('#article', article);
 		client.click('select');
 		client.waitForElementVisible('option:first-child', 1000);
@@ -55,6 +57,7 @@ module.exports = {
 			client.click("div > div > a > span");
 			client.waitForElementVisible("h2", 1000);
 			client.assert.containsText("h2", contentTitle);
+			client.assert.containsText("#tags > li:first-child", tags.split(",")[0]);
 			client.assert.containsText("div > div > div > p", article);
 			if (done) {
 				done(result.value);

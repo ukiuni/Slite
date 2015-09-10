@@ -1,7 +1,7 @@
 toastr.options = {
 	"positionClass" : "toast-top-center"
 }
-var myapp = angular.module('app', [ 'ui.bootstrap', 'ngRoute', 'ngResource', "ngCookies", 'ngFileUpload' ]);
+var myapp = angular.module('app', [ 'ui.bootstrap', 'ngRoute', 'ngResource', "ngCookies", 'ngFileUpload', 'ngTagsInput' ]);
 myapp.config([ "$locationProvider", "$httpProvider", "$routeProvider", function($locationProvider, $httpProvider, $routeProvider, $rootScope, $location) {
 	$locationProvider.html5Mode(true);
 	$httpProvider.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded;charset=utf-8';
@@ -318,13 +318,19 @@ var editContentController = [ "$rootScope", "$scope", "$resource", "$location", 
 		if (!func) {
 			func = put;
 		}
+		var tags = $scope.editingContent.tags.map(function(val) {
+			return val.text
+		}).filter(function(val) {
+			return "" != val && val.indexOf(",") < 0;
+		}).join(",");
 		func($http, '/api/content', {
 			title : $scope.editingContent.title,
 			article : $scope.editingContent.article,
 			contentKey : $scope.editingContent.contentKey,
 			sessionKey : $rootScope.sessionKey,
 			status : $scope.editingContent.status.keyNumber,
-			topImageUrl : $scope.editingContent.topImageUrl
+			topImageUrl : $scope.editingContent.topImageUrl,
+			tags : tags
 		}).success(function(content) {
 			if (successCallback) {
 				successCallback(content);
@@ -351,12 +357,20 @@ var editContentController = [ "$rootScope", "$scope", "$resource", "$location", 
 			$scope.editingContent.title = content.ContentBodies[0].title;
 			$scope.editingContent.article = content.ContentBodies[0].article;
 			$scope.editingContent.topImageUrl = content.ContentBodies[0].topImageUrl;
+			if (content.Tags) {
+				$scope.editingContent.tags = content.Tags.map(function(val) {
+					return {
+						text : val.name
+					}
+				});
+			}
 		}, function(error) {
 			$rootScope.showError($rootScope.messages.error.withServer);
 		});
 	} else {
 		$scope.editingContent = {}
 		$scope.editingContent.status = $rootScope.statuses[0]
+		$scope.editingContent.tags = []
 		$scope.save(post, function(content) {
 			$scope.editingContent.contentKey = content.accessKey;
 		});
@@ -380,6 +394,11 @@ var editContentController = [ "$rootScope", "$scope", "$resource", "$location", 
 			});
 		}
 	});
+	$scope.loadTags = function(query) {
+		return $resource('/api/tags/:query').query({
+			query : query
+		}).$promise;
+	}
 } ];
 var contentController = [ "$rootScope", "$scope", "$resource", "$location", "$http", "$routeParams", function($rootScope, $scope, $resource, $location, $http, $routeParams) {
 	$resource('/api/content/:contentKey?sessionKey=:sessionKey').get({
@@ -396,11 +415,11 @@ var contentController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 			$rootScope.showError($rootScope.messages.error.withServer);
 		}
 	});
-	$resource('/api/content/comment/:contentKey?sessionKey=:sessionKey').get({
+	$resource('/api/content/comment/:contentKey?sessionKey=:sessionKey').query({
 		contentKey : $routeParams.contentKey,
 		sessionKey : $rootScope.getSessionKey()
-	}, function(response) {
-		$scope.comments = response.comments;
+	}, function(comments) {
+		$scope.comments = comments;
 	}, function(error) {
 		if (403 == error.status) {
 			$rootScope.showError($rootScope.messages.error.notAccessible);
@@ -432,10 +451,10 @@ var homeController = [ "$rootScope", "$scope", "$resource", "$location", "$http"
 		$location.path("/signin");
 		return;
 	}
-	$resource('/api/content/?sessionKey=:sessionKey').get({
+	$resource('/api/content/?sessionKey=:sessionKey').query({
 		sessionKey : $rootScope.sessionKey
-	}, function(response) {
-		$scope.myContents = response.contents;
+	}, function(contents) {
+		$scope.myContents = contents;
 	}, function(error) {
 	});
 } ];
