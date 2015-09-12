@@ -4,6 +4,8 @@ var path = require('path');
 var bodyParser = require('body-parser');
 var multer = require('multer');
 var ECT = require('ect');
+var env = process.env.NODE_ENV || "development";
+var serverConfig = require(__dirname + "/config/server.json")[env];
 var db = require('./models');
 var ectRenderer = ECT({
 	watch : true,
@@ -25,9 +27,15 @@ app.use(multer({
 	maxCount : 1
 } ]));
 app.use(express.static(path.join(__dirname, 'public')));
-require('./routes')(app);
 db.sequelize.sync().done(function(param) {
 	var server = http.Server(app);
+	var io = require('socket.io').listen(server);
+	if (serverConfig.redis) {
+		var redis = require('socket.io-redis');
+		io.adapter(redis(serverConfig.redis));
+	}
+	global.socket = new require('./socket')(io);
+	require('./routes')(app);
 	server.listen(app.get('port'), function() {
 		console.log('Slite server listening on port ' + app.get('port'))
 	});

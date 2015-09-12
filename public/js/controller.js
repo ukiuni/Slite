@@ -142,6 +142,34 @@ myapp.run([ "$rootScope", "$location", "$resource", "$cookies", function($rootSc
 			$rootScope.removeSessionKey();
 		});
 	}
+	var socketListeners = new Map();
+	$rootScope.listenComment = function(contentKey, callback) {
+		if (socketListeners.has(contentKey)) {
+			return;
+		}
+		$rootScope.socket.emit('joinToRoom', "content:" + contentKey);
+		$rootScope.socket.on('content:' + contentKey, callback);
+		socketListeners.set(contentKey, callback);
+	};
+	$rootScope.unListenComment = function(commentKey, callback) {
+		$rootScope.socket.emit('leaveFromRoom', "content:" + commentKey);
+		$rootScope.socket.removeListener('content:' + commentKey, callback);
+		socketListeners["delete"](contentKey);
+	};
+	$rootScope.socket = io.connect();
+	$rootScope.disconnected = false;
+	$rootScope.socket.on('connect', function(data) {
+		if (!$rootScope.disconnected) {
+			return;
+			$rootScope.disconnected = false;
+		}
+		socketListeners.forEach(function(value, key) {
+			$rootScope.socket.emit('joinToRoom', "content:" + key);
+		})
+	});
+	$rootScope.socket.on('disconnect', function(data) {
+		$rootScope.disconnected = true;
+	});
 } ]);
 var indexController = [ "$rootScope", "$scope", "$modal", "$location", "$http", "$window", function($rootScope, $scope, $modal, $location, $http, $window) {
 	$scope.openCreateAccountDialog = function() {
@@ -439,12 +467,21 @@ var contentController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 			sessionKey : $rootScope.getSessionKey(),
 			message : $scope.newComment.message
 		}).success(function(data, status, headers, config) {
-			$scope.comments.push(data);
 			$scope.newComment = {};
 		}).error(function(data, status, headers, config) {
 			$rootScope.showError($rootScope.messages.contents.failToComment);
 		});
 	}
+	var listenComment = function(comment) {
+		comment = JSON.parse(comment);
+		$scope["$apply"](function() {
+			$scope.comments.push(comment);
+		});
+	}
+	$rootScope.listenComment($routeParams.contentKey, listenComment);
+	$scope.$on('$destroy', function(event, next, current) {
+		$rootScope.unListenComment($routeParams.contentKey, listenComment);
+	});
 } ];
 var homeController = [ "$rootScope", "$scope", "$resource", "$location", "$http", function($rootScope, $scope, $resource, $location, $http) {
 	if (!$rootScope.myAccount) {

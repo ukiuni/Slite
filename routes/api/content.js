@@ -6,6 +6,7 @@ var ContentComment = global.db.ContentComment;
 var ContentCommentMessage = global.db.ContentCommentMessage;
 var ContentAuthorized = global.db.ContentAuthorized;
 var Tag = global.db.Tag;
+var socket = global.socket;
 var Promise = require("bluebird");
 var express = require('express');
 var router = express.Router();
@@ -423,11 +424,13 @@ router.post('/comment', function(req, res) {
 		});
 	}).then(function(commentMessage) {
 		createdContentComment.message = commentMessage;
-		res.status(201).json({
+		var responseComment = {
 			id : createdContentComment.id,
 			owner : accessAccount,
 			ContentCommentMessages : [ commentMessage ]
-		});
+		}
+		res.status(201).json(responseComment);
+		socket.sendToContent(req.body.contentKey, responseComment);
 	})["catch"](function(error) {
 		console.log(error.stack);
 		if (ERROR_NOTACCESSIBLE == error) {
