@@ -147,24 +147,25 @@ myapp.run([ "$rootScope", "$location", "$resource", "$cookies", function($rootSc
 		if (socketListeners.has(contentKey)) {
 			return;
 		}
-		$rootScope.socket.emit('joinToRoom', "content:" + contentKey);
-		$rootScope.socket.on('content:' + contentKey, callback);
+		$rootScope.socket.emit('listenComment', contentKey);
+		$rootScope.socket.on(contentKey, callback);
 		socketListeners.set(contentKey, callback);
 	};
-	$rootScope.unListenComment = function(commentKey, callback) {
-		$rootScope.socket.emit('leaveFromRoom', "content:" + commentKey);
-		$rootScope.socket.removeListener('content:' + commentKey, callback);
+	$rootScope.unListenComment = function(contentKey, callback) {
+		$rootScope.socket.emit('unListenComment', contentKey);
+		$rootScope.socket.removeListener(contentKey, callback);
 		socketListeners["delete"](contentKey);
 	};
 	$rootScope.socket = io.connect();
 	$rootScope.disconnected = false;
 	$rootScope.socket.on('connect', function(data) {
+		$rootScope.socket.emit('authorize', $rootScope.getSessionKey());
 		if (!$rootScope.disconnected) {
 			return;
-			$rootScope.disconnected = false;
 		}
+		$rootScope.disconnected = false;
 		socketListeners.forEach(function(value, key) {
-			$rootScope.socket.emit('joinToRoom', "content:" + key);
+			$rootScope.socket.emit('listenComment', key);
 		})
 	});
 	$rootScope.socket.on('disconnect', function(data) {
@@ -479,7 +480,7 @@ var contentController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 		});
 	}
 	$rootScope.listenComment($routeParams.contentKey, listenComment);
-	$scope.$on('$destroy', function(event, next, current) {
+	$scope.$on('$destroy', function() {
 		$rootScope.unListenComment($routeParams.contentKey, listenComment);
 	});
 } ];
