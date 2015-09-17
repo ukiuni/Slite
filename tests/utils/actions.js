@@ -38,7 +38,7 @@ module.exports = {
 	createContentAndCheckExists : function(client, done) {
 		var contentRandom = new Date().getTime();
 		var contentTitle = "contentTitle" + contentRandom;
-		var tags = "contentTag1" + contentRandom + "," + "contentTag2" + contentRandom;
+		var tags = "contentTag1" + contentRandom + "," + "contentTag2" + contentRandom + ",JavaScript";
 		var article = "article" + contentRandom;
 		client.url(url + "/editContent");
 		client.click('#userNameInMenu');

@@ -14,7 +14,8 @@
 			"authenticated" : "Authenticated Only",
 			"comment":"comment",
 			"failToComment" : "Fail to comment",
-			"tags" : "tags"
+			"tags" : "tags",
+			"tagsList" : "tags list"
 		},
 		"error" : {
 			"withServer" : "Something happen with Server, please try again later.",
@@ -37,7 +38,8 @@
 			"authenticated" : "許可されたユーザのみ",
 			"comment" : "コメント",
 			"failToComment" : "コメントに失敗しました。",
-			"tags" : "タグ"
+			"tags" : "タグ",
+			"tagsList" : "タグ一覧"
 		},
 		"error" : {
 			"withServer" : "サーバーとの通信で問題が発生しました。後ほど再実行してください。",

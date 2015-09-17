@@ -10,10 +10,10 @@
 				<div class="row">
 					<h2 class="col-xs-10 col-xs-offset-1 contentTitle" ng-bind="content.ContentBodies[0].title"></h2>
 				</div>
-				<div class="row" style="margin-top: -50px; min-height: 40px">
+				<div class="row" style="margin-top: -50px;">
 					<div class="col-xs-4 col-xs-offset-8">
-						<ul class="nav nav-pills" id="tags">
-							<li role="presentation" ng-repeat="tag in content.Tags track by tag.id"><a href="#" ng-bind="tag.name"></a></li>
+						<ul class="nav nav-pills" id="tags" style="height: 40px; overflow: scroll;">
+							<li role="presentation" ng-repeat="tag in content.Tags track by tag.id"><a ng-href="/tag/{{tag.id}}" ng-bind="tag.name"></a></li>
 						</ul>
 					</div>
 				</div>

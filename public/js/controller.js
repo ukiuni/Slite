@@ -59,6 +59,14 @@ myapp.config([ "$locationProvider", "$httpProvider", "$routeProvider", function(
 		templateUrl : "template/contentView.html",
 		controller : "contentController"
 	});
+	$routeProvider.when("/tags", {
+		templateUrl : "template/tags.html",
+		controller : "tagsController"
+	});
+	$routeProvider.when("/tag/:id", {
+		templateUrl : "template/tag.html",
+		controller : "tagController"
+	});
 	$routeProvider.when("/signout", {
 		templateUrl : "template/signouted.html"
 	});
@@ -424,7 +432,7 @@ var editContentController = [ "$rootScope", "$scope", "$resource", "$location", 
 		}
 	});
 	$scope.loadTags = function(query) {
-		return $resource('/api/tags/:query').query({
+		return $resource('/api/tags/q/:query').query({
 			query : query
 		}).$promise;
 	}
@@ -484,6 +492,20 @@ var contentController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 		$rootScope.unListenComment($routeParams.contentKey, listenComment);
 	});
 } ];
+var tagsController = [ "$rootScope", "$scope", "$resource", "$location", "$http", function($rootScope, $scope, $resource, $location, $http) {
+	$resource('/api/tags/listAll').query({}, function(tags) {
+		$scope.tags = tags;
+	}, function(error) {
+		$rootScope.showError($rootScope.messages.error.withServer);
+	});
+} ];
+var tagController = [ "$rootScope", "$scope", "$resource", "$location", "$http", "$routeParams", function($rootScope, $scope, $resource, $location, $http, $routeParams) {
+	$resource('/api/tags/' + $routeParams.id + "/contents").get({}, function(tag) {
+		$scope.tag = tag;
+	}, function(error) {
+		$rootScope.showError($rootScope.messages.error.withServer);
+	});
+} ];
 var homeController = [ "$rootScope", "$scope", "$resource", "$location", "$http", function($rootScope, $scope, $resource, $location, $http) {
 	if (!$rootScope.myAccount) {
 		$location.path("/signin");
@@ -494,6 +516,7 @@ var homeController = [ "$rootScope", "$scope", "$resource", "$location", "$http"
 	}, function(contents) {
 		$scope.myContents = contents;
 	}, function(error) {
+		$rootScope.showError($rootScope.messages.error.withServer);
 	});
 } ];
 myapp.controller('indexController', indexController);
@@ -505,4 +528,6 @@ myapp.controller('editProfileController', editProfileController);
 myapp.controller('changePasswordController', changePasswordController);
 myapp.controller('editContentController', editContentController);
 myapp.controller('contentController', contentController);
+myapp.controller('tagsController', tagsController);
+myapp.controller('tagController', tagController);
 myapp.controller('homeController', homeController);

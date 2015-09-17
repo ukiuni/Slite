@@ -15,7 +15,9 @@ module.exports = function(sequelize, DataTypes) {
 		} ]
 	});
 	Tag.associate = function(sequelize) {
-		Tag.belongsToMany(sequelize.Content);
+		Tag.belongsToMany(sequelize.Content, {
+			through : sequelize.ContentToTag
+		});
 	}
 	return Tag;
 };

@@ -8,16 +8,17 @@ var socket = function(io) {
 	this.context = io.sockets.on('connection', function(socket) {
 		connected = socket;
 		socket.on('listenComment', function(contentKey) {
-			Content.find({
+			Content.findAll({
 				where : {
 					accessKey : contentKey
 				},
 				include : [ {
 					model : ContentBody,
 					where : [ "'ContentBodies'.'version' = 'Content'.'currentVersion'" ],
-					attributes : [ "status" ]
+					attributes : [ "status", "version" ]
 				} ]
-			}).then(function(content) {
+			}).then(function(contents) {
+				var content = contents[0];
 				if (ContentBody.STATUS_OPEN == content.ContentBodies[0].status || ContentBody.STATUS_URLACCESS == content.ContentBodies[0].status) {
 					socket.join(contentKey);
 				}
