@@ -1,6 +1,9 @@
 module.exports = function(sequelize, DataTypes) {
 	var Account = sequelize.define("Account", {
-		mail : DataTypes.TEXT,
+		mail : {
+			type : DataTypes.TEXT,
+			unique : true
+		},
 		name : DataTypes.TEXT,
 		information : DataTypes.TEXT,
 		iconUrl : DataTypes.TEXT,

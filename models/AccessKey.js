@@ -1,6 +1,9 @@
 module.exports = function(sequelize, DataTypes) {
 	var AccessKey = sequelize.define("AccessKey", {
-		secret : DataTypes.TEXT,
+		secret : {
+			type : DataTypes.TEXT,
+			unique : true
+		},
 		status : DataTypes.INTEGER,
 		type : DataTypes.INTEGER,
 		expires : DataTypes.DATE

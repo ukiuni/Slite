@@ -6,6 +6,9 @@
 		"app" : {
 			"title" : "Slite" 
 		},
+		"edit" : "edit",
+		"save" : "save",
+		"cancel" : "cancel",
 		"contents" : {
 			"content" : "content",
 			"open" : "open",
@@ -15,7 +18,8 @@
 			"comment":"comment",
 			"failToComment" : "Fail to comment",
 			"tags" : "tags",
-			"tagsList" : "tags list"
+			"tagsList" : "tags list",
+			"tagDescription" : "description"
 		},
 		"error" : {
 			"withServer" : "Something happen with Server, please try again later.",
@@ -30,6 +34,9 @@
 		"app" : {
 			"title" : "Slite" 
 		},
+		"edit" : "編集",
+		"save" : "保存",
+		"cancel" : "キャンセル",
 		"contents" : {
 			"content" : "自分の投稿",
 			"open" : "公開",
@@ -39,7 +46,8 @@
 			"comment" : "コメント",
 			"failToComment" : "コメントに失敗しました。",
 			"tags" : "タグ",
-			"tagsList" : "タグ一覧"
+			"tagsList" : "タグ一覧",
+			"tagDescription" : "説明"
 		},
 		"error" : {
 			"withServer" : "サーバーとの通信で問題が発生しました。後ほど再実行してください。",

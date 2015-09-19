@@ -75,5 +75,20 @@ module.exports = {
 		client.waitForElementVisible(".commentName", 1000);
 		client.assert.containsText(".commentName", comment.account.name);
 		client.assert.containsText(".commentMessage", contentComment);
+	},
+	rewriteTagDescriptionAndCheck : function(client, contentUrl, comment) {
+		var contentRandom = new Date().getTime();
+		var tagDescription = "contentComment" + contentRandom;
+		client.url(contentUrl);
+		client.waitForElementVisible('#tagArea', 1000);
+		client.click('#tagArea > ul > li > a');
+		client.waitForElementVisible("button", 1000);
+		client.click('button');
+		client.waitForElementVisible('#saveButton', 1000);
+		client.waitForElementVisible('textarea', 1000);
+		client.setValue('textarea', tagDescription);
+		client.click('#saveButton');
+		client.waitForElementVisible('#descriptionArea', 1000);
+		client.assert.containsText("#descriptionArea", tagDescription);
 	}
 }

@@ -20,5 +20,14 @@ module.exports = {
 			});
 			client.end();
 		});
-	}
+	},
+	'Create Tag' : function(client) {
+		Actions.createAccountAndSignin(client);
+		Actions.createContentAndCheckExists(client, function(contentUrl) {
+			Actions.signout(client);
+			var commentAccount = Actions.createAccountAndSignin(client);
+			Actions.rewriteTagDescriptionAndCheck(client, contentUrl);
+			client.end();
+		});
+	},
 };

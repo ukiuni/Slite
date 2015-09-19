@@ -67,6 +67,10 @@ myapp.config([ "$locationProvider", "$httpProvider", "$routeProvider", function(
 		templateUrl : "template/tag.html",
 		controller : "tagController"
 	});
+	$routeProvider.when("/tag/:id/edit", {
+		templateUrl : "template/editTag.html",
+		controller : "editTagController"
+	});
 	$routeProvider.when("/signout", {
 		templateUrl : "template/signouted.html"
 	});
@@ -505,6 +509,28 @@ var tagController = [ "$rootScope", "$scope", "$resource", "$location", "$http",
 	}, function(error) {
 		$rootScope.showError($rootScope.messages.error.withServer);
 	});
+	$scope.gotoEdit = function() {
+		$location.path("/tag/" + $routeParams.id + "/edit");
+	}
+} ];
+var editTagController = [ "$rootScope", "$scope", "$resource", "$location", "$http", "$routeParams", function($rootScope, $scope, $resource, $location, $http, $routeParams) {
+	$resource('/api/tags/:id/contents').get({
+		id : $routeParams.id
+	}, function(tag) {
+		$scope.tag = tag;
+	}, function(error) {
+		$rootScope.showError($rootScope.messages.error.withServer);
+	});
+	$scope.save = function() {
+		put($http, '/api/tags/' + $routeParams.id, {
+			description : $scope.tag.description,
+			sessionKey : $rootScope.sessionKey
+		}).success(function(account) {
+			$location.path("/tag/" + $routeParams.id);
+		}).error(function(error) {
+			$rootScope.showError($rootScope.messages.error.withServer);
+		});
+	}
 } ];
 var homeController = [ "$rootScope", "$scope", "$resource", "$location", "$http", function($rootScope, $scope, $resource, $location, $http) {
 	if (!$rootScope.myAccount) {
@@ -529,5 +555,6 @@ myapp.controller('changePasswordController', changePasswordController);
 myapp.controller('editContentController', editContentController);
 myapp.controller('contentController', contentController);
 myapp.controller('tagsController', tagsController);
+myapp.controller('editTagController', editTagController);
 myapp.controller('tagController', tagController);
 myapp.controller('homeController', homeController);
