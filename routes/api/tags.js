@@ -63,7 +63,8 @@ router.get('/:id/contents', function(req, res) {
 			model : Content,
 			include : [ {
 				model : ContentBody,
-				where : [ "`Contents`.`currentVersion` = `Contents.ContentBodies`.`version`" ]
+				where : [ "`Contents`.`currentVersion` = `Contents.ContentBodies`.`version`" ],
+				attributes : [ "title" ]
 			} ]
 		} ]
 	}).then(function(tags) {
