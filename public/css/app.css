@@ -38,6 +38,13 @@
 .contentListDate {
 	font-size: 12px;
 }
+
+#groupArea {
+	border: solid 1px #DDD;
+	border-radius: 3px;
+	height: 100%;
+	margin-left: 10px;
+}
 /* Group input */
 #groupName {
 	font-size: 30px;

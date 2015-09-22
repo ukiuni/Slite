@@ -1,6 +1,6 @@
 <div style="height: 100%;">
 	<div class="row">
-		<div class="col-sm-6 col-sm-offset-3">
+		<div class="col-sm-6 col-sm-offset-2">
 			<div>Home</div>
 			<div>
 				<div class="container" ng-show="myAccount">
@@ -22,6 +22,14 @@
 						</div>
 						<button class="col-sm-2 col-sm-offset-1 col-xs-12 btn btn-lg btn-primary" type="submit" ng-click="goto('/editContent/'+content.accessKey)">Edit</button>
 					</div>
+				</div>
+			</div>
+		</div>
+		<div id="groupArea" class="col-sm-2">
+			<h3 ng-bind="messages.group"></h3>
+			<div class="row">
+				<div class="col-sm-12" ng-repeat="group in myGroups track by group.id">
+					<a ng-href="/group/{{group.id}}" ng-bind="group.name"></a>
 				</div>
 			</div>
 		</div>

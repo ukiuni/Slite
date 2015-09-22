@@ -392,6 +392,9 @@ var editContentController = [ "$rootScope", "$scope", "$resource", "$location", 
 		if (!func) {
 			func = put;
 		}
+		if (!$scope.editingContent.contentKey) {
+			func = post;
+		}
 		var tags = $scope.editingContent.tags.map(function(val) {
 			return val.text
 		}).filter(function(val) {
@@ -404,6 +407,7 @@ var editContentController = [ "$rootScope", "$scope", "$resource", "$location", 
 			sessionKey : $rootScope.getSessionKey(),
 			status : $scope.editingContent.status.keyNumber,
 			topImageUrl : $scope.editingContent.topImageUrl,
+			groupId : $scope.editingContent.group ? $scope.editingContent.group.id : null,
 			tags : tags
 		}).success(function(content) {
 			if (successCallback) {
@@ -431,6 +435,7 @@ var editContentController = [ "$rootScope", "$scope", "$resource", "$location", 
 			$scope.editingContent.title = content.ContentBodies[0].title;
 			$scope.editingContent.article = content.ContentBodies[0].article;
 			$scope.editingContent.topImageUrl = content.ContentBodies[0].topImageUrl;
+			$scope.editingContent.group = content.Group;
 			if (content.Tags) {
 				$scope.editingContent.tags = content.Tags.map(function(val) {
 					return {
@@ -438,6 +443,7 @@ var editContentController = [ "$rootScope", "$scope", "$resource", "$location", 
 					}
 				});
 			}
+			initGroupSelect();
 		}, function(error) {
 			$rootScope.showError($rootScope.messages.error.withServer);
 		});
@@ -445,9 +451,10 @@ var editContentController = [ "$rootScope", "$scope", "$resource", "$location", 
 		$scope.editingContent = {}
 		$scope.editingContent.status = $rootScope.statuses[0]
 		$scope.editingContent.tags = []
-		$scope.save(post, function(content) {
-			$scope.editingContent.contentKey = content.accessKey;
-		});
+		$scope.editingContent.group = {
+			id : 0,
+			name : ""
+		}
 	}
 	$scope.$watch('editingContent.contentImageFile', function() {
 		if ($scope.editingContent && $scope.editingContent.contentImageFile) {
@@ -473,6 +480,27 @@ var editContentController = [ "$rootScope", "$scope", "$resource", "$location", 
 			query : query
 		}).$promise;
 	}
+	function initGroupSelect() {
+		if ($scope.myGroups && $scope.editingContent && $scope.editingContent.group) {
+			$scope.myGroups.forEach(function(group) {
+				if ($scope.editingContent.group.id == group.id) {
+					$scope.editingContent.group = group;
+				}
+			})
+		}
+	}
+	$resource('/api/groups/self').query({
+		sessionKey : $rootScope.getSessionKey()
+	}, function(groups) {
+		groups.unshift({
+			id : 0,
+			name : ""
+		})
+		$scope.myGroups = groups;
+		initGroupSelect();
+	}, function(error) {
+		$rootScope.showErrorWithStatus(error.status);
+	});
 } ];
 var contentController = [ "$rootScope", "$scope", "$resource", "$location", "$http", "$routeParams", function($rootScope, $scope, $resource, $location, $http, $routeParams) {
 	$resource('/api/content/:contentKey?sessionKey=:sessionKey').get({
@@ -644,10 +672,17 @@ var homeController = [ "$rootScope", "$scope", "$resource", "$location", "$http"
 		$location.path("/signin");
 		return;
 	}
-	$resource('/api/content/?sessionKey=:sessionKey').query({
+	$resource('/api/content/').query({
 		sessionKey : $rootScope.getSessionKey()
 	}, function(contents) {
 		$scope.myContents = contents;
+	}, function(error) {
+		$rootScope.showErrorWithStatus(error.status);
+	});
+	$resource('/api/groups/self').query({
+		sessionKey : $rootScope.getSessionKey()
+	}, function(groups) {
+		$scope.myGroups = groups;
 	}, function(error) {
 		$rootScope.showErrorWithStatus(error.status);
 	});

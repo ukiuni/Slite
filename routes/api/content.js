@@ -6,6 +6,7 @@ var ContentComment = global.db.ContentComment;
 var ContentCommentMessage = global.db.ContentCommentMessage;
 var ContentAuthorized = global.db.ContentAuthorized;
 var Tag = global.db.Tag;
+var Group = global.db.Group;
 var socket = global.socket;
 var Promise = require("bluebird");
 var express = require('express');
@@ -32,6 +33,8 @@ function createFindContentBase() {
 			attributes : [ "name", "iconUrl" ]
 		}, {
 			model : Tag
+		}, {
+			model : Group
 		} ],
 		order : [ [ "updatedAt", "DESC" ] ]
 	}
@@ -82,7 +85,7 @@ router.get('/:contentKey', function(req, res) {
 		res.status(404).send();
 		return;
 	}
-	var findContentCriteria =  createFindContentBase();
+	var findContentCriteria = createFindContentBase();
 	findContentCriteria.where = {
 		accessKey : req.params.contentKey
 	};
@@ -316,6 +319,15 @@ router.post('/', function(req, res) {
 	}).then(function(contentBody) {
 		createdContent.body = contentBody;
 		return saveTag(createdContent, req.body.tags);
+	}).then(function() {
+		if (req.body.groupId || 0 != req.body.groupId) {
+			Group.findById(req.body.groupId).then(function(group) {
+				if (!group) {
+					return;
+				}
+				return createdContent.setGroup(group);
+			})
+		}
 	}).then(function() {
 		res.status(201).json(createdContent);
 	})["catch"](function(error) {

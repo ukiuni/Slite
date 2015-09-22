@@ -49,7 +49,8 @@
 			"failToComment" : "Fail to comment",
 			"tags" : "tags",
 			"tagsList" : "tags list",
-			"tagDescription" : "Description"
+			"tagDescription" : "Description",
+			"accessibility" : "Accessibility"
 		},
 		"error" : {
 			"withServer" : "Something happen with Server, please try again later.",
@@ -108,7 +109,8 @@
 			"failToComment" : "コメントに失敗しました。",
 			"tags" : "タグ",
 			"tagsList" : "タグ一覧",
-			"tagDescription" : "説明"
+			"tagDescription" : "説明",
+			"accessibility" : "アクセス許可"
 		},
 		"error" : {
 			"withServer" : "サーバーとの通信で問題が発生しました。後ほど再実行してください。",

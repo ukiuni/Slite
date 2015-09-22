@@ -16,9 +16,7 @@ module.exports = function(sequelize, DataTypes) {
 		} ]
 	});
 	Group.associate = function(sequelize) {
-		Group.belongsToMany(sequelize.Content, {
-			through : sequelize.ContentInGroup
-		});
+		Group.hasMany(sequelize.Content);
 		Group.belongsToMany(sequelize.Account, {
 			through : sequelize.AccountInGroup
 		});
