@@ -6,6 +6,36 @@
 		"app" : {
 			"title" : "Slite" 
 		},
+		"menu" : {
+			"home" : "Home",
+			"newContent" : "New Content",
+			"setting" : "Setting",
+			"profile" : "Profile",
+			"changePassword" : "Change Password",
+			"signOut" : "Sign out"
+		},
+		"accounts" : {
+			"mail" : "mail",
+			"error" : {
+				"aleadyHaveAccount" : "You aleady have a account"
+			}
+		},
+		"group" : "Group",
+		"groups" : {
+			"newGroup" : "New Group",
+			"groupList" : "Group List",
+			"description" : "Description",
+			"addsMember" : "Add member",
+			"invite" : "Invite",
+			"visibility" : {
+				"open" : "Open",
+				"secret" : "Secret",
+				"secretEvenMember" : "Secret Even Member"
+			},
+			"error" : {
+				"aleadyIn" : "Invited member is aleady in this group。"
+			}
+		},
 		"edit" : "edit",
 		"save" : "save",
 		"cancel" : "cancel",
@@ -19,7 +49,7 @@
 			"failToComment" : "Fail to comment",
 			"tags" : "tags",
 			"tagsList" : "tags list",
-			"tagDescription" : "description"
+			"tagDescription" : "Description"
 		},
 		"error" : {
 			"withServer" : "Something happen with Server, please try again later.",
@@ -33,6 +63,37 @@
 		},
 		"app" : {
 			"title" : "Slite" 
+		},
+		"menu" : {
+			"home" : "Home",
+			"newContent" : "新規投稿",
+			"setting" : "設定",
+			"profile" : "Profile",
+			"changePassword" : "パスワード変更",
+			"signOut" : "Sign out"
+		},
+		"accounts" : {
+			"mail" : "mail",
+			"error" : {
+				"aleadyHaveAccount" : "すでにアカウントをお持ちです。"
+			}
+		},
+		"group" : "グループ",
+		"groups" : {
+			"newGroup" : "新規グループ",
+			"groupList" : "グループ一覧",
+			"description" : "説明",
+			"member" : "メンバー",
+			"addsMember" : "メンバー追加",
+			"invite" : "招待",
+			"visibility" : {
+				"open" : "公開",
+				"secret" : "非公開",
+				"secretEvenMember" : "メンバー非公開"
+			},
+			"error" : {
+				"aleadyIn" : "すでにメンバーです。"
+			}
 		},
 		"edit" : "編集",
 		"save" : "保存",

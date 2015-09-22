@@ -7,33 +7,33 @@ module.exports = {
 		client.waitForElementVisible('#createAccountButton', 1000);
 		client.assert.containsText("h1", "Signout");
 	},
-	createAccountAndSignin : function(client, done) {
-		var accountRandom = new Date().getTime();
+	createAccountAndSignin : function(client, account) {
+		if (!account) {
+			var accountRandom = new Date().getTime();
+			account = {
+				name : 'testAccount' + accountRandom,
+				mail : 'testAccount' + accountRandom + "@example.com",
+				password : accountRandom
+			}
+		}
 		client.url(url);
 		client.waitForElementVisible('body', 1000);
 		client.assert.visible('#createAccountButton');
 		client.click('#createAccountButton');
 		client.waitForElementVisible('.modal-dialog', 1000);
 		client.assert.visible('#inputName').assert.visible("#inputMail").assert.visible("#inputPassword");
-		client.setValue('#inputName', 'testAccount' + accountRandom);
-		client.setValue('#inputMail', 'testAccount' + accountRandom + "@example.com");
-		client.setValue('#inputPassword', accountRandom);
+		client.setValue('#inputName', account.name);
+		client.setValue('#inputMail', account.mail);
+		client.setValue('#inputPassword', account.password);
 		client.click('#saveButton');
 		client.waitForElementVisible('button[type=submit]', 1000);
 		client.assert.visible('#inputMail').assert.visible("#inputMail");
-		client.setValue('#inputMail', 'testAccount' + accountRandom + "@example.com");
-		client.setValue('#inputPassword', accountRandom);
+		client.setValue('#inputMail', account.mail);
+		client.setValue('#inputPassword', account.password);
 		client.click('#signinButton');
 		client.pause(1000);
 		client.assert.containsText("p", "Hi");
-		return {
-			name : 'testAccount' + accountRandom,
-			mail : 'testAccount' + accountRandom + "@example.com",
-			password : accountRandom
-		}
-		if (done) {
-			done();
-		}
+		return account;
 	},
 	createContentAndCheckExists : function(client, done) {
 		var contentRandom = new Date().getTime();
@@ -76,7 +76,7 @@ module.exports = {
 		client.assert.containsText(".commentName", comment.account.name);
 		client.assert.containsText(".commentMessage", contentComment);
 	},
-	rewriteTagDescriptionAndCheck : function(client, contentUrl, comment) {
+	rewriteTagDescriptionAndCheckExists : function(client, contentUrl, comment) {
 		var contentRandom = new Date().getTime();
 		var tagDescription = "contentComment" + contentRandom;
 		client.url(contentUrl);
@@ -90,5 +90,29 @@ module.exports = {
 		client.click('#saveButton');
 		client.waitForElementVisible('#descriptionArea', 1000);
 		client.assert.containsText("#descriptionArea", tagDescription);
+	},
+	createGroupAndCheckExists : function(client) {
+		var contentRandom = new Date().getTime();
+		var groupName = "groupName" + contentRandom;
+		var groupDescription = "groupDescription" + contentRandom;
+		client.url(url + "/groups");
+		client.waitForElementVisible('button', 1000);
+		client.click('button');
+		client.waitForElementVisible("#saveButton", 1000);
+		client.setValue('input', groupName);
+		client.setValue('textarea', groupDescription);
+		client.click('select');
+		client.waitForElementVisible('option:first-child', 1000);
+		client.click('option:first-child');
+		client.click('#saveButton');
+		client.waitForElementVisible('div#groupName', 1000);
+		client.assert.containsText("#groupName", groupName);
+		client.assert.containsText("#groupDescription", groupDescription);
+	},
+	inviteAccountAfterCreateGroupAndCheckExists : function(client, account) {
+		client.setValue('input', account.mail);
+		client.click("#inviteButton");
+		client.pause(1000);
+		client.assert.containsText("#memberArea", account.name);
 	}
 }

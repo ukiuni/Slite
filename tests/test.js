@@ -26,8 +26,40 @@ module.exports = {
 		Actions.createContentAndCheckExists(client, function(contentUrl) {
 			Actions.signout(client);
 			var commentAccount = Actions.createAccountAndSignin(client);
-			Actions.rewriteTagDescriptionAndCheck(client, contentUrl);
+			Actions.rewriteTagDescriptionAndCheckExists(client, contentUrl);
 			client.end();
 		});
+	},
+	'Create Group' : function(client) {
+		Actions.createAccountAndSignin(client);
+		Actions.createGroupAndCheckExists(client);
+		client.end();
+	},
+	'Invite Exists Account To Group' : function(client) {
+		var account = Actions.createAccountAndSignin(client);
+		Actions.signout(client);
+		var account2 = {
+			name : Date.now() + account.name,
+			mail : Date.now() + account.mail,
+			password : Date.now() + account.password,
+		}
+		account2 = Actions.createAccountAndSignin(client, account2);
+		Actions.createGroupAndCheckExists(client);
+		Actions.inviteAccountAfterCreateGroupAndCheckExists(client, account);
+		client.end();
+	},
+	'Invite Not Exists Account To Group and Signin' : function(client) {
+		Actions.createAccountAndSignin(client);
+		Actions.createGroupAndCheckExists(client);
+		var nameAndMail = Date.now() + "inviteAccount@example.com"
+		var newAccount = {
+			name : nameAndMail,
+			mail : nameAndMail,
+			password : Date.now()
+		}
+		Actions.inviteAccountAfterCreateGroupAndCheckExists(client, newAccount);
+		Actions.signout(client);
+		Actions.createAccountAndSignin(client, newAccount);
+		client.end();
 	},
 };

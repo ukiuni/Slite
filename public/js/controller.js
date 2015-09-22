@@ -71,6 +71,18 @@ myapp.config([ "$locationProvider", "$httpProvider", "$routeProvider", function(
 		templateUrl : "template/editTag.html",
 		controller : "editTagController"
 	});
+	$routeProvider.when("/groups", {
+		templateUrl : "template/groups.html",
+		controller : "groupsController"
+	});
+	$routeProvider.when("/group/:id", {
+		templateUrl : "template/group.html",
+		controller : "groupController"
+	});
+	$routeProvider.when("/group/:id/edit", {
+		templateUrl : "template/editGroup.html",
+		controller : "editGroupController"
+	});
 	$routeProvider.when("/signout", {
 		templateUrl : "template/signouted.html"
 	});
@@ -96,11 +108,32 @@ myapp.run([ "$rootScope", "$location", "$resource", "$cookies", function($rootSc
 			message : $rootScope.messages.contents.authenticated,
 			keyNumber : 4
 		} ];
+		$rootScope.groupVisibilities = [ {
+			message : $rootScope.messages.groups.visibility.open,
+			keyNumber : 1
+		}, {
+			message : $rootScope.messages.groups.visibility.secret,
+			keyNumber : 2
+		}, {
+			message : $rootScope.messages.groups.visibility.secretEvenMember,
+			keyNumber : 3
+		} ];
 	}, function() {
 		$rootScope.showError("Fail to load message resource.");
 	});
 	$rootScope.showError = function(message) {
 		toastr.error(message);
+	}
+	$rootScope.showErrorWithStatus = function(status, otherFunc) {
+		if (403 == status) {
+			$rootScope.showError($rootScope.messages.error.notAccessible);
+		} else if (404 == status) {
+			$rootScope.showError($rootScope.messages.error.notFound);
+		} else if (otherFunc && otherFunc(status)) {
+			// DO Nothing
+		} else {
+			$rootScope.showError($rootScope.messages.error.withServer);
+		}
 	}
 	$rootScope.toLogin = function() {
 		$location.path("/signin");
@@ -130,7 +163,7 @@ myapp.run([ "$rootScope", "$location", "$resource", "$cookies", function($rootSc
 	}
 	$rootScope.signout = function() {
 		$resource('/api/account/accessKey?key=:sessionKey').remove({
-			sessionKey : $rootScope.sessionKey
+			sessionKey : $rootScope.getSessionKey()
 		}, function() {
 			$rootScope.removeSessionKey();
 			$rootScope.myAccount = null;
@@ -210,22 +243,28 @@ var indexController = [ "$rootScope", "$scope", "$modal", "$location", "$http", 
 		});
 	};
 	$scope.createAccount = function(account, callback) {
-		post($http, '/api/account', account).success(function(data, status, headers, config) {
+		post($http, '/api/account', account).then(function(data, status, headers, config) {
 			if (callback) {
 				callback();
 			}
-		}).error(function(data, status, headers, config) {
-			$scope.error = "Load error";
+		})["catch"](function(response) {
+			$rootScope.showErrorWithStatus(response.status, function(status) {
+				if (409 == status) {
+					$rootScope.showError($rootScope.messages.accounts.error.aleadyHaveAccount);
+					return true;
+				}
+				return false;
+			});
 		});
 	}
 } ];
-var post = function($http, url, object, successFunc, errorFunc) {
-	return httpRequest($http, "POST", url, object, successFunc, errorFunc);
+var post = function($http, url, object) {
+	return httpRequest($http, "POST", url, object);
 }
-var put = function($http, url, object, successFunc, errorFunc) {
-	return httpRequest($http, "PUT", url, object, successFunc, errorFunc);
+var put = function($http, url, object) {
+	return httpRequest($http, "PUT", url, object);
 }
-var httpRequest = function($http, method, url, object, successFunc, errorFunc) {
+var httpRequest = function($http, method, url, object) {
 	var http = $http({
 		url : url,
 		method : method,
@@ -234,12 +273,6 @@ var httpRequest = function($http, method, url, object, successFunc, errorFunc) {
 			'Content-Type' : 'application/json'
 		}
 	})
-	if (successFunc) {
-		http.success(successFunc)
-	}
-	if (errorFunc) {
-		http.error(errorFunc)
-	}
 	return http;
 }
 var activationController = [ "$rootScope", "$scope", "$resource", "$location", function($rootScope, $scope, $resource, $location) {
@@ -283,9 +316,9 @@ var requestResetPasswordController = [ "$rootScope", "$scope", "$resource", "$lo
 	$scope.requestResetPassword = function() {
 		post($http, '/api/account/sendResetpasswordMail', {
 			mail : $scope.requestResetPasswordAccount.mail
-		}).success(function(account) {
+		}).then(function(account) {
 			$location.path("/resetPasswordRequested");
-		}).error(function(error) {
+		})["catch"](function(error) {
 			// TODO switch message with error
 			$rootScope.showError($rootScope.messages.error.withServer);
 		});
@@ -309,7 +342,7 @@ var changePasswordController = [ "$rootScope", "$scope", "$resource", "$location
 	$scope.changePassword = function() {
 		put($http, '/api/account/password', {
 			password : $scope.password,
-			key : $rootScope.sessionKey
+			key : $rootScope.getSessionKey()
 		}).success(function(account) {
 			$location.path("/passwordChanged");
 		}).error(function(error) {
@@ -336,7 +369,7 @@ var editProfileController = [ "$rootScope", "$scope", "$resource", "$location", 
 			fields : {
 				name : $scope.settingAccount.name,
 				information : $scope.settingAccount.information,
-				key : $rootScope.sessionKey
+				key : $rootScope.getSessionKey()
 			},
 			file : $scope.imageFile,
 			fileFormDataName : "imageFile",
@@ -368,7 +401,7 @@ var editContentController = [ "$rootScope", "$scope", "$resource", "$location", 
 			title : $scope.editingContent.title,
 			article : $scope.editingContent.article,
 			contentKey : $scope.editingContent.contentKey,
-			sessionKey : $rootScope.sessionKey,
+			sessionKey : $rootScope.getSessionKey(),
 			status : $scope.editingContent.status.keyNumber,
 			topImageUrl : $scope.editingContent.topImageUrl,
 			tags : tags
@@ -422,7 +455,7 @@ var editContentController = [ "$rootScope", "$scope", "$resource", "$location", 
 			$uploader.upload({
 				url : '/api/image/' + $scope.editingContent.contentKey,
 				fields : {
-					sessionKey : $rootScope.sessionKey
+					sessionKey : $rootScope.getSessionKey()
 				},
 				file : $scope.editingContent.contentImageFile,
 				fileFormDataName : "imageFile",
@@ -448,13 +481,7 @@ var contentController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 	}, function(content) {
 		$scope.content = content;
 	}, function(error) {
-		if (403 == error.status) {
-			$rootScope.showError($rootScope.messages.error.notAccessible);
-		} else if (404 == error.status) {
-			$rootScope.showError($rootScope.messages.error.notFound);
-		} else {
-			$rootScope.showError($rootScope.messages.error.withServer);
-		}
+		$rootScope.showErrorWithStatus(error.status);
 	});
 	$resource('/api/content/comment/:contentKey?sessionKey=:sessionKey').query({
 		contentKey : $routeParams.contentKey,
@@ -462,13 +489,7 @@ var contentController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 	}, function(comments) {
 		$scope.comments = comments;
 	}, function(error) {
-		if (403 == error.status) {
-			$rootScope.showError($rootScope.messages.error.notAccessible);
-		} else if (404 == error.status) {
-			$rootScope.showError($rootScope.messages.error.notFound);
-		} else {
-			$rootScope.showError($rootScope.messages.error.withServer);
-		}
+		$rootScope.showErrorWithStatus(error.status);
 	});
 	$scope.newComment = {};
 	$scope.comment = function() {
@@ -479,9 +500,9 @@ var contentController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 			contentKey : $routeParams.contentKey,
 			sessionKey : $rootScope.getSessionKey(),
 			message : $scope.newComment.message
-		}).success(function(data, status, headers, config) {
+		}).then(function(data, status, headers, config) {
 			$scope.newComment = {};
-		}).error(function(data, status, headers, config) {
+		})["catch"](function(response) {
 			$rootScope.showError($rootScope.messages.contents.failToComment);
 		});
 	}
@@ -500,14 +521,14 @@ var tagsController = [ "$rootScope", "$scope", "$resource", "$location", "$http"
 	$resource('/api/tags/listAll').query({}, function(tags) {
 		$scope.tags = tags;
 	}, function(error) {
-		$rootScope.showError($rootScope.messages.error.withServer);
+		$rootScope.showErrorWithStatus(error.status);
 	});
 } ];
 var tagController = [ "$rootScope", "$scope", "$resource", "$location", "$http", "$routeParams", function($rootScope, $scope, $resource, $location, $http, $routeParams) {
 	$resource('/api/tags/' + $routeParams.id + "/contents").get({}, function(tag) {
 		$scope.tag = tag;
 	}, function(error) {
-		$rootScope.showError($rootScope.messages.error.withServer);
+		$rootScope.showErrorWithStatus(error.status);
 	});
 	$scope.gotoEdit = function() {
 		$location.path("/tag/" + $routeParams.id + "/edit");
@@ -519,16 +540,102 @@ var editTagController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 	}, function(tag) {
 		$scope.tag = tag;
 	}, function(error) {
-		$rootScope.showError($rootScope.messages.error.withServer);
+		$rootScope.showErrorWithStatus(error.status);
 	});
 	$scope.save = function() {
 		put($http, '/api/tags/' + $routeParams.id, {
 			description : $scope.tag.description,
-			sessionKey : $rootScope.sessionKey
+			sessionKey : $rootScope.getSessionKey()
 		}).success(function(account) {
 			$location.path("/tag/" + $routeParams.id);
 		}).error(function(error) {
-			$rootScope.showError($rootScope.messages.error.withServer);
+			$rootScope.showErrorWithStatus(error.status);
+		});
+	}
+} ];
+var groupsController = [ "$rootScope", "$scope", "$resource", "$location", "$http", "$routeParams", function($rootScope, $scope, $resource, $location, $http, $routeParams) {
+	$resource('/api/groups/self').query({
+		sessionKey : $rootScope.getSessionKey()
+	}, function(groups) {
+		$scope.groups = groups;
+	}, function(error) {
+		$rootScope.showErrorWithStatus(error.status);
+	});
+	$scope.gotoCreateNewGroup = function() {
+		$location.path("/group/0/edit");
+	}
+} ];
+var groupController = [ "$rootScope", "$scope", "$resource", "$location", "$http", "$routeParams", function($rootScope, $scope, $resource, $location, $http, $routeParams) {
+	$resource('/api/groups/:id').get({
+		id : $routeParams.id,
+		sessionKey : $rootScope.getSessionKey()
+	}, function(group) {
+		$scope.group = group;
+		$scope.group.visibility = $rootScope.groupVisibilities[group.visibility - 1];
+	}, function(error) {
+		$rootScope.showErrorWithStatus(error.status);
+	});
+	$scope.gotoEdit = function() {
+		$location.path("/group/" + $routeParams.id + "/edit");
+	}
+	$scope.invite = function() {
+		post($http, '/api/groups/' + $routeParams.id + "/invite", {
+			sessionKey : $rootScope.getSessionKey(),
+			mail : $scope.inviteUserMail
+		}).then(function(response) {
+			$scope.group.Accounts.push(response.data);
+			$scope.inviteUserMail = null;
+		})["catch"](function(response) {
+			$rootScope.showErrorWithStatus(response.status, function(status) {
+				if (409 == status) {
+					$rootScope.showError($rootScope.messages.groups.error.aleadyIn);
+					return true;
+				}
+				return false;
+			});
+		});
+	}
+} ];
+var editGroupController = [ "$rootScope", "$scope", "$resource", "$location", "$http", "$routeParams", function($rootScope, $scope, $resource, $location, $http, $routeParams) {
+	if (!$routeParams.id || $routeParams.id == 0) {
+		$scope.group = {};
+		$scope.group.visibility = $rootScope.groupVisibilities[0];
+	} else {
+		$resource('/api/groups/:id').get({
+			id : $routeParams.id,
+			sessionKey : $rootScope.getSessionKey()
+		}, function(group) {
+			$scope.group = group;
+			$scope.group.visibility = $rootScope.groupVisibilities[group.visibility - 1];
+		}, function(error) {
+			$rootScope.showErrorWithStatus(error.status);
+		});
+	}
+	$scope.cancel = function() {
+		if (!$routeParams.id || $routeParams.id == 0) {
+			$location.path("/groups");
+		} else {
+			$location.path("/group/" + $routeParams.id);
+		}
+	}
+	$scope.save = function() {
+		var execFunc;
+		if (!$routeParams.id || $routeParams.id == 0) {
+			execFunc = post;
+		} else {
+			execFunc = put;
+		}
+		execFunc($http, '/api/groups', {
+			sessionKey : $rootScope.getSessionKey(),
+			id : $routeParams.id,
+			name : $scope.group.name,
+			description : $scope.group.description,
+			imageUrl : $scope.imageUrl,
+			visibility : $scope.group.visibility.keyNumber
+		}).success(function(group) {
+			$location.path("/group/" + group.id);
+		}).error(function(error) {
+			$rootScope.showErrorWithStatus(error.status);
 		});
 	}
 } ];
@@ -538,12 +645,15 @@ var homeController = [ "$rootScope", "$scope", "$resource", "$location", "$http"
 		return;
 	}
 	$resource('/api/content/?sessionKey=:sessionKey').query({
-		sessionKey : $rootScope.sessionKey
+		sessionKey : $rootScope.getSessionKey()
 	}, function(contents) {
 		$scope.myContents = contents;
 	}, function(error) {
-		$rootScope.showError($rootScope.messages.error.withServer);
+		$rootScope.showErrorWithStatus(error.status);
 	});
+	$scope.createNewContent = function() {
+		$location.path("/editContent");
+	}
 } ];
 myapp.controller('indexController', indexController);
 myapp.controller('activationController', activationController);
@@ -557,4 +667,7 @@ myapp.controller('contentController', contentController);
 myapp.controller('tagsController', tagsController);
 myapp.controller('editTagController', editTagController);
 myapp.controller('tagController', tagController);
+myapp.controller('groupsController', groupsController);
+myapp.controller('groupController', groupController);
+myapp.controller('editGroupController', editGroupController);
 myapp.controller('homeController', homeController);

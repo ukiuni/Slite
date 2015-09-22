@@ -1,0 +1,45 @@
+<div style="height: 100%;">
+	<div class="col-sm-6 col-sm-offset-3">
+		<div class="row">
+			<div class="row">
+				<div class="row">
+					<form name="groupForm">
+						<input id="groupName" name="groupName" type="text" ng-minlength="2" class="col-sm-6" ng-model="group.name" required />
+						<div class="col-sm-2">
+							<span class="error" ng-show="groupForm.groupName.$error.minlength">&lt; 2</span>
+						</div>
+						<div class="col-sm-4">
+							<select ng-model="group.visibility" ng-options="visibility as visibility.message for visibility in groupVisibilities"></select>
+						</div>
+					</form>
+				</div>
+			</div>
+			<div class="row">
+				<img ng-src="{{group.imageUrl}}">
+			</div>
+			<div class="row">
+				<textarea class="col-sm-12" ng-model="group.description" placeholder="{{messages.contents.tagDescription}}"></textarea>
+			</div>
+		</div>
+		<h3 class="row" ng-bind="messages.groups.member"></h3>
+		<div class="row">
+			<div class="col-sm-4" ng-repeat="account in group.Accounts track by account.id">
+				<div class="row">
+					<img class="col-sm-2" ng-src="{{account.iconUrl}}" />
+					<div class="col-sm-10">
+						<a ng-href="/account/{{account.id}}"><div ng-bind="account.name ? account.name : account.mail "></div></a>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="row">
+		<button id="cancelButton" ng-show="myAccount" class="btn btn-default col-sm-2 col-sm-offset-4" ng-bind="messages.cancel" ng-click="cancel()"></button>
+		<button id="saveButton" ng-show="myAccount" class="btn btn-default col-sm-2" ng-bind="messages.save" ng-disabled="groupForm.$invalid || !group.visibility.keyNumber" ng-click="save()"></button>
+	</div>
+	<div class="row">
+		<div class="col-sm-11 col-sm-offset-1" align="center" style="margin-top: 10px">
+			<a href="/groups">&lt;<span ng-bind="messages.groups.groupList"></span></a>
+		</div>
+	</div>
+</div>

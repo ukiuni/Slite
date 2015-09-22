@@ -30,6 +30,9 @@ module.exports = function(sequelize, DataTypes) {
 		Content.belongsToMany(sequelize.Tag, {
 			through : sequelize.ContentToTag
 		});
+		Content.belongsToMany(sequelize.Group, {
+			through : sequelize.ContentInGroup
+		});
 	}
 	return Content;
 };

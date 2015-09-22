@@ -12,7 +12,9 @@ var crypto = require('crypto');
 var ImageTrimmer = require(__dirname + "/../../util/imageTrimmer");
 var Storage = require(__dirname + "/../../util/storage");
 var Random = require(__dirname + "/../../util/random");
-var ERROR_NOT_ACCESSIBLE = "ERROR_NOT_ACCESSIBLE";
+var ERROR_NOTACCESSIBLE = "ERROR_NOTACCESSIBLE";
+var ERROR_NOTFOUND = "ERROR_NOTFOUND";
+var ERROR_DUPLICATE = "ERROR_DUPLICATE";
 router.post('/', function(req, res) {
 	if (null == req.body.name || "" == req.body.name || null == req.body.mail || "" == req.body.mail || null == req.body.password || "" == req.body.password) {
 		res.status(400).end();
@@ -24,19 +26,23 @@ router.post('/', function(req, res) {
 			mail : req.body.mail
 		}
 	}).then(function(account) {
-		if (account) {
-			res.status(409).end();
-			return;
+		if (account && Account.STATUS_INVITING != account.status) {
+			throw ERROR_DUPLICATE;
 		}
-		return Random.createRandomBase62();
-	}).then(function(accountKey) {
 		var iconUrl = serverConfig.hostURL + "/images/icons." + (Date.now() % 3 + 1) + ".png"
-		return Account.create({
-			name : req.body.name,
-			mail : req.body.mail,
-			accountKey : accountKey,
-			iconUrl : iconUrl
-		})
+		if (account) {
+			account.name = req.body.name
+			account.iconUrl = iconUrl
+			account.status = Account.STATUS_REQUEST_ACTIVATION;
+			return account.save();
+		} else {
+			return Account.create({
+				name : req.body.name,
+				mail : req.body.mail,
+				iconUrl : iconUrl,
+				status : Account.STATUS_REQUEST_ACTIVATION
+			})
+		}
 	}).then(function(account) {
 		var passwordHashed = hash(req.body.password);
 		createdAccount = account;
@@ -66,8 +72,16 @@ router.post('/', function(req, res) {
 			res.status(500).json(error);
 		});
 	})["catch"](function(error) {
-		console.trace(error);
-		res.status(500).json(error);
+		if (ERROR_NOTACCESSIBLE == error) {
+			res.status(403).end();
+		} else if (ERROR_NOTFOUND == error) {
+			res.status(404).end();
+		} else if (ERROR_DUPLICATE == error) {
+			res.status(409).end();
+		} else {
+			console.log(error.stack);
+			res.status(500).end();
+		}
 	});
 });
 var sendActivationMail = function(toMailAddress, activationKey, errorFunc) {
@@ -132,7 +146,7 @@ router.get('/', function(req, res) {
 		}).then(function(accessKey) {
 			if (!accessKey) {
 				res.status(400).end();
-				throw ERROR_NOT_ACCESSIBLE;
+				throw ERROR_NOTACCESSIBLE;
 			}
 			return Account.find({
 				where : {
@@ -146,7 +160,7 @@ router.get('/', function(req, res) {
 			}
 			res.status(200).json(account);
 		})["catch"](function(error) {
-			if (error == ERROR_NOT_ACCESSIBLE) {
+			if (error == ERROR_NOTACCESSIBLE) {
 				res.status(400).end();
 			} else {
 				res.status(500).end();
@@ -255,7 +269,7 @@ router.put('/', function(req, res) {
 		}
 	}).then(function(accessKey) {
 		if (!accessKey) {
-			throw ERROR_NOT_ACCESSIBLE;
+			throw ERROR_NOTACCESSIBLE;
 		}
 		return Account.find({
 			where : {
@@ -264,7 +278,7 @@ router.put('/', function(req, res) {
 		});
 	}).then(function(account) {
 		if (!account) {
-			throw ERROR_NOT_ACCESSIBLE;
+			throw ERROR_NOTACCESSIBLE;
 		}
 		var saveAccount = function(iconUrl) {
 			if (req.body.name) {
@@ -296,7 +310,7 @@ router.put('/', function(req, res) {
 			saveAccount();
 		}
 	})["catch"](function(error) {
-		if (error === ERROR_NOT_ACCESSIBLE) {
+		if (error === ERROR_NOTACCESSIBLE) {
 			res.status(400).end();
 		} else {
 			console.trace(error);
@@ -382,7 +396,7 @@ var sendResetPasswordMail = function(account, resetKey, errorFunc) {
 		from : serverConfig.admin.mail,
 		to : toMailAddress,
 		subject : 'Welcome to ' + serverConfig.app.name,
-		content : renderer.render('activationMailTemplate.ect', dataForTemplate)
+		content : renderer.render('resetPasswordMailTemplate.ect', dataForTemplate)
 	}, function(err, reply) {
 		if (err) {
 			errorFunc(error.stack, replay);
