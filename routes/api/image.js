@@ -46,12 +46,11 @@ router.get('/:contentKey/:imageKey', function(req, res) {
 		if (contentBody.status == ContentBody.STATUS_OPEN || contentBody.status == ContentBody.STATUS_URLACCESS) {
 			return;
 		} else {
-			return AccessKey.find({
-				where : {
-					secret : req.query.sessionKey || req.query.accessToken,
-					type : AccessKey.TYPE_SESSION
-				}
-			}).then(function(accessKey) {
+			var accessKey = req.body.sessionKey || req.body.access_token;
+			if (!accessKey) {
+				throw ERROR_NOTACCESSIBLE;
+			}
+			AccessKey.findBySessionKey(accessKey).then(function(accessKey) {
 				if (accessKey.AccountId == loadedContent.ownerId) {
 					return new Promise(function(success) {
 						success("authorized")
@@ -75,8 +74,12 @@ router.get('/:contentKey/:imageKey', function(req, res) {
 			res.status(200).send(data.buffer);
 		})
 	})["catch"](function(error) {
-		console.log(error);
-		res.status(404).send();
+		if (ERROR_NOTACCESSIBLE == error) {
+			res.status(403).send();
+		} else {
+			console.log(error.stack);
+			res.status(500).send();
+		}
 	});
 });
 router.post('/:contentKey', function(req, res) {
@@ -85,11 +88,7 @@ router.post('/:contentKey', function(req, res) {
 		res.status(403).end();
 		return;
 	}
-	AccessKey.find({
-		where : {
-			secret : accessKey
-		}
-	}).then(function(accessKey) {
+	AccessKey.findBySessionKey(accessKey).then(function(accessKey) {
 		if (!accessKey) {
 			throw ERROR_NOTACCESSIBLE;
 		}

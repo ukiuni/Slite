@@ -21,11 +21,7 @@ router.put('/:id', function(req, res) {
 		res.status(400).end();
 		return;
 	}
-	AccessKey.find({
-		where : {
-			secret : accessKey
-		}
-	}).then(function(accessKey) {
+	AccessKey.findBySessionKey(accessKey).then(function(accessKey) {
 		if (!accessKey) {
 			throw ERROR_NOTACCESSIBLE;
 		}

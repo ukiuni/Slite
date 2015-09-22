@@ -15,6 +15,15 @@ module.exports = function(sequelize, DataTypes) {
 	AccessKey.associate = function(sequelize) {
 		AccessKey.belongsTo(sequelize.Account);
 	}
+	AccessKey.findBySessionKey = function(sessionKey) {
+		return global.db.AccessKey.find({
+			where : {
+				secret : sessionKey,
+				type : AccessKey.TYPE_SESSION,
+				status : AccessKey.STATUS_CREATED
+			}
+		});
+	}
 	AccessKey.TYPE_ACTIVATION = 1;
 	AccessKey.TYPE_LOGIN = 2;
 	AccessKey.TYPE_SESSION = 3;

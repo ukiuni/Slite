@@ -38,11 +38,7 @@ var socket = function(io) {
 			socket.leave(contentKey);
 		});
 		socket.on('authorize', function(accessKey) {
-			AccessKey.find({
-				where : {
-					secret : accessKey
-				}
-			}).then(function(accessKey) {
+			AccessKey.findBySessionKey(accessKey).then(function(accessKey) {
 				if (!accessKey) {
 					return;
 				}

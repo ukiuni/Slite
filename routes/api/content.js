@@ -42,11 +42,7 @@ function createFindContentBase() {
 router.get('/', function(req, res) {
 	var accessKey = req.query.sessionKey || req.query.access_token;
 	if (accessKey) {
-		AccessKey.find({
-			where : {
-				secret : accessKey
-			}
-		}).then(function(accessKey) {
+		AccessKey.findBySessionKey(accessKey).then(function(accessKey) {
 			if (!accessKey) {
 				throw ERROR_NOTACCESSIBLE;
 			}
@@ -100,11 +96,7 @@ router.get('/:contentKey', function(req, res) {
 			return;
 		} else {
 			var accessKey = req.query.sessionKey || req.query.auth_token;
-			AccessKey.find({
-				where : {
-					secret : accessKey
-				}
-			}).then(function(accessKey) {
+			AccessKey.findBySessionKey(accessKey).then(function(accessKey) {
 				if (!accessKey) {
 					throw ERROR_NOTACCESSIBLE;
 				}
@@ -189,11 +181,7 @@ router.get('/comment/:contentKey', function(req, res) {
 			});
 		} else {
 			var accessKey = req.query.sessionKey || req.query.auth_token;
-			AccessKey.find({
-				where : {
-					secret : accessKey
-				}
-			}).then(function(accessKey) {
+			AccessKey.findBySessionKey(accessKey).then(function(accessKey) {
 				if (!accessKey) {
 					throw ERROR_NOTACCESSIBLE;
 				}
@@ -283,11 +271,7 @@ router.post('/', function(req, res) {
 	var createdContentAccessKey;
 	var createdContent;
 	var appendedTag = [];
-	AccessKey.find({
-		where : {
-			secret : accessKey
-		}
-	}).then(function(accessKey) {
+	AccessKey.findBySessionKey(accessKey).then(function(accessKey) {
 		if (!accessKey) {
 			throw ERROR_NOTACCESSIBLE;
 		}
@@ -347,11 +331,8 @@ router.put('/', function(req, res) {
 	var lastContentVersion;
 	var loadedAccessKey;
 	var loadedContent;
-	AccessKey.find({
-		where : {
-			secret : req.body.sessionKey || req.body.access_token
-		}
-	}).then(function(accessKey) {
+	var accessKey = req.query.sessionKey || req.query.auth_token;
+	AccessKey.findBySessionKey(accessKey).then(function(accessKey) {
 		if (!accessKey || !(AccessKey.TYPE_SESSION == accessKey.type || AccessKey.TYPE_LOGIN == accessKey.type)) {
 			throw ERROR_NOTACCESSIBLE;
 		}
@@ -402,11 +383,7 @@ router.post('/comment', function(req, res) {
 	var accessAccount;
 	var accessContent;
 	var createdContentComment;
-	AccessKey.find({
-		where : {
-			secret : accessKey
-		}
-	}).then(function(accessKey) {
+	AccessKey.findBySessionKey(accessKey).then(function(accessKey) {
 		if (!accessKey) {
 			throw ERROR_NOTACCESSIBLE;
 		}

@@ -20,11 +20,7 @@ router.get('/self', function(req, res) {
 		res.status(400).end();
 		return;
 	}
-	AccessKey.find({
-		where : {
-			secret : accessKey
-		}
-	}).then(function(accessKey) {
+	AccessKey.findBySessionKey(accessKey).then(function(accessKey) {
 		if (!accessKey) {
 			throw ERROR_NOTACCESSIBLE;
 		}
@@ -50,11 +46,7 @@ router.post('/', function(req, res) {
 	}
 	var loadedAccount;
 	var createdGroup;
-	AccessKey.find({
-		where : {
-			secret : accessKey
-		}
-	}).then(function(accessKey) {
+	AccessKey.findBySessionKey(accessKey).then(function(accessKey) {
 		if (!accessKey) {
 			throw ERROR_NOTACCESSIBLE;
 		}
@@ -94,11 +86,7 @@ router.put('/', function(req, res) {
 		return;
 	}
 	var loadedAccount;
-	AccessKey.find({
-		where : {
-			secret : accessKey
-		}
-	}).then(function(accessKey) {
+	AccessKey.findBySessionKey(accessKey).then(function(accessKey) {
 		if (!accessKey) {
 			throw ERROR_NOTACCESSIBLE;
 		}
@@ -155,11 +143,7 @@ router.get('/:id', function(req, res) {
 			throw ERROR_NOTACCESSIBLE;
 		}
 		var loadedAccessKey;
-		AccessKey.find({
-			where : {
-				secret : accessKey
-			}
-		}).then(function(accessKey) {
+		AccessKey.findBySessionKey(accessKey).then(function(accessKey) {
 			if (!accessKey) {
 				throw ERROR_NOTACCESSIBLE;
 			}
@@ -196,14 +180,14 @@ router.get('/:id', function(req, res) {
 });
 router.post('/:id/invite', function(req, res) {
 	var accessKey = req.body.sessionKey || req.body.access_token;
+	if(!accessKey){
+		res.status(400).end();
+		return;
+	}
 	var loadedAccount;
 	var targetAccount;
 	var loadedGroup;
-	AccessKey.find({
-		where : {
-			secret : accessKey
-		}
-	}).then(function(accessKey) {
+	AccessKey.findBySessionKey(accessKey).then(function(accessKey) {
 		if (!accessKey) {
 			throw ERROR_NOTACCESSIBLE;
 		}
