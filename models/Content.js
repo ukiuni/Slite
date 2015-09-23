@@ -7,9 +7,9 @@ module.exports = function(sequelize, DataTypes) {
 		classMethods : {},
 		instanceMethods : {
 			isAccessible : function(accountId) {
-				return sequelize.ContentAuthorized.find({
+				return global.db.AccountInGroup.find({
 					where : {
-						ContentId : this.id,
+						ContentId : this.GroupId,
 						AccountId : accountId
 					}
 				});

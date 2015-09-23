@@ -4,9 +4,9 @@ var Content = global.db.Content;
 var ContentBody = global.db.ContentBody;
 var ContentComment = global.db.ContentComment;
 var ContentCommentMessage = global.db.ContentCommentMessage;
-var ContentAuthorized = global.db.ContentAuthorized;
 var Tag = global.db.Tag;
 var Group = global.db.Group;
+var AccountInGroup = global.db.AccountInGroup;
 var socket = global.socket;
 var Promise = require("bluebird");
 var express = require('express');
@@ -104,10 +104,12 @@ router.get('/:contentKey', function(req, res) {
 					return new Promise(function(success) {
 						success("accessible");
 					});
+				} else if (ContentBody.STATUS_AUTHENTICATEDONLY != content.ContentBodies[0].status) {
+					throw ERROR_NOTACCESSIBLE;
 				}
-				return ContentAuthorized.find({
+				return AccountInGroup.find({
 					where : {
-						ContentId : content.id,
+						GroupId : content.GroupId,
 						AccountId : accessKey.AccountId
 					}
 				});
@@ -189,10 +191,12 @@ router.get('/comment/:contentKey', function(req, res) {
 					return new Promise(function(success) {
 						success("accessible");
 					});
+				} else if (ContentBody.STATUS_AUTHENTICATEDONLY != content.ContentBodies[0].status) {
+					throw ERROR_NOTACCESSIBLE;
 				}
-				return ContentAuthorized.find({
+				return AccountInGroup.find({
 					where : {
-						ContentId : content.id,
+						GroupId : content.GroupId,
 						AccountId : accessKey.AccountId
 					}
 				});
@@ -331,7 +335,7 @@ router.put('/', function(req, res) {
 	var lastContentVersion;
 	var loadedAccessKey;
 	var loadedContent;
-	var accessKey = req.query.sessionKey || req.query.auth_token;
+	var accessKey = req.body.sessionKey || req.body.auth_token;
 	AccessKey.findBySessionKey(accessKey).then(function(accessKey) {
 		if (!accessKey || !(AccessKey.TYPE_SESSION == accessKey.type || AccessKey.TYPE_LOGIN == accessKey.type)) {
 			throw ERROR_NOTACCESSIBLE;

@@ -3,6 +3,8 @@ var router = express.Router();
 var AccessKey = global.db.AccessKey;
 var AccountInGroup = global.db.AccountInGroup;
 var Account = global.db.Account;
+var Content = global.db.Content;
+var ContentBody = global.db.ContentBody;
 var Group = global.db.Group;
 var env = process.env.NODE_ENV || "development";
 var serverConfig = require(__dirname + "/../../config/server.json")[env];
@@ -129,6 +131,24 @@ router.get('/:id', function(req, res) {
 		include : [ {
 			model : Account,
 			attribute : [ "name", "iconUrl" ]
+		}, {
+			model : Content,
+			require : false,
+			include : [ {
+				model : Account,
+				as : "owner"
+			}, {
+				model : ContentBody,
+				attributes : [ "title", "topImageUrl", "status" ],
+				where : [ "'Contents.ContentBodies'.'version' = 'Contents'.'currentVersion'" ],
+				required : false,
+				include : [ {
+					model : Account,
+					as : "updator",
+					attributes : [ "name", "iconUrl" ]
+				} ],
+				order : "updatedAt"
+			} ]
 		} ]
 	}).then(function(group) {
 		if (!group) {
@@ -180,7 +200,7 @@ router.get('/:id', function(req, res) {
 });
 router.post('/:id/invite', function(req, res) {
 	var accessKey = req.body.sessionKey || req.body.access_token;
-	if(!accessKey){
+	if (!accessKey) {
 		res.status(400).end();
 		return;
 	}

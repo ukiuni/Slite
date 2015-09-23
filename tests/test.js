@@ -1,5 +1,5 @@
 var Actions = require(__dirname + "/utils/actions");
-module.exports = {
+var tests = {
 	'Create Account' : function(client) {
 		Actions.createAccountAndSignin(client);
 		client.end();
@@ -63,3 +63,16 @@ module.exports = {
 		client.end();
 	},
 };
+var testModule = {};
+var appended = false;
+[].forEach(function(arg) {
+	if (tests[arg]) {
+		testModule[arg] = tests[arg];
+		appended = true;
+	}
+});
+if (appended) {
+	module.exports = testModule;
+} else {
+	module.exports = tests;
+}

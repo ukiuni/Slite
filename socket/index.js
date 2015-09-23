@@ -2,7 +2,7 @@ var Account = global.db.Account;
 var AccessKey = global.db.AccessKey;
 var Content = global.db.Content;
 var ContentBody = global.db.ContentBody;
-var ContentAuthorized = global.db.ContentAuthorized;
+var AccountInGroup = global.db.AccountInGroup;
 var socket = function(io) {
 	var connected;
 	this.context = io.sockets.on('connection', function(socket) {
@@ -21,17 +21,24 @@ var socket = function(io) {
 				var content = contents[0];
 				if (ContentBody.STATUS_OPEN == content.ContentBodies[0].status || ContentBody.STATUS_URLACCESS == content.ContentBodies[0].status) {
 					socket.join(contentKey);
+				} else if (ContentBody.STATUS_AUTHENTICATEDONLY == content.ContentBodies[0].status) {
+					AccountInGroup.find({
+						where : {
+							ContentId : content.GroupId,
+							AccountId : socket.client.accountId
+						}
+					}).then(function(accountInGroup) {
+						if (accountInGroup) {
+							socket.join(contentKey);
+						} else {
+							// TODO send error
+						}
+					});
+				} else if (content.ownerId == socket.client.accountId) {
+					socket.join(contentKey);
+				} else {
+					// TODO send error
 				}
-				ContentAuthorized.find({
-					where : {
-						ContentId : content.id,
-						AccountId : socket.client.accountId
-					}
-				}).then(function(contentAuthorized) {
-					if (contentAuthorized) {
-						socket.join(contentKey);
-					}
-				});
 			});
 		});
 		socket.on('unListenComment', function(contentKey) {

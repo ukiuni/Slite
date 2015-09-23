@@ -39,8 +39,9 @@
 		"edit" : "edit",
 		"save" : "save",
 		"cancel" : "cancel",
+		"content" : "content",
 		"contents" : {
-			"content" : "content",
+			"self" : "content",
 			"open" : "open",
 			"hidden" : "hidden",
 			"urlAccess" : "URL access",
@@ -99,8 +100,9 @@
 		"edit" : "編集",
 		"save" : "保存",
 		"cancel" : "キャンセル",
+		"content" : "投稿",
 		"contents" : {
-			"content" : "自分の投稿",
+			"self" : "自分の投稿",
 			"open" : "公開",
 			"hidden" : "非公開",
 			"urlAccess" : "URLアクセス",

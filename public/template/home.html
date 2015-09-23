@@ -10,7 +10,7 @@
 				</div>
 			</div>
 			<div class="row" style="margin-bottom: 10px">
-				<h2 class="col-xs-10" style="margin: 0;padding 0;" ng-bind="messages.contents.content"></h2>
+				<h2 class="col-xs-10" style="margin: 0;padding 0;" ng-bind="messages.contents.self"></h2>
 				<button class="col-xs-2 btn btn-default" ng-bind="messages.menu.newContent" ng-click="createNewContent()"></button>
 			</div>
 			<div class="row" ng-repeat="content in myContents track by content.id">

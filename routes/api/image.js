@@ -3,7 +3,7 @@ var router = express.Router();
 var AccessKey = global.db.AccessKey;
 var Content = global.db.Content;
 var ContentBody = global.db.ContentBody;
-var ContentAuthorized = global.db.ContentAuthorized;
+var AccountInGroup = global.db.AccountInGroup;
 var Promise = require("bluebird");
 var Random = require(__dirname + "/../../util/random");
 var ImageTrimmer = require(__dirname + "/../../util/imageTrimmer");
@@ -50,20 +50,22 @@ router.get('/:contentKey/:imageKey', function(req, res) {
 			if (!accessKey) {
 				throw ERROR_NOTACCESSIBLE;
 			}
-			AccessKey.findBySessionKey(accessKey).then(function(accessKey) {
+			return AccessKey.findBySessionKey(accessKey).then(function(accessKey) {
 				if (accessKey.AccountId == loadedContent.ownerId) {
 					return new Promise(function(success) {
 						success("authorized")
 					});
+				} else if (ContentBody.STATUS_AUTHENTICATEDONLY != content.ContentBodies[0].status) {
+					throw ERROR_NOTACCESSIBLE;
 				}
-				return ContentAuthorized.find({
+				return AccountInGroup.find({
 					where : {
-						ContentId : loadedContent.id,
+						GroupId : content.GroupId,
 						AccountId : accessKey.AccountId
 					}
 				});
-			}).then(function(contentAuthorized) {
-				if (!contentAuthorized) {
+			}).then(function(accountInGroup) {
+				if (!accountInGroup) {
 					throw ERROR_NOTACCESSIBLE;
 				}
 			});
