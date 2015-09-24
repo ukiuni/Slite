@@ -145,7 +145,6 @@ router.get('/', function(req, res) {
 			}
 		}).then(function(accessKey) {
 			if (!accessKey) {
-				res.status(400).end();
 				throw ERROR_NOTACCESSIBLE;
 			}
 			return Account.find({
@@ -166,7 +165,6 @@ router.get('/', function(req, res) {
 				res.status(500).end();
 			}
 		});
-		return;
 	} else {
 		res.status(400).end();
 	}
@@ -264,7 +262,6 @@ router.put('/', function(req, res) {
 	AccessKey.find({
 		where : {
 			secret : req.body.key,
-			status : AccessKey.STATUS_CREATED,
 			type : AccessKey.TYPE_SESSION
 		}
 	}).then(function(accessKey) {

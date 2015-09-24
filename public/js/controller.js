@@ -118,6 +118,16 @@ myapp.run([ "$rootScope", "$location", "$resource", "$cookies", function($rootSc
 			message : $rootScope.messages.groups.visibility.secretEvenMember,
 			keyNumber : 3
 		} ];
+		$rootScope.groupAuthorizations = [ {
+			message : $rootScope.messages.accounts.authorization.viewer,
+			keyNumber : 1
+		}, {
+			message : $rootScope.messages.accounts.authorization.editor,
+			keyNumber : 2
+		}, {
+			message : $rootScope.messages.accounts.authorization.administrator,
+			keyNumber : 3
+		} ];
 	}, function() {
 		$rootScope.showError("Fail to load message resource.");
 	});
@@ -174,8 +184,8 @@ myapp.run([ "$rootScope", "$location", "$resource", "$cookies", function($rootSc
 		})
 	}
 	var sessionKey = $rootScope.getSessionKey();
-	if (sessionKey) {
-		$resource('/api/account?sessionKey=:sessionKey').get({
+	if (!$rootScope.myAccount && sessionKey) {
+		$resource('/api/account').get({
 			sessionKey : sessionKey
 		}, function(account) {
 			$rootScope.myAccount = account;
@@ -216,6 +226,7 @@ myapp.run([ "$rootScope", "$location", "$resource", "$cookies", function($rootSc
 	$rootScope.socket.on('disconnect', function(data) {
 		$rootScope.disconnected = true;
 	});
+	$rootScope.inviteImageUrls = [ "none", "/images/inviting.png", "/images/member.png", "/images/admin.png" ];
 } ]);
 var indexController = [ "$rootScope", "$scope", "$modal", "$location", "$http", "$window", function($rootScope, $scope, $modal, $location, $http, $window) {
 	$scope.openCreateAccountDialog = function() {
@@ -293,7 +304,7 @@ var activationController = [ "$rootScope", "$scope", "$resource", "$location", f
 var signinController = [ "$rootScope", "$scope", "$resource", "$location", function($rootScope, $scope, $resource, $location) {
 	$scope.signinAccount = {}
 	$scope.signin = function() {
-		var Signin = $resource('/api/account/signin?mail=:mail&password=:password');
+		var Signin = $resource('/api/account/signin');
 		Signin.get({
 			mail : $scope.signinAccount.mail,
 			password : $scope.signinAccount.password
@@ -609,7 +620,8 @@ var groupController = [ "$rootScope", "$scope", "$resource", "$location", "$http
 	$scope.invite = function() {
 		post($http, '/api/groups/' + $routeParams.id + "/invite", {
 			sessionKey : $rootScope.getSessionKey(),
-			mail : $scope.inviteUserMail
+			mail : $scope.inviteUserMail,
+			authorization : $scope.inviteUserAuthorization.keyNumber
 		}).then(function(response) {
 			$scope.group.Accounts.push(response.data);
 			$scope.inviteUserMail = null;
@@ -623,6 +635,7 @@ var groupController = [ "$rootScope", "$scope", "$resource", "$location", "$http
 			});
 		});
 	}
+	$scope.inviteUserAuthorization = $rootScope.groupAuthorizations[0];
 } ];
 var editGroupController = [ "$rootScope", "$scope", "$resource", "$location", "$http", "$routeParams", function($rootScope, $scope, $resource, $location, $http, $routeParams) {
 	if (!$routeParams.id || $routeParams.id == 0) {

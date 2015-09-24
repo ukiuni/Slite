@@ -149,7 +149,8 @@ router.get('/:id', function(req, res) {
 				} ],
 				order : "updatedAt"
 			} ]
-		} ]
+		} ],
+		order : "createdAt DESC"
 	}).then(function(group) {
 		if (!group) {
 			throw ERROR_NOTFOUND;
@@ -243,7 +244,10 @@ router.post('/:id/invite', function(req, res) {
 		if (accountInGroup) {
 			throw ERROR_DUPLICATED;
 		}
-		return loadedGroup.addAccount(targetAccount);
+		return loadedGroup.addAccount(targetAccount, {
+			authorization : req.body.authorization,
+			inviting : Group.INVITING_START
+		});
 	}).then(function(addedAccounts) {
 		if (Account.STATUS_INVITING == targetAccount.status) {
 			sendInvitationMail(loadedAccount, targetAccount);

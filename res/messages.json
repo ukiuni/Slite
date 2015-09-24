@@ -18,6 +18,11 @@
 			"mail" : "mail",
 			"error" : {
 				"aleadyHaveAccount" : "You aleady have a account"
+			},
+			"authorization" : {
+				"viewer" : "viewer",
+				"editor" : "editor",
+				"administrator" : "admin"
 			}
 		},
 		"group" : "Group",
@@ -78,6 +83,11 @@
 			"mail" : "mail",
 			"error" : {
 				"aleadyHaveAccount" : "すでにアカウントをお持ちです。"
+			},
+			"authorization" : {
+				"viewer" : "閲覧者",
+				"editor" : "編集者",
+				"administrator" : "管理者"
 			}
 		},
 		"group" : "グループ",

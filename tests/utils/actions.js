@@ -111,6 +111,9 @@ module.exports = {
 	},
 	inviteAccountAfterCreateGroupAndCheckExists : function(client, account) {
 		client.setValue('input', account.mail);
+		client.click('select');
+		client.waitForElementVisible('option:last-child', 1000);
+		client.click('option:last-child');
 		client.click("#inviteButton");
 		client.pause(1000);
 		client.assert.containsText("#memberArea", account.name);
