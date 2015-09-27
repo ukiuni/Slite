@@ -6,6 +6,12 @@ myapp.config([ "$locationProvider", "$httpProvider", "$routeProvider", function(
 	$locationProvider.html5Mode(true);
 	$httpProvider.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded;charset=utf-8';
 	$httpProvider.defaults.headers.put['Content-Type'] = 'application/x-www-form-urlencoded;charset=utf-8';
+	$httpProvider.defaults.transformRequest = function(data) {
+		if (data === undefined) {
+			return data;
+		}
+		return $.param(data);
+	}
 	$routeProvider.when("/", {
 		templateUrl : "template/indexView.html",
 		controller : "indexController"
@@ -91,7 +97,7 @@ myapp.config([ "$locationProvider", "$httpProvider", "$routeProvider", function(
 	});
 } ]);
 myapp.run([ "$rootScope", "$location", "$resource", "$cookies", function($rootScope, $location, $resource, $cookies) {
-	$resource('/api/resource/messages?lang=:lang').get({
+	$resource('/api/resource/messages').get({
 		lang : ((navigator.languages && navigator.languages[0]) || navigator.browserLanguage || navigator.language || navigator.userLanguage).substr(0, 2)
 	}, function(messages) {
 		$rootScope.messages = messages;
@@ -172,8 +178,8 @@ myapp.run([ "$rootScope", "$location", "$resource", "$cookies", function($rootSc
 		return sessionKey;
 	}
 	$rootScope.signout = function() {
-		$resource('/api/account/accessKey?key=:sessionKey').remove({
-			sessionKey : $rootScope.getSessionKey()
+		$resource('/api/account/accessKey').remove({
+			key : $rootScope.getSessionKey()
 		}, function() {
 			$rootScope.removeSessionKey();
 			$rootScope.myAccount = null;
@@ -279,10 +285,7 @@ var httpRequest = function($http, method, url, object) {
 	var http = $http({
 		url : url,
 		method : method,
-		data : JSON.stringify(object),
-		headers : {
-			'Content-Type' : 'application/json'
-		}
+		data : object
 	})
 	return http;
 }
@@ -623,6 +626,7 @@ var groupController = [ "$rootScope", "$scope", "$resource", "$location", "$http
 			mail : $scope.inviteUserMail,
 			authorization : $scope.inviteUserAuthorization.keyNumber
 		}).then(function(response) {
+			console.log("response = "+JSON.stringify(response));
 			$scope.group.Accounts.push(response.data);
 			$scope.inviteUserMail = null;
 		})["catch"](function(response) {

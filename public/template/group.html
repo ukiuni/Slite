@@ -34,7 +34,7 @@
 			<div id="memberArea" class="row">
 				<div class="row" ng-repeat="account in group.Accounts track by account.id">
 					<div class="col-sm-1">
-						<img style="width: 20px; height: 20px" ng-src="{{account.iconUrl}}" />
+						<img style="width: 20px; height: 20px" ng-src="{{account.iconUrl ? account.iconUrl : '/images/icons.noone.png'}}" />
 					</div>
 					<div class="col-sm-10">
 						<a ng-href="/account/{{account.id}}"><div ng-bind="account.name ? account.name : account.mail "></div></a>

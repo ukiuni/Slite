@@ -16,9 +16,8 @@ app.engine('ect', ectRenderer.render);
 app.set('view engine', 'ect');
 app.set('port', process.env.PORT || 3030);
 app.set('views', path.join(__dirname, 'views'));
-app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
-	extended : true
+	extended : false
 }));
 app.use(multer({
 	storage : multer.memoryStorage()

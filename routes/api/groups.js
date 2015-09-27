@@ -248,13 +248,17 @@ router.post('/:id/invite', function(req, res) {
 			authorization : req.body.authorization,
 			inviting : Group.INVITING_START
 		});
-	}).then(function(addedAccounts) {
+	}).then(function(accountInGroup) {
 		if (Account.STATUS_INVITING == targetAccount.status) {
 			sendInvitationMail(loadedAccount, targetAccount);
 		} else {
 			sendInvitedToGroupMail(loadedAccount, targetAccount);
 		}
-		res.status(201).json(targetAccount);
+		res.status(201).json({
+			id : targetAccount.id,
+			mail : targetAccount.mail,
+			AccountInGroup : accountInGroup[0][0]
+		});
 	})["catch"](function(error) {
 		if (ERROR_NOTACCESSIBLE == error) {
 			res.status(403).end();
