@@ -40,11 +40,11 @@
 						<a ng-href="/account/{{account.id}}"><div ng-bind="account.name ? account.name : account.mail "></div></a>
 					</div>
 					<div class="col-sm-1">
-						<img style="width: 20px; height: 20px" ng-src="{{1 == account.AccountInGroup.inviting ? inviteImageUrls[1] : inviteImageUrls[account.AccountInGroup.authorization]}}" />
+						<img style="width: 20px; height: 20px" ng-src="{{1 == account.AccountInGroup.inviting ? inviteImageUrls[0] : inviteImageUrls[account.AccountInGroup.authorization]}}" />
 					</div>
 				</div>
 			</div>
-			<div class="row" style="margin-top: 10px">
+			<div class="row" style="margin-top: 10px" ng-show="isEditable()">
 				<div class="col-sm-3" ng-bind="messages.groups.addsMember"></div>
 				<div class="col-sm-5">
 					<form name="addMemberForm">
@@ -56,10 +56,13 @@
 				</div>
 				<button id="inviteButton" class="col-sm-2 btn btn-default" ng-bind="messages.groups.invite" ng-disabled="addMemberForm.mail.$error.email || addMemberForm.mail.$error.required" ng-click="invite()"></button>
 			</div>
+			<div class="row" style="margin-top: 10px" ng-show="isInviting()">
+				<button id="joinButton" class="col-sm-10 col-sm-offset-1 btn btn-default" ng-bind="messages.groups.join" ng-click="join()"></button>
+			</div>
 		</div>
 	</div>
 	<div class="row">
-		<div class="col-sm-11 col-sm-offset-1" align="center" style="margin-top: 10px">
+		<div class="col-sm-10 col-sm-offset-1" align="center" style="margin-top: 10px">
 			<a href="/groups">&lt;<span ng-bind="messages.groups.groupList"></span></a>
 		</div>
 	</div>

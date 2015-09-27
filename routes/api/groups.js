@@ -155,7 +155,7 @@ router.get('/:id', function(req, res) {
 		if (!group) {
 			throw ERROR_NOTFOUND;
 		}
-		if (group.visiblility == Group.VISIBILITY_OPEN) {
+		if (group.visibility == Group.VISIBILITY_OPEN) {
 			res.status(200).json(group);
 			return;
 		}
@@ -169,10 +169,11 @@ router.get('/:id', function(req, res) {
 				throw ERROR_NOTACCESSIBLE;
 			}
 			loadedAccessKey = accessKey;
-			return group.getAccounts();
-		}).then(function(accounts) {
-			for (var i = 0; i < accounts.length; i++) {
-				if (accounts[i].id == loadedAccessKey.AccountId) {
+			for ( var i in group.Accounts) {
+				if (group.Accounts[i].id == loadedAccessKey.AccountId) {
+					if (Group.VISIBILITY_SECRET_EVEN_MEMBER == group.visibility && Account.AUTHORIZATION_ADMIN != group.Accounts[i].AccountInGroup.authorization) {
+						delete group.Accounts
+					}
 					res.status(200).json(group);
 					return;
 				}
@@ -259,6 +260,49 @@ router.post('/:id/invite', function(req, res) {
 			mail : targetAccount.mail,
 			AccountInGroup : accountInGroup[0][0]
 		});
+	})["catch"](function(error) {
+		if (ERROR_NOTACCESSIBLE == error) {
+			res.status(403).end();
+		} else if (ERROR_NOTFOUND == error) {
+			res.status(404).end();
+		} else if (ERROR_DUPLICATED == error) {
+			res.status(409).end();
+		} else {
+			console.log(error.stack);
+			res.status(500).end();
+		}
+	});
+});
+router.put('/:id/join', function(req, res) {
+	var accessKey = req.body.sessionKey || req.body.access_token;
+	if (!accessKey) {
+		res.status(400).end();
+		return;
+	}
+	var loadedAccount;
+	var targetAccount;
+	var loadedGroup;
+	AccessKey.findBySessionKey(accessKey).then(function(accessKey) {
+		if (!accessKey) {
+			throw ERROR_NOTACCESSIBLE;
+		}
+		return accessKey.getAccount();
+	}).then(function(account) {
+		loadedAccount = account;
+		return AccountInGroup.find({
+			where : {
+				AccountId : account.id,
+				GroupId : req.params.id
+			}
+		});
+	}).then(function(accountInGroup) {
+		if (!accountInGroup || accountInGroup.inviting != Group.INVITING_START) {
+			throw ERROR_NOTACCESSIBLE;
+		}
+		accountInGroup.inviting = Group.INVITING_DONE;
+		return accountInGroup.save();
+	}).then(function(accountInGroup) {
+		res.status(200).json(accountInGroup);
 	})["catch"](function(error) {
 		if (ERROR_NOTACCESSIBLE == error) {
 			res.status(403).end();

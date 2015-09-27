@@ -80,6 +80,6 @@ module.exports = function(sequelize, DataTypes) {
 	Account.AUTHORIZATION_ADMIN = 3;
 	Account.STATUS_INVITING = 1;
 	Account.STATUS_REQUEST_ACTIVATION = 2;
-	Account.STATUS_ACTIVATED = 2;
+	Account.STATUS_ACTIVATED = 3;
 	return Account;
 };

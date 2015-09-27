@@ -35,6 +35,14 @@ module.exports = {
 		client.assert.containsText("p", "Hi");
 		return account;
 	},
+	joinToFirstGroupWhenSignin : function(client) {
+		client.click('#groupArea > div > div > a');
+		client.waitForElementVisible("#joinButton", 1000);
+		client.assert.attributeContains("#memberArea > div:last-child > div:last-child > img", "src", "inviting.png");
+		client.click('#joinButton');
+		client.pause(1000);
+		client.assert.attributeContains("#memberArea > div:last-child > div:last-child > img", "src", "viewer.png");
+	},
 	createContentAndCheckExists : function(client, done) {
 		var contentRandom = new Date().getTime();
 		var contentTitle = "contentTitle" + contentRandom;

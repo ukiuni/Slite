@@ -32,6 +32,7 @@
 			"description" : "Description",
 			"addsMember" : "Add member",
 			"invite" : "Invite",
+			"join" : "Join",
 			"visibility" : {
 				"open" : "Open",
 				"secret" : "Secret",
@@ -98,6 +99,7 @@
 			"member" : "メンバー",
 			"addsMember" : "メンバー追加",
 			"invite" : "招待",
+			"join" : "参加",
 			"visibility" : {
 				"open" : "公開",
 				"secret" : "非公開",

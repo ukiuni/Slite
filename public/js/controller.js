@@ -232,7 +232,7 @@ myapp.run([ "$rootScope", "$location", "$resource", "$cookies", function($rootSc
 	$rootScope.socket.on('disconnect', function(data) {
 		$rootScope.disconnected = true;
 	});
-	$rootScope.inviteImageUrls = [ "none", "/images/inviting.png", "/images/member.png", "/images/admin.png" ];
+	$rootScope.inviteImageUrls = [ "/images/inviting.png", "/images/viewer.png", "/images/editor.png", "/images/admin.png" ];
 } ]);
 var indexController = [ "$rootScope", "$scope", "$modal", "$location", "$http", "$window", function($rootScope, $scope, $modal, $location, $http, $window) {
 	$scope.openCreateAccountDialog = function() {
@@ -626,7 +626,6 @@ var groupController = [ "$rootScope", "$scope", "$resource", "$location", "$http
 			mail : $scope.inviteUserMail,
 			authorization : $scope.inviteUserAuthorization.keyNumber
 		}).then(function(response) {
-			console.log("response = "+JSON.stringify(response));
 			$scope.group.Accounts.push(response.data);
 			$scope.inviteUserMail = null;
 		})["catch"](function(response) {
@@ -638,6 +637,41 @@ var groupController = [ "$rootScope", "$scope", "$resource", "$location", "$http
 				return false;
 			});
 		});
+	}
+	$scope.join = function() {
+		put($http, '/api/groups/' + $routeParams.id + "/join", {
+			sessionKey : $rootScope.getSessionKey()
+		}).then(function(response) {
+			for ( var i in $scope.group.Accounts) {
+				if ($scope.group.Accounts[i].id == $rootScope.myAccount.id) {
+					$scope.group.Accounts[i].AccountInGroup = response.data;
+				}
+			}
+		})["catch"](function(response) {
+			$rootScope.showErrorWithStatus(response.status);
+		});
+	}
+	$scope.isInviting = function() {
+		if (!$rootScope.myAccount || !$scope.group) {
+			return false;
+		}
+		for ( var i in $scope.group.Accounts) {
+			if ($scope.group.Accounts[i].id === $rootScope.myAccount.id && 1 === $scope.group.Accounts[i].AccountInGroup.inviting) {
+				return true;
+			}
+		}
+		return false;
+	}
+	$scope.isEditable = function() {
+		if (!$rootScope.myAccount || !$scope.group) {
+			return false;
+		}
+		for ( var i in $scope.group.Accounts) {
+			if ($scope.group.Accounts[i].id === $rootScope.myAccount.id && 1 < $scope.group.Accounts[i].AccountInGroup.inviting && 2 <= $scope.group.Accounts[i].AccountInGroup.authorization) {
+				return true;
+			}
+		}
+		return false;
 	}
 	$scope.inviteUserAuthorization = $rootScope.groupAuthorizations[0];
 } ];

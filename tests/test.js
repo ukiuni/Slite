@@ -60,6 +60,7 @@ var tests = {
 		Actions.inviteAccountAfterCreateGroupAndCheckExists(client, newAccount);
 		Actions.signout(client);
 		Actions.createAccountAndSignin(client, newAccount);
+		Actions.joinToFirstGroupWhenSignin(client);
 		client.end();
 	},
 };
