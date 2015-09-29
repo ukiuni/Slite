@@ -368,6 +368,15 @@ router.put('/', function(req, res) {
 		loadedContent.body = contentBody;
 		return saveTag(loadedContent, req.body.tags);
 	}).then(function() {
+		if (req.body.groupId || 0 != req.body.groupId) {
+			Group.findById(req.body.groupId).then(function(group) {
+				if (!group) {
+					return;
+				}
+				return loadedContent.setGroup(group);
+			})
+		}
+	}).then(function() {
 		res.status(201).json(loadedContent);
 	})["catch"](function(error) {
 		console.log(error.stack);
