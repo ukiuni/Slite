@@ -217,6 +217,15 @@ myapp.run([ "$rootScope", "$location", "$resource", "$cookies", function($rootSc
 		$rootScope.socket.removeListener(contentKey, callback);
 		socketListeners["delete"](contentKey);
 	};
+	var targetGroupId = null;
+	$rootScope.setTargetGroupId = function(_targetGroupId) {
+		targetGroupId = _targetGroupId
+	}
+	$rootScope.pullTargetGroupId = function() {
+		var _targetGroupId = targetGroupId;
+		targetGroupId = null;
+		return _targetGroupId;
+	}
 	$rootScope.socket = io.connect();
 	$rootScope.disconnected = false;
 	$rootScope.socket.on('connect', function(data) {
@@ -511,6 +520,10 @@ var editContentController = [ "$rootScope", "$scope", "$resource", "$location", 
 			name : ""
 		})
 		$scope.myGroups = groups;
+		var targetGroupId = $rootScope.pullTargetGroupId();
+		if (targetGroupId) {
+			$scope.editingContent.group.id = targetGroupId;
+		}
 		initGroupSelect();
 	}, function(error) {
 		$rootScope.showErrorWithStatus(error.status);
@@ -672,6 +685,10 @@ var groupController = [ "$rootScope", "$scope", "$resource", "$location", "$http
 			}
 		}
 		return false;
+	}
+	$scope.createNewContent = function() {
+		$rootScope.setTargetGroupId($routeParams.id);
+		$location.path("/editContent");
 	}
 	$scope.inviteUserAuthorization = $rootScope.groupAuthorizations[0];
 } ];

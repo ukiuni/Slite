@@ -16,7 +16,10 @@
 					<div id="groupDescription" class="col-sm-12" ng-bind="group.description"></div>
 				</div>
 			</div>
-			<h3 class="row" ng-bind="messages.content"></h3>
+			<div class="row">
+				<h3 class=col-xs-10 ng-bind="messages.content"></h3>
+				<button class="col-xs-2 btn btn-default" ng-bind="messages.menu.newContent" ng-click="createNewContent()"></button>
+			</div>
 			<div id="contentArea" class="row">
 				<div class="col-sm-12" ng-repeat="content in group.Contents track by content.id">
 					<div class="col-xs-12 contentListColmun">
