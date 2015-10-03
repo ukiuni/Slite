@@ -58,6 +58,7 @@ module.exports = {
 		client.click('select');
 		client.waitForElementVisible('option:first-child', 1000);
 		client.click('option:first-child');
+		client.sendKeys('select', client.Keys.ENTER);
 		client.click('.btn-primary');
 		client.waitForElementVisible("div > div > a > span", 1000);
 		client.assert.containsText("div > div > a > span", contentTitle);
@@ -99,7 +100,7 @@ module.exports = {
 		client.waitForElementVisible('#descriptionArea', 1000);
 		client.assert.containsText("#descriptionArea", tagDescription);
 	},
-	createGroupAndCheckExists : function(client) {
+	createGroupAndCheckExists : function(client, callback, openStatusCursor) {
 		var contentRandom = new Date().getTime();
 		var groupName = "groupName" + contentRandom;
 		var groupDescription = "groupDescription" + contentRandom;
@@ -111,19 +112,31 @@ module.exports = {
 		client.setValue('textarea', groupDescription);
 		client.click('select');
 		client.waitForElementVisible('option:first-child', 1000);
-		client.click('option:first-child');
+		client.click(openStatusCursor ? openStatusCursor : 'option:first-child');
+		client.sendKeys('select', client.Keys.ENTER);
 		client.click('#saveButton');
 		client.waitForElementVisible('div#groupName', 1000);
 		client.assert.containsText("#groupName", groupName);
 		client.assert.containsText("#groupDescription", groupDescription);
+		if (callback) {
+			client.url(function(result) {
+				callback(result.value)
+			});
+		}
 	},
 	inviteAccountAfterCreateGroupAndCheckExists : function(client, account) {
 		client.setValue('input', account.mail);
 		client.click('select');
-		client.waitForElementVisible('option:last-child', 1000);
-		client.click('option:last-child');
+		client.waitForElementVisible('option:first-child', 1000);
+		client.click('option:first-child');
+		client.sendKeys('select', client.Keys.ENTER);
 		client.click("#inviteButton");
 		client.pause(1000);
 		client.assert.containsText("#memberArea", account.name);
+	},
+	visitGroupAndNotVisible : function(client, groupUrl) {
+		client.url(groupUrl);
+		client.waitForElementVisible('#groupListLink', 1000);
+		client.expect.element('#groupName').to.not.be.visible;
 	}
 }

@@ -63,10 +63,25 @@ var tests = {
 		Actions.joinToFirstGroupWhenSignin(client);
 		client.end();
 	},
+	'Account not member is unvisible group' : function(client) {
+		Actions.createAccountAndSignin(client);
+		Actions.createGroupAndCheckExists(client, function(groupUrl) {
+			var nameAndMail = Date.now() + "inviteAccount@example.com"
+			var newAccount = {
+				name : nameAndMail,
+				mail : nameAndMail,
+				password : Date.now()
+			}
+			Actions.signout(client);
+			Actions.createAccountAndSignin(client, newAccount);
+			Actions.visitGroupAndNotVisible(client, groupUrl);
+			client.end();
+		}, 'option:last-child');
+	},
 };
 var testModule = {};
 var appended = false;
-[].forEach(function(arg) {
+[ ].forEach(function(arg) {
 	if (tests[arg]) {
 		testModule[arg] = tests[arg];
 		appended = true;
