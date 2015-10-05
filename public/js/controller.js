@@ -1,8 +1,8 @@
 toastr.options = {
 	"positionClass" : "toast-top-center"
 }
-var myapp = angular.module('app', [ 'ui.bootstrap', 'ngRoute', 'ngResource', "ngCookies", 'ngFileUpload', 'ngTagsInput' ]);
-myapp.config([ "$locationProvider", "$httpProvider", "$routeProvider", function($locationProvider, $httpProvider, $routeProvider, $rootScope, $location) {
+var myapp = angular.module("app", [ "ui.bootstrap", "ngRoute", "ngResource", "ngCookies", "ngFileUpload", "ngTagsInput", "hc.marked" ]);
+myapp.config([ "$locationProvider", "$httpProvider", "$routeProvider", "markedProvider", function($locationProvider, $httpProvider, $routeProvider, $markedProvider) {
 	$locationProvider.html5Mode(true);
 	$httpProvider.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded;charset=utf-8';
 	$httpProvider.defaults.headers.put['Content-Type'] = 'application/x-www-form-urlencoded;charset=utf-8';
@@ -12,6 +12,15 @@ myapp.config([ "$locationProvider", "$httpProvider", "$routeProvider", function(
 		}
 		return $.param(data);
 	}
+	$markedProvider.setOptions({
+		gfm : true,
+		tables : true,
+		breaks : false,
+		pedantic : false,
+		sanitize : true,
+		smartLists : true,
+		smartypants : false
+	});
 	$routeProvider.when("/", {
 		templateUrl : "template/indexView.html",
 		controller : "indexController"
@@ -535,8 +544,12 @@ var contentController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 		sessionKey : $rootScope.getSessionKey()
 	}, function(content) {
 		$scope.content = content;
+		$rootScope.title = content.ContentBodies[0].title;
 	}, function(error) {
 		$rootScope.showErrorWithStatus(error.status);
+	});
+	$scope.$on('$routeChangeStart', function(ev, current) {
+		$rootScope.title = null;
 	});
 	$resource('/api/content/comment/:contentKey?sessionKey=:sessionKey').query({
 		contentKey : $routeParams.contentKey,

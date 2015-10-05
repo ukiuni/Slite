@@ -5,11 +5,13 @@
 <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
 <link rel="stylesheet" href="assets/bootstrap/css/bootstrap-theme.min.css">
 <script src="assets/bootstrap/js/bootstrap.min.js"></script>
+<script src="assets/marked.min.js"></script>
 
 <script src="assets/angular.js"></script>
 <script src="assets/angular-route.min.js"></script>
 <script src="assets/angular-resource.min.js"></script>
 <script src="assets/angular-cookies.min.js"></script>
+<script src="assets/angular-marked.min.js"></script>
 <script src="assets/ng-file-upload.min.js"></script>
 <script src="assets/ui-bootstrap-tpls-0.13.0.min.js"></script>
 
@@ -24,7 +26,7 @@
 <link href="css/app.css" rel="stylesheet" />
 <script src="js/controller.js"></script>
 
-<title ng-model="title"></title>
+<title ng-bind="title ? title : messages.app.title"></title>
 
 </head>
 <nav class="navbar navbar-default navbar-static-top">

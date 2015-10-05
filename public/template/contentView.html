@@ -21,7 +21,7 @@
 					<span ng-bind="content.owner.name" style="width: 100px; text-align: left"></span> <img ng-src="{{content.owner.iconUrl}}" style="height: 80px; margin-top: -40px" class="img-circle"> <span ng-bind="content.updatedAt | date:'yyyy-MM-dd'"></span>
 				</div>
 				<div class="row">
-					<p id="article" class="article" ng-bind="content.ContentBodies[0].article"></p>
+					<p id="article" class="article" marked="content.ContentBodies[0].article"></p>
 				</div>
 				<div id="commentArea" style="background-color: #F8F8F8; padding: 10px">
 					<div class="row" ng-repeat="comment in comments track by comment.id" style="border: solid 1px #EEE; margin: 5px">
