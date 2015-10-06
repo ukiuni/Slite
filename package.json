@@ -5,7 +5,7 @@
   "scripts": {
     "testReady": "./node_modules/selenium-standalone/bin/selenium-standalone start &",
     "test": "./node_modules/nightwatch/bin/nightwatch -t tests/test*.js",
-    "main": "./index.js",
+    "main": "node index.js",
     "devMain": "./node_modules/node-dev/bin/node-dev index.js"
   },
   "author": "ukiuni",

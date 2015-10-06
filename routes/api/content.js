@@ -335,6 +335,7 @@ router.put('/', function(req, res) {
 	var lastContentVersion;
 	var loadedAccessKey;
 	var loadedContent;
+	var loadedContentBody;
 	var accessKey = req.body.sessionKey || req.body.auth_token;
 	AccessKey.findBySessionKey(accessKey).then(function(accessKey) {
 		if (!accessKey || !(AccessKey.TYPE_SESSION == accessKey.type || AccessKey.TYPE_LOGIN == accessKey.type)) {
@@ -350,22 +351,66 @@ router.put('/', function(req, res) {
 		if (!content || loadedAccessKey.AccountId != content.ownerId) {
 			throw ERROR_NOTACCESSIBLE;
 		}
-		lastContentVersion = content.currentVersion;
-		return content.increment("currentVersion");
+		loadedContent = content;
+		return content.getContentBodies({
+			where : {
+				version : content.currentVersion
+			}
+		});
+	}).then(function(contentBodies) {
+		var contentBody = contentBodies[0];
+		if (!contentBody) {
+			throw ERROR_NOTACCESSIBLE;
+		}
+		loadedContentBody = contentBody;
+		if (loadedAccessKey.AccountId == loadedContent.ownerId) {
+			return new Promise(function(success) {
+				success("accessible");
+			});
+		} else if (ContentBody.STATUS_AUTHENTICATEDONLY != contentBody.status) {
+			throw ERROR_NOTACCESSIBLE;
+		}
+		return AccountInGroup.find({
+			where : {
+				GroupId : loadedContent.GroupId,
+				AccountId : loadedAccessKey.AccountId
+			}
+		});
+	}).then(function(accessible) {
+		if (!accessible) {
+			throw ERROR_NOTACCESSIBLE;
+		}
+		lastContentVersion = loadedContent.currentVersion;
+		return loadedContent.increment("currentVersion");
 	}).then(function(content) {
 		return content.reload();
 	}).then(function(content) {
 		loadedContent = content;
+		var title = req.body.title ? req.body.title : loadedContentBody.title;
+		var article;
+		if ("first" == req.body.appends) {
+			article = req.body.article + loadedContentBody.article;
+		} else if ("last" == req.body.appends) {
+			article = loadedContentBody.article + req.body.article;
+		} else {
+			article = req.body.article;
+		}
+		var topImageUrl = req.body.topImageUrl ? req.body.topImageUrl : loadedContentBody.topImageUrl;
 		return ContentBody.create({
 			ContentId : loadedContent.id,
 			version : loadedContent.currentVersion,
-			title : req.body.title,
-			article : req.body.article,
-			topImageUrl : req.body.topImageUrl,
+			title : title,
+			article : article,
+			topImageUrl : topImageUrl,
 			status : req.body.status ? parseInt(req.body.status) : Content.STATUS_OPEN
 		});
 	}).then(function(contentBody) {
 		loadedContent.body = contentBody;
+		if (!req.body.tags) {
+			return new Promise(function(success) {
+				success()
+			});
+		}
 		return saveTag(loadedContent, req.body.tags);
 	}).then(function() {
 		if (req.body.groupId || 0 != req.body.groupId) {

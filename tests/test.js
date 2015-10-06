@@ -10,6 +10,14 @@ var tests = {
 			client.end();
 		});
 	},
+	'Update Content' : function(client) {
+		Actions.createAccountAndSignin(client);
+		Actions.createContentAndCheckExists(client, function(contentUrl) {
+			Actions.updateContentAndCheckUpdated(client, function() {
+				client.end();
+			});
+		});
+	},
 	'Create Comment' : function(client) {
 		Actions.createAccountAndSignin(client);
 		Actions.createContentAndCheckExists(client, function(contentUrl) {
@@ -81,7 +89,7 @@ var tests = {
 };
 var testModule = {};
 var appended = false;
-[ ].forEach(function(arg) {
+[].forEach(function(arg) {
 	if (tests[arg]) {
 		testModule[arg] = tests[arg];
 		appended = true;

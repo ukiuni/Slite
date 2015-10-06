@@ -73,6 +73,38 @@ module.exports = {
 			}
 		});
 	},
+	updateContentAndCheckUpdated : function(client, done) {
+		var contentRandom = new Date().getTime();
+		var contentTitle = "contentTitle_updated" + contentRandom;
+		var tags = "contentTag1U" + contentRandom + "," + "contentTag2U" + contentRandom + ",JavaScript";
+		var article = "article_updated" + contentRandom;
+		client.url(url + "/home");
+		client.waitForElementVisible('.contentListColmun', 1000);
+		client.click('.contentListColmun > div > button');
+		client.waitForElementVisible('#contentTitle', 1000);
+		client.setValue('#contentTitle', contentTitle);
+		client.setValue('tags-input > div > div > input', tags);
+		client.setValue('#article', article);
+		client.click('select');
+		client.waitForElementVisible('option:first-child', 1000);
+		client.click('option:first-child');
+		client.sendKeys('select', client.Keys.ENTER);
+		client.click('.btn-primary');
+		client.waitForElementVisible("div > div > a > span", 1000);
+		client.assert.containsText("div > div > a > span", contentTitle);
+		client.getAttribute(".contentListTitle", "href", function(result) {
+			client.click("div > div > a > span");
+			client.waitForElementVisible("h2", 1000);
+			client.assert.containsText("h2", contentTitle);
+			// TODO tag-input is difficult to test
+			// client.assert.containsText("#tags > li:first-child",
+			// tags.split(",")[0]);
+			client.assert.containsText("div > div > div > p", article);
+			if (done) {
+				done(result.value);
+			}
+		});
+	},
 	createContentAndCheckExistsAndComment : function(client, contentUrl, comment) {
 		var contentRandom = new Date().getTime();
 		var contentComment = "contentComment" + contentRandom;
