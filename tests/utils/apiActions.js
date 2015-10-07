@@ -100,6 +100,9 @@ module.exports = {
 		});
 	},
 	updateContent : function(assert, sessionKey, content, done) {
+		this.updateContentWithAppends(assert, sessionKey, content, null, done);
+	},
+	updateContentWithAppends : function(assert, sessionKey, content, appends, done) {
 		var contentRandom = new Date().getTime();
 		var contentTitle = "contentTitle" + contentRandom;
 		var article = "articleUpdated" + contentRandom + "\n## test";
@@ -113,6 +116,7 @@ module.exports = {
 				article : article,
 				topImageUrl : topImageUrl,
 				status : status,
+				appends : appends,
 				sessionKey : sessionKey
 			},
 			json : true
@@ -121,9 +125,15 @@ module.exports = {
 			assert.equal(res.statusCode, 201);
 			assert.equal(!!body.accessKey, true);
 			if (done) {
+				var newArticle = article;
+				if ("before" == appends) {
+					newArticle = article + content.article;
+				} else if ("after" == appends) {
+					newArticle = content.article + article;
+				}
 				done({
 					title : contentTitle,
-					article : article,
+					article : newArticle,
 					tags : tags,
 					topImageUrl : topImageUrl,
 					status : status,

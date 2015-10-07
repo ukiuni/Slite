@@ -119,6 +119,36 @@ var tests = {
 				});
 			})
 		});
+	},
+	'[API] put content appends before' : function(client) {
+		ApiActions.createAccount(client.assert, function(account) {
+			ApiActions.signin(client.assert, account, function(sessionKey) {
+				ApiActions.createContent(client.assert, sessionKey, function(content) {
+					ApiActions.getContent(client.assert, sessionKey, content, function(content) {
+						ApiActions.updateContentWithAppends(client.assert, sessionKey, content, "before", function(content) {
+							ApiActions.getContent(client.assert, sessionKey, content, function(content) {
+								client.end();
+							});
+						});
+					});
+				});
+			})
+		});
+	},
+	'[API] put content appends after' : function(client) {
+		ApiActions.createAccount(client.assert, function(account) {
+			ApiActions.signin(client.assert, account, function(sessionKey) {
+				ApiActions.createContent(client.assert, sessionKey, function(content) {
+					ApiActions.getContent(client.assert, sessionKey, content, function(content) {
+						ApiActions.updateContentWithAppends(client.assert, sessionKey, content, "after", function(content) {
+							ApiActions.getContent(client.assert, sessionKey, content, function(content) {
+								client.end();
+							});
+						});
+					});
+				});
+			})
+		});
 	}
 };
 var testModule = {};

@@ -393,9 +393,9 @@ router.put('/:contentKey', function(req, res) {
 		loadedContent = content;
 		var title = req.body.title ? req.body.title : loadedContentBody.title;
 		var article;
-		if ("first" == req.body.appends) {
+		if ("before" == req.body.appends) {
 			article = req.body.article + loadedContentBody.article;
-		} else if ("last" == req.body.appends) {
+		} else if ("after" == req.body.appends) {
 			article = loadedContentBody.article + req.body.article;
 		} else {
 			article = req.body.article;
