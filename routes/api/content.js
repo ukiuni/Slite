@@ -57,6 +57,8 @@ router.get('/', function(req, res) {
 			console.log(error.stack)
 			if (ERROR_NOTACCESSIBLE == error) {
 				res.status(403).end();
+			} else if (ERROR_NOTFOUND == error) {
+				res.status(404).end();
 			} else {
 				res.status(500).end();
 			}
@@ -309,13 +311,16 @@ router.post('/', function(req, res) {
 		return saveTag(createdContent, req.body.tags);
 	}).then(function() {
 		if (req.body.groupId || 0 != req.body.groupId) {
-			Group.findById(req.body.groupId).then(function(group) {
+			return Group.findById(req.body.groupId).then(function(group) {
 				if (!group) {
 					return;
 				}
 				return createdContent.setGroup(group);
 			})
 		}
+		return Promise(function(success) {
+			success("true")
+		});
 	}).then(function() {
 		res.status(201).json(createdContent);
 	})["catch"](function(error) {
@@ -327,8 +332,8 @@ router.post('/', function(req, res) {
 		}
 	});
 });
-router.put('/', function(req, res) {
-	if (!req.body.contentKey || (!req.body.sessionKey && !req.body.access_token)) {
+router.put('/:contentKey', function(req, res) {
+	if (!req.params.contentKey || (!req.body.sessionKey && !req.body.access_token)) {
 		res.status(404).send();
 		return;
 	}
@@ -344,7 +349,7 @@ router.put('/', function(req, res) {
 		loadedAccessKey = accessKey;
 		return Content.find({
 			where : {
-				accessKey : req.body.contentKey
+				accessKey : req.params.contentKey
 			}
 		})
 	}).then(function(content) {

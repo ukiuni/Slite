@@ -62,11 +62,17 @@ router.post('/', function(req, res) {
 			status : AccessKey.STATUS_CREATED
 		})
 	}).then(function(accessKey) {
+		var activationUrl = serverConfig.hostURL + "/activation?key=" + accessKey.secret;
 		accessKey.setAccount(createdAccount).then(function() {
-			sendActivationMail(createdAccount.mail, accessKey.secret, function() {
+			sendActivationMail(createdAccount.mail, activationUrl, function() {
 				res.status(424).end();
 			});
-			res.status(201).end();
+			res.status(201).json({
+				name : createdAccount.name,
+				mail : createdAccount.mail,
+				iconUrl : createdAccount.iconUrl,
+				activationUrl : activationUrl
+			});
 		})["catch"](function(error) {
 			console.trace(error);
 			res.status(500).json(error);
@@ -84,12 +90,12 @@ router.post('/', function(req, res) {
 		}
 	});
 });
-var sendActivationMail = function(toMailAddress, activationKey, errorFunc) {
+var sendActivationMail = function(toMailAddress, activationUrl, errorFunc) {
 	var dataForTemplate = {
 		app : {
 			name : serverConfig.app.name
 		},
-		activationURL : serverConfig.hostURL + "/activation?key=" + activationKey
+		activationUrl : activationUrl
 	};
 	console.log("---------send maill " + renderer.render('activationMailTemplate.ect', dataForTemplate));
 	return;

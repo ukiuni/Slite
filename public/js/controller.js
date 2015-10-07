@@ -421,18 +421,21 @@ var editContentController = [ "$rootScope", "$scope", "$resource", "$location", 
 		return;
 	}
 	$scope.save = function(func, successCallback, errorCallback) {
+		var url;
 		if (!func) {
 			func = put;
+			url = '/api/content/' + $scope.editingContent.contentKey
 		}
 		if (!$scope.editingContent.contentKey) {
 			func = post;
+			url = '/api/content';
 		}
 		var tags = $scope.editingContent.tags.map(function(val) {
 			return val.text
 		}).filter(function(val) {
 			return "" != val && val.indexOf(",") < 0;
 		}).join(",");
-		func($http, '/api/content', {
+		func($http, url, {
 			title : $scope.editingContent.title,
 			article : $scope.editingContent.article,
 			contentKey : $scope.editingContent.contentKey,

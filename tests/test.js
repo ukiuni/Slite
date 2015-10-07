@@ -1,4 +1,5 @@
 var Actions = require(__dirname + "/utils/actions");
+var ApiActions = require(__dirname + "/utils/apiActions");
 var tests = {
 	'Create Account' : function(client) {
 		Actions.createAccountAndSignin(client);
@@ -86,6 +87,39 @@ var tests = {
 			client.end();
 		}, 'option:last-child');
 	},
+	'[API] create account and signin' : function(client) {
+		ApiActions.createAccount(client.assert, function(account) {
+			ApiActions.signin(client.assert, account, function(sessionKey) {
+				client.end();
+			})
+		});
+	},
+	'[API] create content' : function(client) {
+		ApiActions.createAccount(client.assert, function(account) {
+			ApiActions.signin(client.assert, account, function(sessionKey) {
+				ApiActions.createContent(client.assert, sessionKey, function(content) {
+					ApiActions.getContent(client.assert, sessionKey, content, function(content) {
+						client.end();
+					});
+				});
+			})
+		});
+	},
+	'[API] put content' : function(client) {
+		ApiActions.createAccount(client.assert, function(account) {
+			ApiActions.signin(client.assert, account, function(sessionKey) {
+				ApiActions.createContent(client.assert, sessionKey, function(content) {
+					ApiActions.getContent(client.assert, sessionKey, content, function(content) {
+						ApiActions.updateContent(client.assert, sessionKey, content, function(content) {
+							ApiActions.getContent(client.assert, sessionKey, content, function(content) {
+								client.end();
+							});
+						});
+					});
+				});
+			})
+		});
+	}
 };
 var testModule = {};
 var appended = false;
