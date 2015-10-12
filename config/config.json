@@ -5,15 +5,15 @@
   },
   "test": {
     "username": "postgres",
-    "password": "postgres",
+    "password": null,
     "database": "localdata",
     "host": "127.0.0.1",
     "dialect": "postgres"
   },
   "production": {
     "username": "postgres",
-    "password": "postgres",
-    "database": "localdata",
+    "password": null,
+    "database": "slite",
     "host": "127.0.0.1",
     "dialect": "postgres"
   }
