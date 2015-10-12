@@ -7,5 +7,14 @@
 		"admin":{
 			"mail":"no_replay@ukiuni.com"
 		}
+	},
+	"test":{
+		"hostURL":"http://192.168.11.11:3030",
+		"app":{
+		"name":"Slite"
+		},
+		"admin":{
+			"mail":"no_replay@ukiuni.com"
+		}
 	}
 }

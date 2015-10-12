@@ -1,4 +1,6 @@
-var url = 'http://localhost:3030';
+var env = process.env.NODE_ENV || "development";
+var serverConfig = require(__dirname + "/../../config/server.json")[env];
+var url = serverConfig.hostURL;
 var request = require("request");
 module.exports = {
 	createAccount : function(assert, done) {
