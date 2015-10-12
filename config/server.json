@@ -16,5 +16,14 @@
 		"admin":{
 			"mail":"no_replay@ukiuni.com"
 		}
+	},
+	"production": {
+		"hostURL":"http://slite.ukiuni.com",
+		"app":{
+		"name":"Slite"
+		},
+		"admin":{
+			"mail":"no_replay@ukiuni.com"
+		}
 	}
 }
