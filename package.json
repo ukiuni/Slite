@@ -10,8 +10,8 @@
   },
   "author": "ukiuni",
   "license": "ASL2.0",
-  "description" : "CMS",
-  "repository", "https://github.com/ukiuni/Slite.git"
+  "description": "CMS",
+  "repository": "https://github.com/ukiuni/Slite.git"
   "dependencies": {
     "angular": "^1.4.3",
     "angular-marked": "0.0.18",
