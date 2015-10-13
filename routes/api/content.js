@@ -20,7 +20,7 @@ function createFindContentBase() {
 	return {
 		include : [ {
 			model : ContentBody,
-			where : [ "'ContentBodies'.'version' = 'Content'.'currentVersion'" ],
+			where : [ "\"ContentBodies\".\"version\" = \"Content\".\"currentVersion\"" ],
 			attributes : [ "title", "topImageUrl", "status" ],
 			include : [ {
 				model : Account,
@@ -65,7 +65,7 @@ router.get('/', function(req, res) {
 		})
 	} else {
 		var findContentCriteria = createFindContentBase();
-		findContentCriteria.include[0].where.push("'ContentBodies'.'version' = " + Content.STATUS_OPEN)
+		findContentCriteria.include[0].where.push("\"ContentBodies\".\"version\" = " + Content.STATUS_OPEN)
 		Content.findAll(findContentCriteria).then(function(contents) {
 			res.status(200).json(contents);
 		})["catch"](function(error) {

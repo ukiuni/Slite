@@ -140,7 +140,7 @@ router.get('/:id', function(req, res) {
 			}, {
 				model : ContentBody,
 				attributes : [ "title", "topImageUrl", "status" ],
-				where : [ "'Contents.ContentBodies'.'version' = 'Contents'.'currentVersion'" ],
+				where : [ "\"Contents.ContentBodies\".\"version\" = \"Contents\".\"currentVersion\"" ],
 				required : false,
 				include : [ {
 					model : Account,
