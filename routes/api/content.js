@@ -162,7 +162,7 @@ router.get('/comment/:contentKey', function(req, res) {
 			},
 			include : [ {
 				model : ContentCommentMessage,
-				where : [ "'ContentCommentMessages'.'version' = 'ContentComment'.'currentVersion'" ],
+				where : [ "\"ContentCommentMessages\".\"version\" = \"ContentComment\".\"currentVersion\"" ],
 				attributes : [ "message" ],
 				include : [ {
 					model : Account,
