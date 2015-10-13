@@ -14,7 +14,7 @@ var socket = function(io) {
 				},
 				include : [ {
 					model : ContentBody,
-					where : [ "'ContentBodies'.'version' = 'Content'.'currentVersion'" ],
+					where : [ "\"ContentBodies\".\"version\" = \"Content\".\"currentVersion\"" ],
 					attributes : [ "status", "version" ]
 				} ]
 			}).then(function(contents) {
