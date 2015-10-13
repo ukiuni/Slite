@@ -5,6 +5,7 @@ var ContentBody = global.db.ContentBody;
 var ContentComment = global.db.ContentComment;
 var ContentCommentMessage = global.db.ContentCommentMessage;
 var Tag = global.db.Tag;
+var ContentToTag = global.db.ContentToTag;
 var Group = global.db.Group;
 var AccountInGroup = global.db.AccountInGroup;
 var socket = global.socket;
@@ -36,7 +37,7 @@ function createFindContentBase() {
 		}, {
 			model : Group
 		} ],
-		order : [ [ "updatedAt", "DESC" ] ]
+		order : [ [ "updatedAt", "DESC" ], "Tags.ContentToTag.createdAt" ]
 	}
 }
 router.get('/', function(req, res) {
