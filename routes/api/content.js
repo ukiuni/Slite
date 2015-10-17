@@ -402,13 +402,14 @@ router.put('/:contentKey', function(req, res) {
 			article = req.body.article;
 		}
 		var topImageUrl = req.body.topImageUrl ? req.body.topImageUrl : loadedContentBody.topImageUrl;
+		var status = req.body.status ? parseInt(req.body.status) : Content.STATUS_OPEN;
 		return ContentBody.create({
 			ContentId : loadedContent.id,
 			version : loadedContent.currentVersion,
 			title : title,
 			article : article,
 			topImageUrl : topImageUrl,
-			status : req.body.status ? parseInt(req.body.status) : Content.STATUS_OPEN
+			status : status
 		});
 	}).then(function(contentBody) {
 		loadedContent.body = contentBody;

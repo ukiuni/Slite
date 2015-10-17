@@ -21,6 +21,7 @@ module.exports = {
 			}
 		}
 		client.url(url);
+		client.pause(1000);
 		client.url(url);
 		client.waitForElementVisible('#createAccountButton', testWaitTime);
 		client.assert.visible('#createAccountButton');
