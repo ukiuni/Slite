@@ -1,6 +1,7 @@
 <html ng-app="app" ng-controller="indexController">
 <head>
 <base href="/">
+<meta name=viewport content="width=device-width, initial-scale=1">
 <script src="assets/jquery/jquery-1.11.2.min.js"></script>
 <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
 <link rel="stylesheet" href="assets/bootstrap/css/bootstrap-theme.min.css">
@@ -29,6 +30,7 @@
 <title ng-bind="title ? title : messages.app.title"></title>
 
 </head>
+<body style="height: 100%">
 <nav class="navbar navbar-default navbar-static-top">
 	<div class="container">
 		<div class="navbar-header">
@@ -54,7 +56,6 @@
 		<!--/.nav-collapse -->
 	</div>
 </nav>
-<body style="height: 100%">
 	<div ng-view></div>
 </body>
 </html>

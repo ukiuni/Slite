@@ -144,4 +144,44 @@ module.exports = {
 			}
 		});
 	},
+	updateContentWithAppendsOnlyArticle : function(assert, sessionKey, content, appends, done) {
+		var contentRandom = new Date().getTime();
+		var article = "articleUpdated" + contentRandom + "\n## test";
+		request.put({
+			uri : url + "/api/content/" + content.accessKey,
+			form : {
+				article : article,
+				appends : appends,
+				sessionKey : sessionKey
+			},
+			json : true
+		}, function(error, res, body) {
+			var newArticle = article;
+			if ("before" == appends) {
+				newArticle = article + content.article;
+			} else if ("after" == appends) {
+				newArticle = content.article + article;
+			}
+			console.log("--------------- " + JSON.stringify(body));
+			assert.equal(!!error, false);
+			assert.equal(res.statusCode, 201);
+			assert.equal(body.accessKey, content.accessKey);
+			assert.equal(content.title, body.ContentBodies[0].title);
+			assert.equal(newArticle, body.ContentBodies[0].article);
+			assert.equal(content.topImageUrl, body.ContentBodies[0].topImageUrl);
+			assert.equal(content.status, body.ContentBodies[0].status);
+			// TODO tags test is difficult now
+			// assert.equal(content.tags, body.tags);
+			if (done) {
+				done({
+					title : content.title,
+					article : newArticle,
+					tags : content.tags,
+					topImageUrl : content.topImageUrl,
+					status : content.status,
+					accessKey : content.accessKey
+				});
+			}
+		});
+	},
 }

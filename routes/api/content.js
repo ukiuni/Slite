@@ -341,7 +341,7 @@ router.put('/:contentKey', function(req, res) {
 	var lastContentVersion;
 	var loadedAccessKey;
 	var loadedContent;
-	var loadedContentBody;
+	var updatedContentBody;
 	var accessKey = req.body.sessionKey || req.body.auth_token;
 	AccessKey.findBySessionKey(accessKey).then(function(accessKey) {
 		if (!accessKey || !(AccessKey.TYPE_SESSION == accessKey.type || AccessKey.TYPE_LOGIN == accessKey.type)) {
@@ -402,7 +402,7 @@ router.put('/:contentKey', function(req, res) {
 			article = req.body.article;
 		}
 		var topImageUrl = req.body.topImageUrl ? req.body.topImageUrl : loadedContentBody.topImageUrl;
-		var status = req.body.status ? parseInt(req.body.status) : Content.STATUS_OPEN;
+		var status = req.body.status ? parseInt(req.body.status) : loadedContentBody.status;
 		return ContentBody.create({
 			ContentId : loadedContent.id,
 			version : loadedContent.currentVersion,
@@ -412,7 +412,7 @@ router.put('/:contentKey', function(req, res) {
 			status : status
 		});
 	}).then(function(contentBody) {
-		loadedContent.body = contentBody;
+		updatedContentBody = contentBody;
 		if (!req.body.tags) {
 			return new Promise(function(success) {
 				success()
@@ -429,6 +429,8 @@ router.put('/:contentKey', function(req, res) {
 			})
 		}
 	}).then(function() {
+		loadedContent.dataValues.ContentBodies = [];
+		loadedContent.dataValues.ContentBodies.push(updatedContentBody);
 		res.status(201).json(loadedContent);
 	})["catch"](function(error) {
 		console.log(error.stack);
