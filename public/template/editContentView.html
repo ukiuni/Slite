@@ -12,7 +12,7 @@
 				</div>
 				<div class="row" style="margin-top: -50px">
 					<div class="col-xs-4">
-						<button ngf-drop ngf-select ng-model="editingContent.contentImageFile" class="btn btn-lg btn-default btn-block drop-box" ngf-drag-over-class="dragover" ngf-allow-dir="true" ngf-accept="'image/jpeg,image/png,image/bmp'">
+						<button ngf-drop ngf-select ng-model="editingContent.contentImageFile" class="btn btn-lg btn-default btn-block drop-box" style="text-overflow: ellipsis;" ngf-drag-over-class="dragover" ngf-allow-dir="true" ngf-accept="'image/jpeg,image/png,image/bmp'">
 							Image file<span ng-show="fileName">(<span ng-bind="fileName"></span>)
 							</span> <span ng-show="!fileName">(select JPEG or PNG) </span>
 						</button>
