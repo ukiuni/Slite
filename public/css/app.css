@@ -1,6 +1,10 @@
 .article {
 	font-size: 20px;
 	white-space: pre;
+	white-space: pre-wrap;
+	white-space: pre-line;
+	white-space: -hp-pre-line;
+	word-wrap: break-word;
 	width: 100%;
 }
 
