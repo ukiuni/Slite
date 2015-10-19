@@ -325,6 +325,7 @@ router.post('/', function(req, res) {
 	}).then(function() {
 		createdContent.dataValues.ContentBodies = [];
 		createdContent.dataValues.ContentBodies.push(createdContent.body);
+		createdContent.dataValues.owner = accessAccount;
 		res.status(201).json(createdContent);
 	})["catch"](function(error) {
 		console.log(error.stack);
