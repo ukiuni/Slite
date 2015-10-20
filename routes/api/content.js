@@ -31,7 +31,7 @@ function createFindContentBase() {
 		}, {
 			model : Account,
 			as : "owner",
-			attributes : [ "name", "iconUrl" ]
+			attributes : [ "id", "name", "iconUrl" ]
 		}, {
 			model : Tag
 		}, {
@@ -354,7 +354,12 @@ router.put('/:contentKey', function(req, res) {
 		return Content.find({
 			where : {
 				accessKey : req.params.contentKey
-			}
+			},
+			include : [ {
+				model : Account,
+				as : "owner",
+				attributes : [ "id", "name", "iconUrl" ]
+			} ]
 		})
 	}).then(function(content) {
 		if (!content || loadedAccessKey.AccountId != content.ownerId) {
