@@ -449,6 +449,44 @@ router.put('/:contentKey', function(req, res) {
 		}
 	});
 });
+router["delete"]('/:contentKey', function(req, res) {
+	if (!req.params.contentKey || (!req.query.sessionKey && !req.query.access_token)) {
+		res.status(404).send();
+		return;
+	}
+	var loadedAccessKey;
+	var accessKey = req.query.sessionKey || req.query.auth_token;
+	AccessKey.findBySessionKey(accessKey).then(function(accessKey) {
+		if (!accessKey || !(AccessKey.TYPE_SESSION == accessKey.type || AccessKey.TYPE_LOGIN == accessKey.type)) {
+			throw ERROR_NOTACCESSIBLE;
+		}
+		loadedAccessKey = accessKey;
+		return Content.find({
+			where : {
+				accessKey : req.params.contentKey
+			},
+			include : [ {
+				model : Account,
+				as : "owner",
+				attributes : [ "id", "name", "iconUrl" ]
+			} ]
+		})
+	}).then(function(content) {
+		if (!content || loadedAccessKey.AccountId != content.ownerId) {
+			throw ERROR_NOTACCESSIBLE;
+		}
+		return content.destroy();
+	}).then(function(content) {
+		res.status(200).json(content);
+	})["catch"](function(error) {
+		console.log(error.stack);
+		if (ERROR_NOTACCESSIBLE == error) {
+			res.status(403).end();
+		} else {
+			res.status(500).end();
+		}
+	});
+});
 router.post('/comment', function(req, res) {
 	var accessKey = req.body.sessionKey || req.body.access_token;
 	if (!accessKey) {

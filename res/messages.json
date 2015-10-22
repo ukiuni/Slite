@@ -44,6 +44,7 @@
 		},
 		"edit" : "edit",
 		"save" : "save",
+		"delete" : "delete",
 		"cancel" : "cancel",
 		"content" : "content",
 		"contents" : {
@@ -57,7 +58,8 @@
 			"tags" : "tags",
 			"tagsList" : "tags list",
 			"tagDescription" : "Description",
-			"accessibility" : "Accessibility"
+			"accessibility" : "Accessibility",
+			"confirmDelete" : "Delete content?"
 		},
 		"error" : {
 			"withServer" : "Something happen with Server, please try again later.",
@@ -111,6 +113,7 @@
 		},
 		"edit" : "編集",
 		"save" : "保存",
+		"delete" : "削除",
 		"cancel" : "キャンセル",
 		"content" : "投稿",
 		"contents" : {
@@ -124,7 +127,8 @@
 			"tags" : "タグ",
 			"tagsList" : "タグ一覧",
 			"tagDescription" : "説明",
-			"accessibility" : "アクセス許可"
+			"accessibility" : "アクセス許可",
+			"confirmDelete" : "投稿を削除してもよいですか？"
 		},
 		"error" : {
 			"withServer" : "サーバーとの通信で問題が発生しました。後ほど再実行してください。",

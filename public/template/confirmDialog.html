@@ -1,0 +1,11 @@
+<div class="modal-body" id="confirmDialog">
+	<div class="row">
+		<div class="col-xs-12" style="white-space: pre;" ng-bind="message"></div>
+	</div>
+</div>
+<div class="modal-footer">
+	<button type="button" id="closeButton" class="btn btn-default"
+		ng-disabled="'' == editingTodo.description" ng-click="$dismiss()" ng-bind="messages.cancel"></button>
+	<button type="button" id="deleteButton" class="btn btn-primary"
+		ng-disabled="'' == mail || '' == password" ng-click="delete()" ng-bind="messages.delete"></button>
+</div>

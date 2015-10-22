@@ -78,7 +78,11 @@ module.exports = {
 			client.assert.containsText("#tags > li:first-child", tags.split(",")[0]);
 			client.assert.containsText("div > div > div > p", article);
 			if (done) {
-				done(result.value);
+				done(result.value, {
+					title : contentTitle,
+					article : article,
+					tags : tags
+				});
 			}
 		});
 	},
@@ -89,7 +93,7 @@ module.exports = {
 		var article = "article_updated" + contentRandom;
 		client.url(url + "/home");
 		client.waitForElementVisible('.contentListColmun', testWaitTime);
-		client.click('.contentListColmun > div > button');
+		client.click('.editButton');
 		client.waitForElementVisible('#contentTitle', testWaitTime);
 		client.pause(5000);
 		client.setValue('#contentTitle', contentTitle);
@@ -115,6 +119,19 @@ module.exports = {
 				done(result.value);
 			}
 		});
+	},
+	deleteContentAndCheckDeleted : function(client, content, done) {
+		client.url(url + "/home");
+		client.waitForElementVisible('.contentListColmun', testWaitTime);
+		client.waitForElementVisible('.deleteButton', testWaitTime);
+		client.pause(1000);
+		client.click('.deleteButton');
+		client.waitForElementVisible('#confirmDialog', testWaitTime);
+		client.click('#deleteButton');
+		client.assert.elementNotPresent('.contentListTitle');
+		if (done) {
+			done();
+		}
 	},
 	createContentAndCheckExistsAndComment : function(client, contentUrl, comment) {
 		var contentRandom = new Date().getTime();

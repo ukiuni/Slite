@@ -19,6 +19,14 @@ var tests = {
 			});
 		});
 	},
+	'Delete Content' : function(client) {
+		Actions.createAccountAndSignin(client);
+		Actions.createContentAndCheckExists(client, function(contentUrl, content) {
+			Actions.deleteContentAndCheckDeleted(client, content, function() {
+				client.end();
+			});
+		});
+	},
 	'Create Comment' : function(client) {
 		Actions.createAccountAndSignin(client);
 		Actions.createContentAndCheckExists(client, function(contentUrl) {

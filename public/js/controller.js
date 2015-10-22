@@ -751,19 +751,19 @@ var editGroupController = [ "$rootScope", "$scope", "$resource", "$location", "$
 		});
 	}
 } ];
-var homeController = [ "$rootScope", "$scope", "$resource", "$location", "$http", function($rootScope, $scope, $resource, $location, $http) {
+var homeController = [ "$rootScope", "$scope", "$resource", "$location", "$http", "$modal", function($rootScope, $scope, $resource, $location, $http, $modal) {
 	if (!$rootScope.myAccount) {
 		$location.path("/signin");
 		return;
 	}
-	$resource('/api/content/').query({
+	$resource("/api/content/").query({
 		sessionKey : $rootScope.getSessionKey()
 	}, function(contents) {
 		$scope.myContents = contents;
 	}, function(error) {
 		$rootScope.showErrorWithStatus(error.status);
 	});
-	$resource('/api/groups/self').query({
+	$resource("/api/groups/self").query({
 		sessionKey : $rootScope.getSessionKey()
 	}, function(groups) {
 		$scope.myGroups = groups;
@@ -772,6 +772,27 @@ var homeController = [ "$rootScope", "$scope", "$resource", "$location", "$http"
 	});
 	$scope.createNewContent = function() {
 		$location.path("/editContent");
+	}
+	$scope.deleteContent = function($index, title, accessKey) {
+		var dialogController = [ "$scope", "$modalInstance", function($dialogScope, $modalInstance) {
+			$dialogScope["delete"] = function() {
+				$modalInstance.close();
+			};
+			$dialogScope.message = $rootScope.messages.contents.confirmDelete + "\n\n" + title;
+		} ];
+		var modalInstance = $modal.open({
+			templateUrl : 'template/confirmDialog.html',
+			controller : dialogController
+		});
+		modalInstance.result.then(function() {
+			$resource("/api/content/:accessKey").remove({
+				accessKey : accessKey,
+				sessionKey : $rootScope.getSessionKey()
+			}, function() {
+				$scope.myContents.splice($index, 1);
+			});
+		}, function() {
+		});
 	}
 } ];
 myapp.controller('indexController', indexController);
