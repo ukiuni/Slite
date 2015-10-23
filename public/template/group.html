@@ -1,6 +1,6 @@
 <div style="height: 100%;">
 	<div class="row" ng-show="group">
-		<div class="col-sm-6 col-sm-offset-3 col-xs-10 col-xs-offset-1">
+		<div class="col-sm-8 col-sm-offset-2 col-xs-10 col-xs-offset-1">
 			<div class="row">
 				<div id="groupName" class="col-sm-8" ng-bind="group.name"></div>
 				<div id="groupVisibility" class="col-sm-2" ng-bind="group.visibility.message"></div>
@@ -20,7 +20,7 @@
 				<h3 class=col-xs-10 ng-bind="messages.content"></h3>
 				<button ng-show="isEditable()" class="col-xs-2 btn btn-default" ng-bind="messages.menu.newContent" ng-click="createNewContent()"></button>
 			</div>
-			<div id="contentArea" class="row">
+			<div id="contentArea" class="row" style="margin-top: 10px">
 				<div class="col-sm-12" ng-repeat="content in group.Contents track by content.id">
 					<div class="col-xs-12 contentListColmun">
 						<div class="row">
