@@ -20,14 +20,14 @@
 					<div class="row" ng-repeat="content in myContents track by content.id">
 						<div class="col-xs-12 contentListColmun">
 							<div class="row">
-								<a class="contentListTitle col-sm-7 col-xs-12" href="/content/{{content.accessKey}}"><span ng-bind="content.ContentBodies[0].title"></span></a>
+								<a class="contentListTitle col-sm-6 col-xs-12" href="/content/{{content.accessKey}}"><span ng-bind="content.ContentBodies[0].title"></span></a>
 								<div class="col-sm-2 col-xs-12">
 									<span class="contentListStatus row" ng-bind="statuses[content.ContentBodies[0].status - 1].message"></span> <span class="contentListStatus row" ng-bind="content.updatedAt | date:'yyyy-MM-dd'"></span>
 								</div>
-								<div class="col-sm-2 col-sm-offset-1 col-xs-12">
+								<div class="col-sm-3 col-sm-offset-1 col-xs-12">
 									<div class="row">
-										<button class="editButton col-xs-6 btn btn-lg btn-primary btn-xs" type="submit" ng-click="goto('/editContent/'+content.accessKey)" ng-bind="messages.edit"></button>
-										<button class="deleteButton col-xs-6 btn btn-lg btn-default btn-xs" type="submit" ng-click="deleteContent($index, content.ContentBodies[0].title, content.accessKey)" ng-bind="messages.delete"></button>
+										<button class="editButton col-xs-6 btn btn-primary" type="submit" ng-click="goto('/editContent/'+content.accessKey)" ng-bind="messages.edit"></button>
+										<button class="deleteButton col-xs-6 btn btn-default" type="submit" ng-click="deleteContent($index, content.ContentBodies[0].title, content.accessKey)" ng-bind="messages.delete"></button>
 									</div>
 								</div>
 							</div>
