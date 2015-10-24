@@ -6,7 +6,8 @@ module.exports = function(sequelize, DataTypes) {
 		},
 		imageUrl : DataTypes.TEXT,
 		description : DataTypes.TEXT,
-		visibility : DataTypes.INTEGER
+		visibility : DataTypes.INTEGER,
+		accessKey : DataTypes.TEXT
 	}, {
 		paranoid : true,
 		classMethods : {},
@@ -17,6 +18,7 @@ module.exports = function(sequelize, DataTypes) {
 	});
 	Group.associate = function(sequelize) {
 		Group.hasMany(sequelize.Content);
+		Group.hasMany(sequelize.Message);
 		Group.belongsToMany(sequelize.Account, {
 			through : sequelize.AccountInGroup
 		});

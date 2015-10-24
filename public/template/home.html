@@ -42,7 +42,7 @@
 					</div>
 					<div class="row" ng-repeat="group in myGroups track by group.id">
 						<div class="col-sm-9 col-xs-12">
-							<a ng-href="/group/{{group.id}}" ng-bind="group.name"></a>
+							<a ng-href="/group/{{group.accessKey}}" ng-bind="group.name"></a>
 						</div>
 						<div class="col-sm-2 col-xs-12">
 							<img style="width: 20px; height: 20px" ng-src="{{1 == group.AccountInGroup.inviting ? inviteImageUrls[0] : inviteImageUrls[group.AccountInGroup.authorization]}}" />

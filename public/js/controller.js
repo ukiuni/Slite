@@ -90,13 +90,17 @@ myapp.config([ "$locationProvider", "$httpProvider", "$routeProvider", "markedPr
 		templateUrl : "template/groups.html",
 		controller : "groupsController"
 	});
-	$routeProvider.when("/group/:id", {
+	$routeProvider.when("/group/:accessKey", {
 		templateUrl : "template/group.html",
 		controller : "groupController"
 	});
-	$routeProvider.when("/group/:id/edit", {
+	$routeProvider.when("/group/:accessKey/edit", {
 		templateUrl : "template/editGroup.html",
 		controller : "editGroupController"
+	});
+	$routeProvider.when("/group/:accessKey/message", {
+		templateUrl : "template/message.html",
+		controller : "messageController"
 	});
 	$routeProvider.when("/signout", {
 		templateUrl : "template/signouted.html"
@@ -637,8 +641,123 @@ var groupsController = [ "$rootScope", "$scope", "$resource", "$location", "$htt
 	}
 } ];
 var groupController = [ "$rootScope", "$scope", "$resource", "$location", "$http", "$routeParams", function($rootScope, $scope, $resource, $location, $http, $routeParams) {
-	$resource('/api/groups/:id').get({
-		id : $routeParams.id,
+	$resource('/api/groups/:accessKey').get({
+		accessKey : $routeParams.accessKey,
+		sessionKey : $rootScope.getSessionKey()
+	}, function(group) {
+		$scope.group = group;
+		$scope.group.visibility = $rootScope.groupVisibilities[group.visibility - 1];
+	}, function(error) {
+		$rootScope.showErrorWithStatus(error.status);
+	});
+	$scope.gotoEdit = function() {
+		$location.path("/group/" + $routeParams.accessKey + "/edit");
+	}
+	$scope.invite = function() {
+		post($http, '/api/groups/' + $routeParams.accessKey + "/invite", {
+			sessionKey : $rootScope.getSessionKey(),
+			mail : $scope.inviteUserMail,
+			authorization : $scope.inviteUserAuthorization.keyNumber
+		}).then(function(response) {
+			$scope.group.Accounts.push(response.data);
+			$scope.inviteUserMail = null;
+		})["catch"](function(response) {
+			$rootScope.showErrorWithStatus(response.status, function(status) {
+				if (409 == status) {
+					$rootScope.showError($rootScope.messages.groups.error.aleadyIn);
+					return true;
+				}
+				return false;
+			});
+		});
+	}
+	$scope.join = function() {
+		put($http, '/api/groups/' + $routeParams.accessKey + "/join", {
+			sessionKey : $rootScope.getSessionKey()
+		}).then(function(response) {
+			for ( var i in $scope.group.Accounts) {
+				if ($scope.group.Accounts[i].id == $rootScope.myAccount.id) {
+					$scope.group.Accounts[i].AccountInGroup = response.data;
+				}
+			}
+		})["catch"](function(response) {
+			$rootScope.showErrorWithStatus(response.status);
+		});
+	}
+	$scope.isInviting = function() {
+		if (!$rootScope.myAccount || !$scope.group) {
+			return false;
+		}
+		for ( var i in $scope.group.Accounts) {
+			if ($scope.group.Accounts[i].id === $rootScope.myAccount.id && 1 === $scope.group.Accounts[i].AccountInGroup.inviting) {
+				return true;
+			}
+		}
+		return false;
+	}
+	$scope.isEditable = function() {
+		if (!$rootScope.myAccount || !$scope.group) {
+			return false;
+		}
+		for ( var i in $scope.group.Accounts) {
+			if ($scope.group.Accounts[i].id === $rootScope.myAccount.id && 1 < $scope.group.Accounts[i].AccountInGroup.inviting && 2 <= $scope.group.Accounts[i].AccountInGroup.authorization) {
+				return true;
+			}
+		}
+		return false;
+	}
+	$scope.createNewContent = function() {
+		$rootScope.setTargetGroupId($scope.group.id);
+		$location.path("/editContent");
+	}
+	$scope.inviteUserAuthorization = $rootScope.groupAuthorizations[0];
+} ];
+var editGroupController = [ "$rootScope", "$scope", "$resource", "$location", "$http", "$routeParams", function($rootScope, $scope, $resource, $location, $http, $routeParams) {
+	if (!$routeParams.accessKey || $routeParams.accessKey == 0) {
+		$scope.group = {};
+		$scope.group.visibility = $rootScope.groupVisibilities[0];
+	} else {
+		$resource('/api/groups/:accessKey').get({
+			accessKey : $routeParams.accessKey,
+			sessionKey : $rootScope.getSessionKey()
+		}, function(group) {
+			$scope.group = group;
+			$scope.group.visibility = $rootScope.groupVisibilities[group.visibility - 1];
+		}, function(error) {
+			$rootScope.showErrorWithStatus(error.status);
+		});
+	}
+	$scope.cancel = function() {
+		if (!$routeParams.accessKey || $routeParams.accessKey == 0) {
+			$location.path("/groups");
+		} else {
+			$location.path("/group/" + $routeParams.accessKey);
+		}
+	}
+	$scope.save = function() {
+		var execFunc;
+		if (!$routeParams.accessKey || $routeParams.accessKey == 0) {
+			execFunc = post;
+		} else {
+			execFunc = put;
+		}
+		execFunc($http, '/api/groups', {
+			sessionKey : $rootScope.getSessionKey(),
+			id : $routeParams.accessKey,
+			name : $scope.group.name,
+			description : $scope.group.description,
+			imageUrl : $scope.imageUrl,
+			visibility : $scope.group.visibility.keyNumber
+		}).success(function(group) {
+			$location.path("/group/" + group.accessKey);
+		}).error(function(error) {
+			$rootScope.showErrorWithStatus(error.status);
+		});
+	}
+} ];
+var messagesController = [ "$rootScope", "$scope", "$resource", "$location", "$http", "$routeParams", function($rootScope, $scope, $resource, $location, $http, $routeParams) {
+	$resource('/api/groups/:accessKey/messages').get({
+		accessKey : $routeParams.accessKey,
 		sessionKey : $rootScope.getSessionKey()
 	}, function(group) {
 		$scope.group = group;
@@ -707,49 +826,6 @@ var groupController = [ "$rootScope", "$scope", "$resource", "$location", "$http
 		$location.path("/editContent");
 	}
 	$scope.inviteUserAuthorization = $rootScope.groupAuthorizations[0];
-} ];
-var editGroupController = [ "$rootScope", "$scope", "$resource", "$location", "$http", "$routeParams", function($rootScope, $scope, $resource, $location, $http, $routeParams) {
-	if (!$routeParams.id || $routeParams.id == 0) {
-		$scope.group = {};
-		$scope.group.visibility = $rootScope.groupVisibilities[0];
-	} else {
-		$resource('/api/groups/:id').get({
-			id : $routeParams.id,
-			sessionKey : $rootScope.getSessionKey()
-		}, function(group) {
-			$scope.group = group;
-			$scope.group.visibility = $rootScope.groupVisibilities[group.visibility - 1];
-		}, function(error) {
-			$rootScope.showErrorWithStatus(error.status);
-		});
-	}
-	$scope.cancel = function() {
-		if (!$routeParams.id || $routeParams.id == 0) {
-			$location.path("/groups");
-		} else {
-			$location.path("/group/" + $routeParams.id);
-		}
-	}
-	$scope.save = function() {
-		var execFunc;
-		if (!$routeParams.id || $routeParams.id == 0) {
-			execFunc = post;
-		} else {
-			execFunc = put;
-		}
-		execFunc($http, '/api/groups', {
-			sessionKey : $rootScope.getSessionKey(),
-			id : $routeParams.id,
-			name : $scope.group.name,
-			description : $scope.group.description,
-			imageUrl : $scope.imageUrl,
-			visibility : $scope.group.visibility.keyNumber
-		}).success(function(group) {
-			$location.path("/group/" + group.id);
-		}).error(function(error) {
-			$rootScope.showErrorWithStatus(error.status);
-		});
-	}
 } ];
 var homeController = [ "$rootScope", "$scope", "$resource", "$location", "$http", "$modal", function($rootScope, $scope, $resource, $location, $http, $modal) {
 	if (!$rootScope.myAccount) {

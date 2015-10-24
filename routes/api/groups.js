@@ -4,6 +4,7 @@ var AccessKey = global.db.AccessKey;
 var AccountInGroup = global.db.AccountInGroup;
 var Account = global.db.Account;
 var Content = global.db.Content;
+var Message = global.db.Message;
 var ContentBody = global.db.ContentBody;
 var Group = global.db.Group;
 var env = process.env.NODE_ENV || "development";
@@ -13,6 +14,7 @@ var ERROR_NOTFOUND = "ERROR_NOTFOUND";
 var ERROR_DUPLICATED = "ERROR_DUPLICATED";
 var sendmail = require('sendmail')();
 var Promise = require("bluebird");
+var Random = require(__dirname + "/../../util/random");
 var renderer = require('ect')({
 	root : './res/template'
 });
@@ -40,6 +42,54 @@ router.get('/self', function(req, res) {
 		}
 	});
 });
+router.get('/:accessKey/messages', function(req, res) {
+	var sessionKey = req.query.sessionKey || req.query.access_token;
+	if (!sessionKey) {
+		res.status(400).end();
+		return;
+	}
+	var loadedGroup;
+	AccessKey.findBySessionKey(sessionKey).then(function(accessKey) {
+		if (!accessKey) {
+			throw ERROR_NOTACCESSIBLE;
+		}
+		return Account.findById(accessKey.AccountId);
+	}).then(function(account) {
+		if (!account) {
+			throw ERROR_NOTACCESSIBLE;
+		}
+		return Group.find({
+			where : {
+				accessKey : req.params.accessKey
+			}
+		});
+	}).then(function(group) {
+		if (!group) {
+			throw ERROR_NOTACCESSIBLE;
+		}
+		loadedGroup = group;
+		return AccountInGroup.find({
+			where : {
+				AccountId : account.id,
+				GroupId : loadedGroup.id
+			}
+		});
+	}).then(function(accountInGroup) {
+		if (!accountInGroup || accountInGroup.authorization < Account.AUTHORIZATION_EDITOR) {
+			throw ERROR_NOTACCESSIBLE;
+		}
+		return loadedGroup.getMessages();
+	}).then(function(messages) {
+		res.status(200).json(messages);
+	})["catch"](function(error) {
+		if (ERROR_NOTACCESSIBLE == error) {
+			res.status(403).end();
+		} else {
+			console.log(error.stack);
+			res.status(500).end();
+		}
+	});
+});
 router.post('/', function(req, res) {
 	var accessKey = req.body.sessionKey || req.body.access_token;
 	if (!accessKey) {
@@ -58,11 +108,14 @@ router.post('/', function(req, res) {
 			throw ERROR_NOTACCESSIBLE;
 		}
 		loadedAccount = account;
+		return Random.createRandomBase62();
+	}).then(function(random) {
 		return Group.create({
 			name : req.body.name,
 			description : req.body.description,
 			imageUrl : req.body.imageUrl,
-			visibility : req.body.visibility
+			visibility : req.body.visibility,
+			accessKey : random
 		})
 	}).then(function(group) {
 		createdGroup = group;
@@ -126,8 +179,11 @@ router.put('/', function(req, res) {
 		}
 	});
 });
-router.get('/:id', function(req, res) {
-	Group.findById(req.params.id, {
+router.get('/:accessKey', function(req, res) {
+	Group.find({
+		where : {
+			accessKey : req.params.accessKey
+		},
 		include : [ {
 			model : Account,
 			attribute : [ "name", "iconUrl" ]
@@ -148,6 +204,13 @@ router.get('/:id', function(req, res) {
 					attributes : [ "name", "iconUrl" ]
 				} ],
 				order : "updatedAt"
+			} ]
+		}, {
+			model : Message,
+			require : false,
+			include : [ {
+				model : Account,
+				as : "owner"
 			} ]
 		} ],
 		order : "createdAt DESC"
@@ -200,7 +263,7 @@ router.get('/:id', function(req, res) {
 		}
 	});
 });
-router.post('/:id/invite', function(req, res) {
+router.post('/:accessKey/invite', function(req, res) {
 	var accessKey = req.body.sessionKey || req.body.access_token;
 	if (!accessKey) {
 		res.status(400).end();
@@ -216,29 +279,33 @@ router.post('/:id/invite', function(req, res) {
 		return accessKey.getAccount();
 	}).then(function(account) {
 		loadedAccount = account;
+		return Group.find({
+			where : {
+				accessKey : req.params.accessKey
+			}
+		});
+	}).then(function(group) {
+		if (!group) {
+			throw ERROR_NOTFOUND;
+		}
+		loadedGroup = group;
 		return AccountInGroup.find({
 			where : {
-				AccountId : account.id,
-				GroupId : req.params.id
+				AccountId : loadedAccount.id,
+				GroupId : loadedGroup.id
 			}
 		});
 	}).then(function(accountInGroup) {
 		if (!accountInGroup || accountInGroup.authorization < Account.AUTHORIZATION_EDITOR) {
 			throw ERROR_NOTACCESSIBLE;
 		}
-		return Group.findById(req.params.id);
-	}).then(function(group) {
-		if (!group) {
-			throw ERROR_NOTFOUND;
-		}
-		loadedGroup = group;
 		return Account.findOrInvite(req.body.mail);
 	}).then(function(account) {
 		targetAccount = account;
 		return AccountInGroup.find({
 			where : {
 				AccountId : targetAccount.id,
-				GroupId : req.params.id
+				GroupId : loadedGroup.id
 			}
 		})
 	}).then(function(accountInGroup) {
@@ -273,7 +340,7 @@ router.post('/:id/invite', function(req, res) {
 		}
 	});
 });
-router.put('/:id/join', function(req, res) {
+router.put('/:accessKey/join', function(req, res) {
 	var accessKey = req.body.sessionKey || req.body.access_token;
 	if (!accessKey) {
 		res.status(400).end();
@@ -289,10 +356,19 @@ router.put('/:id/join', function(req, res) {
 		return accessKey.getAccount();
 	}).then(function(account) {
 		loadedAccount = account;
+		return Group.find({
+			where : {
+				accessKey : req.params.accessKey
+			}
+		});
+	}).then(function(group) {
+		if (!group) {
+			throw ERROR_NOTACCESSIBLE;
+		}
 		return AccountInGroup.find({
 			where : {
-				AccountId : account.id,
-				GroupId : req.params.id
+				AccountId : loadedAccount.id,
+				GroupId : group.id
 			}
 		});
 	}).then(function(accountInGroup) {

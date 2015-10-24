@@ -8,7 +8,7 @@
 			<div class="row" ng-repeat="group in groups track by group.id">
 				<div class="col-xs-12 groupListColmun">
 					<div class="row">
-						<a class="contentListTitle col-xs-12" ng-href="/group/{{group.id}}"><h3 ng-bind="group.name"></h3></a>
+						<a class="contentListTitle col-xs-12" ng-href="/group/{{group.accessKey}}"><h3 ng-bind="group.name"></h3></a>
 						<div class="col-xs-12">
 							<span class="" ng-bind="group.description"></span>
 						</div>

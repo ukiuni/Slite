@@ -48,6 +48,11 @@ h2, h3 {
 	font-size: 12px;
 }
 
+.fixedFooter {
+	position: absolute;
+	bottom: 0px;
+}
+
 #groupArea {
 	border: solid 1px #DDD;
 	border-radius: 3px;
