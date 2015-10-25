@@ -2,7 +2,7 @@ var env = process.env.NODE_ENV || "development";
 var serverConfig = require(__dirname + "/../../config/server.json")[env];
 var url = serverConfig.hostURL;
 var testWaitTime = 10000;
-module.exports = {
+var self = {
 	signout : function(client) {
 		client.click('a.dropdown-toggle');
 		client.waitForElementVisible('#signoutButton', testWaitTime);
@@ -179,12 +179,59 @@ module.exports = {
 		client.assert.containsText("#groupName", groupName);
 		client.assert.containsText("#groupDescription", groupDescription);
 		if (callback) {
-			client.url(function(result) {
-				callback(result.value)
+			client.getAttribute("#toMessage", "href", function(result) {
+				callback(groupName, result.value.match(/(http:\/\/[^\/]+\/[^\/]+\/[^\/]+)/)[1])
 			});
 		}
 	},
-	inviteAccountAfterCreateGroupAndCheckExists : function(client, account) {
+	sendMessage : function(client, groupName, groupUrl, callback) {
+		var contentRandom = new Date().getTime();
+		var message = "message" + contentRandom;
+		client.url(groupUrl);
+		client.waitForElementVisible('#groupName', testWaitTime);
+		client.click("#toMessage");
+		client.waitForElementVisible('#messageScrollPane', testWaitTime);
+		client.setValue('textarea', message);
+		client.sendKeys('textarea', client.Keys.ENTER);
+		client.pause(1000);
+		client.assert.containsText("#messageScrollInner", message);
+		client.getAttribute("a", "href", function(result) {
+			client.url(groupUrl);
+			var ApiActions = require(__dirname + "/apiActions");
+			ApiActions.createAccount(client.assert, function(account) {
+				client.url(groupUrl);
+				client.getAttribute("a", "href", function(result) {
+					client.url(groupUrl);
+					var accountName = account.name;
+					account.name = account.mail;// For not joining user;
+					self.inviteAccountAfterCreateGroupAndCheckExists(client, account, function() {
+						account.name = accountName;
+						client.url(groupUrl);
+						client.waitForElementVisible('#groupName', testWaitTime);
+						client.click("#toMessage");
+						client.waitForElementVisible('#messageScrollPane', testWaitTime);
+						client.getAttribute("a", "href", function(result) {
+							client.pause(10000);// For avoid automatically-close
+							ApiActions.signin(client.assert, account, function(sessionKey) {
+								var groupAccessKey = groupUrl.match(/group\/([^\/]+)/)[1];
+								ApiActions.joinToGroup(client.assert, sessionKey, groupAccessKey, function() {
+									var secondMessage = "secondMessage" + contentRandom;
+									ApiActions.sendMessage(client.assert, sessionKey, groupAccessKey, secondMessage, function() {
+										client.pause(1000);
+										client.assert.containsText("#messageScrollInner", secondMessage, "Second Message has comen.");
+										if (callback) {
+											callback();
+										}
+									});
+								});
+							});
+						});
+					});
+				});
+			});
+		});
+	},
+	inviteAccountAfterCreateGroupAndCheckExists : function(client, account, callback) {
 		client.setValue('input', account.mail);
 		client.click('select');
 		client.waitForElementVisible('option:first-child', testWaitTime);
@@ -193,6 +240,11 @@ module.exports = {
 		client.click("#inviteButton");
 		client.pause(1000);
 		client.assert.containsText("#memberArea", account.name);
+		if (callback) {
+			client.getAttribute("a", "href", function(result) {
+				callback();
+			});
+		}
 	},
 	visitGroupAndNotVisible : function(client, groupUrl) {
 		client.url(groupUrl);
@@ -200,3 +252,4 @@ module.exports = {
 		client.expect.element('#groupName').to.not.be.visible;
 	}
 }
+module.exports = self;

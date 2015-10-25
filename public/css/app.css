@@ -53,6 +53,16 @@ h2, h3 {
 	bottom: 0px;
 }
 
+.ellipsis {
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}
+
+.repeatOdd {
+	background-color: #FAFAFA;
+}
+
 #groupArea {
 	border: solid 1px #DDD;
 	border-radius: 3px;

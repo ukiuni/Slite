@@ -42,6 +42,9 @@
 				"aleadyIn" : "Invited member is aleady in this group。"
 			}
 		},
+		"message" : "message",
+		"sendWithEnter" : "Send on enter",
+		"send" : "send",
 		"edit" : "edit",
 		"save" : "save",
 		"delete" : "delete",
@@ -111,6 +114,9 @@
 				"aleadyIn" : "すでにメンバーです。"
 			}
 		},
+		"message" : "メッセージ",
+		"sendWithEnter" : "Enterで送信",
+		"send" : "送信",
 		"edit" : "編集",
 		"save" : "保存",
 		"delete" : "削除",

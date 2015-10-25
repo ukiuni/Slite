@@ -216,19 +216,33 @@ myapp.run([ "$rootScope", "$location", "$resource", "$cookies", function($rootSc
 			$rootScope.removeSessionKey();
 		});
 	}
-	var socketListeners = new Map();
+	var contentSocketListeners = new Map();
 	$rootScope.listenComment = function(contentKey, callback) {
-		if (socketListeners.has(contentKey)) {
+		if (contentSocketListeners.has(contentKey)) {
 			return;
 		}
 		$rootScope.socket.emit('listenComment', contentKey);
 		$rootScope.socket.on(contentKey, callback);
-		socketListeners.set(contentKey, callback);
+		contentSocketListeners.set(contentKey, callback);
 	};
 	$rootScope.unListenComment = function(contentKey, callback) {
 		$rootScope.socket.emit('unListenComment', contentKey);
 		$rootScope.socket.removeListener(contentKey, callback);
-		socketListeners["delete"](contentKey);
+		contentSocketListeners["delete"](contentKey);
+	};
+	var groupSocketListeners = new Map();
+	$rootScope.listenGroup = function(accessKey, callback) {
+		if (groupSocketListeners.has(accessKey)) {
+			return;
+		}
+		$rootScope.socket.emit('listenGroup', accessKey);
+		$rootScope.socket.on(accessKey, callback);
+		groupSocketListeners.set(accessKey, callback);
+	};
+	$rootScope.unListenGroup = function(accessKey, callback) {
+		$rootScope.socket.emit('unListenGroup', accessKey);
+		$rootScope.socket.removeListener(accessKey, callback);
+		groupSocketListeners["delete"](accessKey);
 	};
 	var targetGroupId = null;
 	$rootScope.setTargetGroupId = function(_targetGroupId) {
@@ -247,8 +261,11 @@ myapp.run([ "$rootScope", "$location", "$resource", "$cookies", function($rootSc
 			return;
 		}
 		$rootScope.disconnected = false;
-		socketListeners.forEach(function(value, key) {
+		contentSocketListeners.forEach(function(value, key) {
 			$rootScope.socket.emit('listenComment', key);
+		});
+		groupSocketListeners.forEach(function(value, key) {
+			$rootScope.socket.emit('listenGroup', key);
 		})
 	});
 	$rootScope.socket.on('disconnect', function(data) {
@@ -588,8 +605,9 @@ var contentController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 		});
 	}
 	$rootScope.listenComment($routeParams.contentKey, listenComment);
+	var contentKey = $routeParams.contentKey;
 	$scope.$on('$destroy', function() {
-		$rootScope.unListenComment($routeParams.contentKey, listenComment);
+		$rootScope.unListenComment(contentKey, listenComment);
 	});
 } ];
 var tagsController = [ "$rootScope", "$scope", "$resource", "$location", "$http", function($rootScope, $scope, $resource, $location, $http) {
@@ -672,7 +690,7 @@ var groupController = [ "$rootScope", "$scope", "$resource", "$location", "$http
 		});
 	}
 	$scope.join = function() {
-		put($http, '/api/groups/' + $routeParams.accessKey + "/join", {
+		put($http, "/api/groups/" + $routeParams.accessKey + "/join", {
 			sessionKey : $rootScope.getSessionKey()
 		}).then(function(response) {
 			for ( var i in $scope.group.Accounts) {
@@ -743,7 +761,7 @@ var editGroupController = [ "$rootScope", "$scope", "$resource", "$location", "$
 		}
 		execFunc($http, '/api/groups', {
 			sessionKey : $rootScope.getSessionKey(),
-			id : $routeParams.accessKey,
+			accessKey : $routeParams.accessKey,
 			name : $scope.group.name,
 			description : $scope.group.description,
 			imageUrl : $scope.imageUrl,
@@ -755,77 +773,66 @@ var editGroupController = [ "$rootScope", "$scope", "$resource", "$location", "$
 		});
 	}
 } ];
-var messagesController = [ "$rootScope", "$scope", "$resource", "$location", "$http", "$routeParams", function($rootScope, $scope, $resource, $location, $http, $routeParams) {
-	$resource('/api/groups/:accessKey/messages').get({
+var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$http", "$routeParams", function($rootScope, $scope, $resource, $location, $http, $routeParams) {
+	$resource('/api/groups/:accessKey').get({
 		accessKey : $routeParams.accessKey,
 		sessionKey : $rootScope.getSessionKey()
 	}, function(group) {
 		$scope.group = group;
 		$scope.group.visibility = $rootScope.groupVisibilities[group.visibility - 1];
+		$scope.group.messages = [];
+		var jqScrollPane = $("#messageScrollPane");
+		var jqScrollInner = $("#messageScrollInner");
+		var listenComment = function(message) {
+			message = JSON.parse(message);
+			$scope["$apply"](function() {
+				$scope.group.messages.push(message);
+				if (jqScrollPane.scrollTop() > jqScrollInner.height() - jqScrollPane.height() - 30) {
+					jqScrollPane.animate({
+						scrollTop : jqScrollInner.height()
+					}, 50);
+				}
+			});
+		}
+		$rootScope.listenGroup($routeParams.accessKey, listenComment);
+		var groupAccessKey = $routeParams.accessKey;
+		$scope.$on('$destroy', function() {
+			$rootScope.unListenGroup(groupAccessKey, listenComment);
+		});
 	}, function(error) {
 		$rootScope.showErrorWithStatus(error.status);
 	});
-	$scope.gotoEdit = function() {
-		$location.path("/group/" + $routeParams.id + "/edit");
-	}
-	$scope.invite = function() {
-		post($http, '/api/groups/' + $routeParams.id + "/invite", {
-			sessionKey : $rootScope.getSessionKey(),
-			mail : $scope.inviteUserMail,
-			authorization : $scope.inviteUserAuthorization.keyNumber
-		}).then(function(response) {
-			$scope.group.Accounts.push(response.data);
-			$scope.inviteUserMail = null;
-		})["catch"](function(response) {
-			$rootScope.showErrorWithStatus(response.status, function(status) {
-				if (409 == status) {
-					$rootScope.showError($rootScope.messages.groups.error.aleadyIn);
-					return true;
-				}
-				return false;
+	var sendingMessage;
+	$scope.sendMessage = function() {
+		if (sendingMessage != $scope.text) {
+			if ("" == $scope.text) {
+				return;
+			}
+			sendingMessage = $scope.text;
+			post($http, '/api/groups/' + $routeParams.accessKey + "/messages", {
+				sessionKey : $rootScope.getSessionKey(),
+				body : $scope.text
+			}).then(function(response) {
+				$scope.text = "";
+				sendingMessage = null;
+			})["catch"](function(response) {
+				$rootScope.showErrorWithStatus(response.status);
+				sendingMessage = null;
 			});
-		});
-	}
-	$scope.join = function() {
-		put($http, '/api/groups/' + $routeParams.id + "/join", {
-			sessionKey : $rootScope.getSessionKey()
-		}).then(function(response) {
-			for ( var i in $scope.group.Accounts) {
-				if ($scope.group.Accounts[i].id == $rootScope.myAccount.id) {
-					$scope.group.Accounts[i].AccountInGroup = response.data;
-				}
-			}
-		})["catch"](function(response) {
-			$rootScope.showErrorWithStatus(response.status);
-		});
-	}
-	$scope.isInviting = function() {
-		if (!$rootScope.myAccount || !$scope.group) {
-			return false;
-		}
-		for ( var i in $scope.group.Accounts) {
-			if ($scope.group.Accounts[i].id === $rootScope.myAccount.id && 1 === $scope.group.Accounts[i].AccountInGroup.inviting) {
-				return true;
-			}
+			return true;
 		}
 		return false;
 	}
-	$scope.isEditable = function() {
-		if (!$rootScope.myAccount || !$scope.group) {
-			return false;
-		}
-		for ( var i in $scope.group.Accounts) {
-			if ($scope.group.Accounts[i].id === $rootScope.myAccount.id && 1 < $scope.group.Accounts[i].AccountInGroup.inviting && 2 <= $scope.group.Accounts[i].AccountInGroup.authorization) {
-				return true;
+	$scope.handleKeydown = function(e) {
+		if (e.which == 13 && $scope.sendWithEnter) {
+			var executed = $scope.sendMessage();
+			if (executed || "" == $scope.text) {
+				e.preventDefault();
 			}
 		}
-		return false;
 	}
-	$scope.createNewContent = function() {
-		$rootScope.setTargetGroupId($routeParams.id);
-		$location.path("/editContent");
-	}
-	$scope.inviteUserAuthorization = $rootScope.groupAuthorizations[0];
+	$scope.text = "";
+	$scope.sendWithEnter = true;
 } ];
 var homeController = [ "$rootScope", "$scope", "$resource", "$location", "$http", "$modal", function($rootScope, $scope, $resource, $location, $http, $modal) {
 	if (!$rootScope.myAccount) {
@@ -886,4 +893,5 @@ myapp.controller('tagController', tagController);
 myapp.controller('groupsController', groupsController);
 myapp.controller('groupController', groupController);
 myapp.controller('editGroupController', editGroupController);
+myapp.controller('messageController', messageController);
 myapp.controller('homeController', homeController);

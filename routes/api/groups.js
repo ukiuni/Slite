@@ -8,6 +8,7 @@ var Message = global.db.Message;
 var ContentBody = global.db.ContentBody;
 var Group = global.db.Group;
 var env = process.env.NODE_ENV || "development";
+var socket = global.socket;
 var serverConfig = require(__dirname + "/../../config/server.json")[env];
 var ERROR_NOTACCESSIBLE = "ERROR_NOTACCESSIBLE";
 var ERROR_NOTFOUND = "ERROR_NOTFOUND";
@@ -48,6 +49,7 @@ router.get('/:accessKey/messages', function(req, res) {
 		res.status(400).end();
 		return;
 	}
+	var loadedAccount;
 	var loadedGroup;
 	AccessKey.findBySessionKey(sessionKey).then(function(accessKey) {
 		if (!accessKey) {
@@ -58,6 +60,7 @@ router.get('/:accessKey/messages', function(req, res) {
 		if (!account) {
 			throw ERROR_NOTACCESSIBLE;
 		}
+		loadedAccount = account;
 		return Group.find({
 			where : {
 				accessKey : req.params.accessKey
@@ -70,7 +73,7 @@ router.get('/:accessKey/messages', function(req, res) {
 		loadedGroup = group;
 		return AccountInGroup.find({
 			where : {
-				AccountId : account.id,
+				AccountId : loadedAccount.id,
 				GroupId : loadedGroup.id
 			}
 		});
@@ -81,6 +84,70 @@ router.get('/:accessKey/messages', function(req, res) {
 		return loadedGroup.getMessages();
 	}).then(function(messages) {
 		res.status(200).json(messages);
+	})["catch"](function(error) {
+		if (ERROR_NOTACCESSIBLE == error) {
+			res.status(403).end();
+		} else {
+			console.log(error.stack);
+			res.status(500).end();
+		}
+	});
+});
+router.post('/:accessKey/messages', function(req, res) {
+	var sessionKey = req.body.sessionKey || req.body.access_token;
+	if (!sessionKey) {
+		res.status(400).end();
+		return;
+	}
+	if (!req.body.body) {
+		res.status(400).end();
+		return;
+	}
+	var loadedAccount;
+	var loadedGroup;
+	AccessKey.findBySessionKey(sessionKey).then(function(accessKey) {
+		if (!accessKey) {
+			throw ERROR_NOTACCESSIBLE;
+		}
+		return Account.findById(accessKey.AccountId);
+	}).then(function(account) {
+		if (!account) {
+			throw ERROR_NOTACCESSIBLE;
+		}
+		loadedAccount = account;
+		return Group.find({
+			where : {
+				accessKey : req.params.accessKey
+			}
+		});
+	}).then(function(group) {
+		if (!group) {
+			throw ERROR_NOTACCESSIBLE;
+		}
+		loadedGroup = group;
+		return AccountInGroup.find({
+			where : {
+				AccountId : loadedAccount.id,
+				GroupId : loadedGroup.id
+			}
+		});
+	}).then(function(accountInGroup) {
+		if (!accountInGroup) {
+			throw ERROR_NOTACCESSIBLE;
+		}
+		return Random.createRandomBase62();
+	}).then(function(random) {
+		return Message.create({
+			body : req.body.body,
+			ownerId : loadedAccount.id,
+			groupId : loadedGroup.id,
+			accessKey : random,
+			type : Message.TYPE_MARKDOWN
+		});
+	}).then(function(message) {
+		message.dataValues.owner = loadedAccount;
+		res.status(201).json(message);
+		socket.sendToGroup(loadedGroup.accessKey, message);
 	})["catch"](function(error) {
 		if (ERROR_NOTACCESSIBLE == error) {
 			res.status(403).end();
@@ -141,6 +208,7 @@ router.put('/', function(req, res) {
 		return;
 	}
 	var loadedAccount;
+	var loadedGroup;
 	AccessKey.findBySessionKey(accessKey).then(function(accessKey) {
 		if (!accessKey) {
 			throw ERROR_NOTACCESSIBLE;
@@ -151,23 +219,31 @@ router.put('/', function(req, res) {
 			throw ERROR_NOTACCESSIBLE;
 		}
 		loadedAccount = account;
+		return Group.find({
+			where : {
+				accessKey : req.body.accessKey
+			}
+		});
+	}).then(function(group) {
+		if (!group) {
+			throw ERROR_NOTFOUND;
+		}
+		loadedGroup = group;
 		return AccountInGroup.find({
 			where : {
-				AccountId : account.id,
-				GroupId : req.body.id
+				AccountId : loadedAccount.id,
+				GroupId : loadedGroup.id
 			}
 		})
 	}).then(function(accountInGroup) {
 		if (!accountInGroup || accountInGroup.authorization < Account.AUTHORIZATION_EDITOR) {
 			throw ERROR_NOTACCESSIBLE;
 		}
-		return Group.findById(req.body.id)
-	}).then(function(group) {
-		group.name = req.body.name;
-		group.description = req.body.description;
-		group.imageUrl = req.body.imageUrl;
-		group.visibility = req.body.visibility;
-		return group.save();
+		loadedGroup.name = req.body.name;
+		loadedGroup.description = req.body.description;
+		loadedGroup.imageUrl = req.body.imageUrl;
+		loadedGroup.visibility = req.body.visibility;
+		return loadedGroup.save();
 	}).then(function(group) {
 		res.status(200).json(group);
 	})["catch"](function(error) {
@@ -204,13 +280,6 @@ router.get('/:accessKey', function(req, res) {
 					attributes : [ "name", "iconUrl" ]
 				} ],
 				order : "updatedAt"
-			} ]
-		}, {
-			model : Message,
-			require : false,
-			include : [ {
-				model : Account,
-				as : "owner"
 			} ]
 		} ],
 		order : "createdAt DESC"

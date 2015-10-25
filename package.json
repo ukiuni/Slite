@@ -25,6 +25,7 @@
     "multer": "^1.0.3",
     "ng-file-upload": "^6.0.4",
     "ng-tags-input": "^3.0.0",
+    "nightwatch": "^0.8.6",
     "pg": "^4.3.0",
     "pg-hstore": "^2.3.1",
     "request": "^2.64.0",

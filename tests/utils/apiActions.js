@@ -162,7 +162,6 @@ module.exports = {
 			} else if ("after" == appends) {
 				newArticle = content.article + article;
 			}
-			console.log("--------------- " + JSON.stringify(body));
 			assert.equal(!!error, false);
 			assert.equal(res.statusCode, 201);
 			assert.equal(body.accessKey, content.accessKey);
@@ -184,4 +183,35 @@ module.exports = {
 			}
 		});
 	},
+	sendMessage : function(assert, sessionKey, groupAccessKey, message, callback) {
+		request.post({
+			uri : url + "/api/groups/" + groupAccessKey + "/messages",
+			form : {
+				body : message,
+				sessionKey : sessionKey
+			},
+			json : true
+		}, function(error, res, body) {
+			assert.equal(!!error, false, "Send message no error");
+			assert.equal(res.statusCode, 201, "Send message status");
+			if (callback) {
+				callback();
+			}
+		});
+	},
+	joinToGroup : function(assert, sessionKey, groupAccessKey, callback) {
+		request.put({
+			uri : url + "/api/groups/" + groupAccessKey + "/join",
+			form : {
+				sessionKey : sessionKey
+			},
+			json : true
+		}, function(error, res, body) {
+			assert.equal(!!error, false);
+			assert.equal(res.statusCode, 200, "JOIN to group");
+			if (callback) {
+				callback();
+			}
+		});
+	}
 }

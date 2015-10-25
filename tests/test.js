@@ -52,6 +52,14 @@ var tests = {
 		Actions.createGroupAndCheckExists(client);
 		client.end();
 	},
+	'Send And Recieve Message' : function(client) {
+		Actions.createAccountAndSignin(client);
+		Actions.createGroupAndCheckExists(client, function(groupName, groupUrl) {
+			Actions.sendMessage(client, groupName, groupUrl, function() {
+				client.end();
+			});
+		});
+	},
 	'Invite Exists Account To Group' : function(client) {
 		var account = Actions.createAccountAndSignin(client);
 		Actions.signout(client);
@@ -82,7 +90,7 @@ var tests = {
 	},
 	'Account not member is unvisible group' : function(client) {
 		Actions.createAccountAndSignin(client);
-		Actions.createGroupAndCheckExists(client, function(groupUrl) {
+		Actions.createGroupAndCheckExists(client, function(groupName, groupUrl) {
 			var nameAndMail = Date.now() + "inviteAccount@example.com"
 			var newAccount = {
 				name : nameAndMail,
