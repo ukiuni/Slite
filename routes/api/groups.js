@@ -350,7 +350,7 @@ router.get('/:accessKey', function(req, res) {
 		}, {
 			model : Channel
 		} ],
-		order : "createdAt DESC"
+		order : "\"createdAt\" DESC"
 	}).then(function(group) {
 		if (!group) {
 			throw ERROR_NOTFOUND;
