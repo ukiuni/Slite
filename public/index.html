@@ -31,31 +31,34 @@
 
 </head>
 <body style="height: 100%">
-<nav class="navbar navbar-default navbar-static-top">
-	<div class="container">
-		<div class="navbar-header">
-			<a class="navbar-brand" href="/" ng-bind="messages.app.title"></a>
+	<nav class="navbar navbar-default navbar-static-top">
+		<div class="container">
+			<div class="navbar-header">
+				<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+					<span class="sr-only">Toggle navigation</span> <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span>
+				</button>
+				<a class="navbar-brand" href="/" ng-bind="messages.app.title"></a>
+			</div>
+			<div id="navbar" class="navbar-collapse collapse">
+				<ul class="nav navbar-nav navbar-right" ng-show="myAccount">
+					<li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><img style="margin-right: 10px; height: 20px" ng-show="myAccount.iconUrl" class="img-circle" ng-src="{{myAccount.iconUrl}}" /><span id="userNameInMenu" ng-bind="myAccount.name"></span><span class="caret"></span></a>
+						<ul class="dropdown-menu">
+							<li><a href="/home" ng-bind="messages.menu.home"></a></li>
+							<li><a id="toEditContentLink" href="/editContent" ng-bind="messages.menu.newContent"></a></li>
+							<li role="separator" class="divider"></li>
+							<li class="dropdown-header" ng-bind="messages.menu.setting"></li>
+							<li><a href="/editProfile" ng-bind="messages.menu.profile"></a></li>
+							<li><a href="/changePassword" ng-bind="messages.menu.changePassword"></a></li>
+							<li role="separator" class="divider"></li>
+							<li><a href="/groups" ng-bind="messages.group"></a></li>
+							<li role="separator" class="divider"></li>
+							<li><a id="signoutButton" href="#" ng-click="signout()" ng-bind="messages.menu.signOut"></a></li>
+						</ul></li>
+				</ul>
+			</div>
+			<!--/.nav-collapse -->
 		</div>
-		<div id="navbar" class="navbar-collapse collapse">
-			<ul class="nav navbar-nav navbar-right" ng-show="myAccount">
-				<li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><img style="margin-right: 10px; height: 20px" ng-show="myAccount.iconUrl" class="img-circle" ng-src="{{myAccount.iconUrl}}" /><span id="userNameInMenu" ng-bind="myAccount.name"></span><span class="caret"></span></a>
-					<ul class="dropdown-menu">
-						<li><a href="/home" ng-bind="messages.menu.home"></a></li>
-						<li><a id="toEditContentLink" href="/editContent" ng-bind="messages.menu.newContent"></a></li>
-						<li role="separator" class="divider"></li>
-						<li class="dropdown-header" ng-bind="messages.menu.setting"></li>
-						<li><a href="/editProfile" ng-bind="messages.menu.profile"></a></li>
-						<li><a href="/changePassword" ng-bind="messages.menu.changePassword"></a></li>
-						<li role="separator" class="divider"></li>
-						<li><a href="/groups" ng-bind="messages.group"></a></li>
-						<li role="separator" class="divider"></li>
-						<li><a id="signoutButton" href="#" ng-click="signout()" ng-bind="messages.menu.signOut"></a></li>
-					</ul></li>
-			</ul>
-		</div>
-		<!--/.nav-collapse -->
-	</div>
-</nav>
+	</nav>
 	<div ng-view></div>
 </body>
 </html>

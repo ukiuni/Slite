@@ -3,7 +3,7 @@
 		<div class="col-xs-10 col-xs-offset-1">
 			<div class="row">
 				<a ng-href="/tag/{{tag.id}}" class="col-xs-10"><h3 ng-bind="tag.name"></h3></a>
-				<button ng-show="myAccount" class="btn btn-default col-xs-2" ng-bind="messages.edit" ng-click="gotoEdit()"></button>
+				<button id="editButton" ng-show="myAccount" class="btn btn-default col-xs-2" ng-bind="messages.edit" ng-click="gotoEdit()"></button>
 			</div>
 			<div class="row">
 				<div id="descriptionArea" class="col-sm-3 col-sm-offset-1" ng-bind="tag.description"></div>

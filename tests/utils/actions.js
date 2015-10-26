@@ -151,8 +151,8 @@ var self = {
 		client.url(contentUrl);
 		client.waitForElementVisible('#tagArea', testWaitTime);
 		client.click('#tagArea > ul > li > a');
-		client.waitForElementVisible("button", testWaitTime);
-		client.click('button');
+		client.waitForElementVisible("#editButton", testWaitTime);
+		client.click('#editButton');
 		client.waitForElementVisible('#saveButton', testWaitTime);
 		client.waitForElementVisible('textarea', testWaitTime);
 		client.setValue('textarea', tagDescription);
@@ -165,8 +165,8 @@ var self = {
 		var groupName = "groupName" + contentRandom;
 		var groupDescription = "groupDescription" + contentRandom;
 		client.url(url + "/groups");
-		client.waitForElementVisible('button', testWaitTime);
-		client.click('button');
+		client.waitForElementVisible('#createNewGroupButton', testWaitTime);
+		client.click('#createNewGroupButton');
 		client.waitForElementVisible("#saveButton", testWaitTime);
 		client.setValue('input', groupName);
 		client.setValue('textarea', groupDescription);

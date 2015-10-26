@@ -3,7 +3,7 @@
 		<div class="col-sm-6 col-sm-offset-3 col-xs-10 col-xs-offset-1">
 			<div class="row" style="margin-bottom: 10px">
 				<h2 class="col-xs-9" style="margin: 0;padding 0;" ng-bind="messages.group"></h2>
-				<button class="col-xs-3 btn btn-default" ng-bind="messages.groups.newGroup" ng-click="gotoCreateNewGroup()"></button>
+				<button id="createNewGroupButton" class="col-xs-3 btn btn-default" ng-bind="messages.groups.newGroup" ng-click="gotoCreateNewGroup()"></button>
 			</div>
 			<div class="row" ng-repeat="group in groups track by group.id">
 				<div class="col-xs-12 groupListColmun">
