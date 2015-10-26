@@ -186,43 +186,46 @@ var self = {
 	},
 	sendMessage : function(client, groupName, groupUrl, callback) {
 		var contentRandom = new Date().getTime();
+		var channelName = "channelName" + contentRandom;
 		var message = "message" + contentRandom;
 		client.url(groupUrl);
 		client.waitForElementVisible('#groupName', testWaitTime);
-		client.click("#toMessage");
+		client.click("#createNewChannelButton");
+		client.waitForElementVisible('.modal-dialog', testWaitTime);
+		client.setValue('#dialogText', channelName);
+		client.click("#createButton");
+		client.pause(1000);
+		client.click(".toChannelLink");
 		client.waitForElementVisible('#messageScrollPane', testWaitTime);
 		client.setValue('textarea', message);
 		client.sendKeys('textarea', client.Keys.ENTER);
 		client.pause(1000);
 		client.assert.containsText("#messageScrollInner", message);
-		client.getAttribute("a", "href", function(result) {
-			client.url(groupUrl);
+		client.pause(1000);
+		client.url(function(result) {
+			var channelUrl = result.value;
+			client.url(channelUrl);
 			var ApiActions = require(__dirname + "/apiActions");
 			ApiActions.createAccount(client.assert, function(account) {
+				var accountName = account.name;
+				account.name = account.mail;// For not joining user;
 				client.url(groupUrl);
-				client.getAttribute("a", "href", function(result) {
-					client.url(groupUrl);
-					var accountName = account.name;
-					account.name = account.mail;// For not joining user;
-					self.inviteAccountAfterCreateGroupAndCheckExists(client, account, function() {
-						account.name = accountName;
-						client.url(groupUrl);
-						client.waitForElementVisible('#groupName', testWaitTime);
-						client.click("#toMessage");
-						client.waitForElementVisible('#messageScrollPane', testWaitTime);
-						client.getAttribute("a", "href", function(result) {
-							client.pause(10000);// For avoid automatically-close
-							ApiActions.signin(client.assert, account, function(sessionKey) {
-								var groupAccessKey = groupUrl.match(/group\/([^\/]+)/)[1];
-								ApiActions.joinToGroup(client.assert, sessionKey, groupAccessKey, function() {
-									var secondMessage = "secondMessage" + contentRandom;
-									ApiActions.sendMessage(client.assert, sessionKey, groupAccessKey, secondMessage, function() {
-										client.pause(1000);
-										client.assert.containsText("#messageScrollInner", secondMessage, "Second Message has comen.");
-										if (callback) {
-											callback();
-										}
-									});
+				self.inviteAccountAfterCreateGroupAndCheckExists(client, account, function() {
+					account.name = accountName;
+					client.url(channelUrl);
+					client.waitForElementVisible('#messageScrollPane', testWaitTime);
+					client.getAttribute("a", "href", function(result) {
+						client.pause(10000);// For avoid automatically-close
+						ApiActions.signin(client.assert, account, function(sessionKey) {
+							var groupAccessKey = channelUrl.match(/group\/([^\/]+)/)[1];
+							var channelAccessKey = channelUrl.match(/channel\/([^\/]+)/)[1];
+							ApiActions.joinToGroup(client.assert, sessionKey, groupAccessKey, function() {
+								var secondMessage = "secondMessage" + contentRandom;
+								ApiActions.sendMessage(client.assert, sessionKey, groupAccessKey, channelAccessKey, secondMessage, function() {
+									client.assert.containsText("#messageScrollInner", secondMessage, "Second Message has commen.");
+									if (callback) {
+										callback();
+									}
 								});
 							});
 						});

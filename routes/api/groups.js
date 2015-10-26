@@ -4,6 +4,7 @@ var AccessKey = global.db.AccessKey;
 var AccountInGroup = global.db.AccountInGroup;
 var Account = global.db.Account;
 var Content = global.db.Content;
+var Channel = global.db.Channel;
 var Message = global.db.Message;
 var ContentBody = global.db.ContentBody;
 var Group = global.db.Group;
@@ -93,13 +94,80 @@ router.get('/:accessKey/messages', function(req, res) {
 		}
 	});
 });
-router.post('/:accessKey/messages', function(req, res) {
+router.post('/:accessKey/channels/:channelAccessKey/messages', function(req, res) {
 	var sessionKey = req.body.sessionKey || req.body.access_token;
 	if (!sessionKey) {
 		res.status(400).end();
 		return;
 	}
 	if (!req.body.body) {
+		res.status(400).end();
+		return;
+	}
+	var loadedAccount;
+	var loadedChannel;
+	AccessKey.findBySessionKey(sessionKey).then(function(accessKey) {
+		if (!accessKey) {
+			throw ERROR_NOTACCESSIBLE;
+		}
+		return Account.findById(accessKey.AccountId);
+	}).then(function(account) {
+		if (!account) {
+			throw ERROR_NOTACCESSIBLE;
+		}
+		loadedAccount = account;
+		return Channel.find({
+			where : {
+				accessKey : req.params.channelAccessKey
+			},
+			include : [ {
+				model : Group
+			} ]
+		});
+	}).then(function(channel) {
+		if (!channel) {
+			throw ERROR_NOTACCESSIBLE;
+		}
+		loadedChannel = channel;
+		return AccountInGroup.find({
+			where : {
+				AccountId : loadedAccount.id,
+				GroupId : loadedChannel.GroupId
+			}
+		});
+	}).then(function(accountInGroup) {
+		if (!accountInGroup) {
+			throw ERROR_NOTACCESSIBLE;
+		}
+		return Random.createRandomBase62();
+	}).then(function(random) {
+		return Message.create({
+			body : req.body.body,
+			ownerId : loadedAccount.id,
+			channelId : loadedChannel.id,
+			accessKey : random,
+			type : Message.TYPE_MARKDOWN
+		});
+	}).then(function(message) {
+		message.dataValues.owner = loadedAccount;
+		res.status(201).json(message);
+		socket.sendToChannel(loadedChannel.accessKey, message);
+	})["catch"](function(error) {
+		if (ERROR_NOTACCESSIBLE == error) {
+			res.status(403).end();
+		} else {
+			console.log(error.stack);
+			res.status(500).end();
+		}
+	});
+});
+router.post('/:accessKey/channels', function(req, res) {
+	var sessionKey = req.body.sessionKey || req.body.access_token;
+	if (!sessionKey) {
+		res.status(400).end();
+		return;
+	}
+	if (!req.body.name) {
 		res.status(400).end();
 		return;
 	}
@@ -132,22 +200,20 @@ router.post('/:accessKey/messages', function(req, res) {
 			}
 		});
 	}).then(function(accountInGroup) {
-		if (!accountInGroup) {
+		if (!accountInGroup || accountInGroup.authorization < Account.AUTHORIZATION_EDITOR) {
 			throw ERROR_NOTACCESSIBLE;
 		}
 		return Random.createRandomBase62();
 	}).then(function(random) {
-		return Message.create({
-			body : req.body.body,
+		return Channel.create({
 			ownerId : loadedAccount.id,
-			groupId : loadedGroup.id,
+			GroupId : loadedGroup.id,
 			accessKey : random,
-			type : Message.TYPE_MARKDOWN
+			name : req.body.name
 		});
-	}).then(function(message) {
-		message.dataValues.owner = loadedAccount;
-		res.status(201).json(message);
-		socket.sendToGroup(loadedGroup.accessKey, message);
+	}).then(function(channel) {
+		channel.dataValues.owner = loadedAccount;
+		res.status(201).json(channel);
 	})["catch"](function(error) {
 		if (ERROR_NOTACCESSIBLE == error) {
 			res.status(403).end();
@@ -281,6 +347,8 @@ router.get('/:accessKey', function(req, res) {
 				} ],
 				order : "updatedAt"
 			} ]
+		}, {
+			model : Channel
 		} ],
 		order : "createdAt DESC"
 	}).then(function(group) {

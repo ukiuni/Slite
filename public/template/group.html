@@ -66,6 +66,14 @@
 		<div class="col-sm-2 col-xs-12">
 			<div class="row">
 				<a id="toMessage" ng-href="{{'/group/'+group.accessKey+'/message'}}"><h2 class="col-xs-12" ng-bind="messages.message"></h2></a>
+				<button id="createNewChannelButton" class="col-xs-12" ng-bind="messages.channels.new" ng-click="createNewChannel()"></button>
+				<div class="col-xs-12" ng-repeat="channel in group.Channels track by channel.id">
+					<div class="row">
+						<div class="col-xs-12">
+							<a class="toChannelLink" ng-href="group/{{group.accessKey}}/channel/{{channel.accessKey}}/messages"><div ng-bind="channel.name"></div></a>
+						</div>
+					</div>
+				</div>
 			</div>
 		</div>
 	</div>

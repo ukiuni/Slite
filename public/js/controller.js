@@ -98,7 +98,7 @@ myapp.config([ "$locationProvider", "$httpProvider", "$routeProvider", "markedPr
 		templateUrl : "template/editGroup.html",
 		controller : "editGroupController"
 	});
-	$routeProvider.when("/group/:accessKey/message", {
+	$routeProvider.when("/group/:groupAccessKey/channel/:channelAccessKey/messages", {
 		templateUrl : "template/message.html",
 		controller : "messageController"
 	});
@@ -230,19 +230,19 @@ myapp.run([ "$rootScope", "$location", "$resource", "$cookies", function($rootSc
 		$rootScope.socket.removeListener(contentKey, callback);
 		contentSocketListeners["delete"](contentKey);
 	};
-	var groupSocketListeners = new Map();
-	$rootScope.listenGroup = function(accessKey, callback) {
-		if (groupSocketListeners.has(accessKey)) {
+	var channelSocketListeners = new Map();
+	$rootScope.listenChannel = function(accessKey, callback) {
+		if (channelSocketListeners.has(accessKey)) {
 			return;
 		}
-		$rootScope.socket.emit('listenGroup', accessKey);
+		$rootScope.socket.emit('listenChannel', accessKey);
 		$rootScope.socket.on(accessKey, callback);
-		groupSocketListeners.set(accessKey, callback);
+		channelSocketListeners.set(accessKey, callback);
 	};
-	$rootScope.unListenGroup = function(accessKey, callback) {
-		$rootScope.socket.emit('unListenGroup', accessKey);
+	$rootScope.unListenChannel = function(accessKey, callback) {
+		$rootScope.socket.emit('unListenChannel', accessKey);
 		$rootScope.socket.removeListener(accessKey, callback);
-		groupSocketListeners["delete"](accessKey);
+		channelSocketListeners["delete"](accessKey);
 	};
 	var targetGroupId = null;
 	$rootScope.setTargetGroupId = function(_targetGroupId) {
@@ -264,8 +264,8 @@ myapp.run([ "$rootScope", "$location", "$resource", "$cookies", function($rootSc
 		contentSocketListeners.forEach(function(value, key) {
 			$rootScope.socket.emit('listenComment', key);
 		});
-		groupSocketListeners.forEach(function(value, key) {
-			$rootScope.socket.emit('listenGroup', key);
+		channelSocketListeners.forEach(function(value, key) {
+			$rootScope.socket.emit('listenChannel', key);
 		})
 	});
 	$rootScope.socket.on('disconnect', function(data) {
@@ -658,13 +658,14 @@ var groupsController = [ "$rootScope", "$scope", "$resource", "$location", "$htt
 		$location.path("/group/0/edit");
 	}
 } ];
-var groupController = [ "$rootScope", "$scope", "$resource", "$location", "$http", "$routeParams", function($rootScope, $scope, $resource, $location, $http, $routeParams) {
+var groupController = [ "$rootScope", "$scope", "$resource", "$location", "$http", "$routeParams", "$modal", function($rootScope, $scope, $resource, $location, $http, $routeParams, $modal) {
 	$resource('/api/groups/:accessKey').get({
 		accessKey : $routeParams.accessKey,
 		sessionKey : $rootScope.getSessionKey()
 	}, function(group) {
 		$scope.group = group;
 		$scope.group.visibility = $rootScope.groupVisibilities[group.visibility - 1];
+		console.log(JSON.stringify(group));
 	}, function(error) {
 		$rootScope.showErrorWithStatus(error.status);
 	});
@@ -728,6 +729,37 @@ var groupController = [ "$rootScope", "$scope", "$resource", "$location", "$http
 		$rootScope.setTargetGroupId($scope.group.id);
 		$location.path("/editContent");
 	}
+	$scope.createNewChannel = function() {
+		var dialogController = [ "$scope", "$modalInstance", function($dialogScope, $modalInstance) {
+			$dialogScope.create = function() {
+				var account = {};
+				if ("" == $dialogScope.text) {
+					return;
+				}
+				$modalInstance.close($dialogScope.text);
+			};
+			$dialogScope.text = "";
+			$dialogScope.message = $rootScope.messages.channels["new"];
+			$dialogScope.placeholder = $rootScope.messages.channels.name;
+		} ];
+		var modalInstance = $modal.open({
+			templateUrl : 'template/confirmWithTextDialog.html',
+			controller : dialogController
+		});
+		modalInstance.result.then(function(channelName) {
+			post($http, '/api/groups/' + $routeParams.accessKey + "/channels", {
+				sessionKey : $rootScope.getSessionKey(),
+				name : channelName
+			}).then(function(response) {
+				console.log("-----" + JSON.stringify(response.data));
+				$scope.group.Channels.push(response.data);
+			})["catch"](function(response) {
+				$rootScope.showErrorWithStatus(response.status);
+				sendingMessage = null;
+			});
+		}, function() {
+		});
+	}
 	$scope.inviteUserAuthorization = $rootScope.groupAuthorizations[0];
 } ];
 var editGroupController = [ "$rootScope", "$scope", "$resource", "$location", "$http", "$routeParams", function($rootScope, $scope, $resource, $location, $http, $routeParams) {
@@ -775,7 +807,7 @@ var editGroupController = [ "$rootScope", "$scope", "$resource", "$location", "$
 } ];
 var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$http", "$routeParams", function($rootScope, $scope, $resource, $location, $http, $routeParams) {
 	$resource('/api/groups/:accessKey').get({
-		accessKey : $routeParams.accessKey,
+		accessKey : $routeParams.groupAccessKey,
 		sessionKey : $rootScope.getSessionKey()
 	}, function(group) {
 		$scope.group = group;
@@ -794,10 +826,10 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 				}
 			});
 		}
-		$rootScope.listenGroup($routeParams.accessKey, listenComment);
-		var groupAccessKey = $routeParams.accessKey;
+		$rootScope.listenChannel($routeParams.channelAccessKey, listenComment);
+		var channelAccessKey = $routeParams.channelAccessKey;
 		$scope.$on('$destroy', function() {
-			$rootScope.unListenGroup(groupAccessKey, listenComment);
+			$rootScope.unListenChannel(channelAccessKey, listenComment);
 		});
 	}, function(error) {
 		$rootScope.showErrorWithStatus(error.status);
@@ -809,7 +841,7 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 				return;
 			}
 			sendingMessage = $scope.text;
-			post($http, '/api/groups/' + $routeParams.accessKey + "/messages", {
+			post($http, '/api/groups/' + $routeParams.groupAccessKey + "/channels/" + $routeParams.channelAccessKey + "/messages", {
 				sessionKey : $rootScope.getSessionKey(),
 				body : $scope.text
 			}).then(function(response) {

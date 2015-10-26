@@ -14,11 +14,13 @@ module.exports = function(sequelize, DataTypes) {
 		indexes : [ {
 			name : "groupName",
 			fields : [ "name" ]
+		}, {
+			fields : [ "accessKey", "deletedAt" ]
 		} ]
 	});
 	Group.associate = function(sequelize) {
 		Group.hasMany(sequelize.Content);
-		Group.hasMany(sequelize.Message);
+		Group.hasMany(sequelize.Channel);
 		Group.belongsToMany(sequelize.Account, {
 			through : sequelize.AccountInGroup
 		});

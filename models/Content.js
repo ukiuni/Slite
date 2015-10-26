@@ -15,7 +15,10 @@ module.exports = function(sequelize, DataTypes) {
 					}
 				});
 			}
-		}
+		},
+		indexes : [ {
+			fields : [ "accessKey", "deletedAt" ]
+		} ]
 	});
 	Content.associate = function(sequelize) {
 		Content.belongsTo(sequelize.Account, {

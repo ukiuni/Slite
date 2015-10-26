@@ -183,9 +183,9 @@ module.exports = {
 			}
 		});
 	},
-	sendMessage : function(assert, sessionKey, groupAccessKey, message, callback) {
+	sendMessage : function(assert, sessionKey, groupAccessKey, channelAccessKey, message, callback) {
 		request.post({
-			uri : url + "/api/groups/" + groupAccessKey + "/messages",
+			uri : url + "/api/groups/" + groupAccessKey + "/channels/" + channelAccessKey + "/messages",
 			form : {
 				body : message,
 				sessionKey : sessionKey

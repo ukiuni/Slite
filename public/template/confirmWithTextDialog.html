@@ -1,0 +1,10 @@
+<div class="modal-body" id="confirmDialog">
+	<div class="row">
+		<div class="col-xs-12" style="white-space: pre;" ng-bind="message"></div>
+		<input id="dialogText" type="text" class="form-control col-xs-12" placeholder="{{placeholder}}" ng-model="text" />
+	</div>
+</div>
+<div class="modal-footer">
+	<button type="button" id="closeButton" class="btn btn-default" ng-disabled="'' == editingTodo.description" ng-click="$dismiss()" ng-bind="messages.cancel"></button>
+	<button type="button" id="createButton" class="btn btn-primary" ng-disabled="text == ''" ng-click="create()" ng-bind="messages.channels.new"></button>
+</div>

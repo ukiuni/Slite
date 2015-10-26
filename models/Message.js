@@ -6,14 +6,17 @@ module.exports = function(sequelize, DataTypes) {
 	}, {
 		paranoid : true,
 		classMethods : {},
-		instanceMethods : {}
+		instanceMethods : {},
+		indexes : [ {
+			fields : [ "accessKey", "createdAt", "deletedAt" ]
+		} ]
 	});
 	Message.associate = function(sequelize) {
 		Message.belongsTo(sequelize.Account, {
 			as : 'owner'
 		});
-		Message.belongsTo(sequelize.Group, {
-			as : 'group'
+		Message.belongsTo(sequelize.Channel, {
+			as : 'channel'
 		});
 	}
 	Message.TYPE_MARKDOWN = "markdown";
