@@ -25,7 +25,7 @@
 						<p id="article" class="article" marked="content.ContentBodies[0].article"></p>
 					</div>
 				</div>
-				<div id="commentArea" class="row" style="background-color: #F8F8F8;">
+				<div id="commentArea" class="row" style="background-color: #F8F8F8; padding: 5px;">
 					<div class="col-xs-12">
 						<div class="row" ng-repeat="comment in comments track by comment.id" style="border: solid 1px #EEE; margin: 5px">
 							<div class="col-xs-1" style="margon: 0; padding: 0">
@@ -43,7 +43,7 @@
 								<img ng-show="myAccount.iconUrl" class="img-circle" style="width: 100%" ng-src="{{myAccount.iconUrl}}" />
 							</div>
 							<textarea ng-model="newComment.message" class="col-xs-10" placeholder="{{messages.contents.comment}}" rows="4"></textarea>
-							<div class="col-sm-3 col-sm-offset-8 col-xs-10 col-xs-offset-1">
+							<div class="col-sm-3 col-sm-offset-7 col-xs-10 col-xs-offset-1" style="padding: 0">
 								<button class="btn btn-lg btn-primary btn-block" ng-bind="messages.contents.comment" ng-click="comment()"></button>
 							</div>
 						</div>

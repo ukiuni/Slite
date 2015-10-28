@@ -760,6 +760,27 @@ var groupController = [ "$rootScope", "$scope", "$resource", "$location", "$http
 		}, function() {
 		});
 	}
+	$scope.deleteContent = function($index, title, accessKey) {
+		var dialogController = [ "$scope", "$modalInstance", function($dialogScope, $modalInstance) {
+			$dialogScope["delete"] = function() {
+				$modalInstance.close();
+			};
+			$dialogScope.message = $rootScope.messages.contents.confirmDelete + "\n\n" + title;
+		} ];
+		var modalInstance = $modal.open({
+			templateUrl : 'template/confirmDialog.html',
+			controller : dialogController
+		});
+		modalInstance.result.then(function() {
+			$resource("/api/content/:accessKey").remove({
+				accessKey : accessKey,
+				sessionKey : $rootScope.getSessionKey()
+			}, function() {
+				$scope.group.Contents.splice($index, 1);
+			});
+		}, function() {
+		});
+	}
 	$scope.inviteUserAuthorization = $rootScope.groupAuthorizations[0];
 } ];
 var editGroupController = [ "$rootScope", "$scope", "$resource", "$location", "$http", "$routeParams", function($rootScope, $scope, $resource, $location, $http, $routeParams) {
@@ -867,8 +888,8 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 	$scope.sendWithEnter = true;
 } ];
 var homeController = [ "$rootScope", "$scope", "$resource", "$location", "$http", "$modal", function($rootScope, $scope, $resource, $location, $http, $modal) {
-	if (!$rootScope.myAccount) {
-		$location.path("/signin");
+	if (!$rootScope.getSessionKey()) {
+		$location.path("/");
 		return;
 	}
 	$resource("/api/content/").query({

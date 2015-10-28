@@ -42,12 +42,12 @@ var self = {
 		return account;
 	},
 	joinToFirstGroupWhenSignin : function(client) {
-		client.click('#groupArea > div > div > a');
+		client.click('.block');
 		client.waitForElementVisible("#joinButton", testWaitTime);
-		client.assert.attributeContains("#memberArea > div:last-child > div:last-child > img", "src", "inviting.png");
+		client.assert.attributeContains("#memberArea > div:last-child > div:last-child > div:last-child > div:last-child > div:last-child > img", "src", "inviting.png");
 		client.click('#joinButton');
 		client.pause(1000);
-		client.assert.attributeContains("#memberArea > div:last-child > div:last-child > img", "src", "viewer.png");
+		client.assert.attributeContains("#memberArea > div:last-child > div:last-child > div:last-child > div:last-child > div:last-child > img", "src", "viewer.png");
 	},
 	createContentAndCheckExists : function(client, done) {
 		var contentRandom = new Date().getTime();
@@ -69,9 +69,9 @@ var self = {
 		client.sendKeys('select', client.Keys.ENTER);
 		client.click('.btn-primary');
 		client.waitForElementVisible(".contentListColmun", testWaitTime);
-		client.assert.containsText("div > div > a > span", contentTitle);
+		client.assert.containsText("div > div > a > div", contentTitle);
 		client.getAttribute(".contentListTitle", "href", function(result) {
-			client.click("div > div > a > span");
+			client.click("div > div > a > div");
 			client.waitForElementVisible(".contentTitle", testWaitTime);
 			client.pause(1000);
 			client.assert.containsText(".contentTitle", contentTitle);
@@ -105,9 +105,9 @@ var self = {
 		client.sendKeys('select', client.Keys.ENTER);
 		client.click('.btn-primary');
 		client.waitForElementVisible(".contentListColmun", testWaitTime);
-		client.assert.containsText("div > div > a > span", contentTitle);
+		client.assert.containsText("div > div > a > div", contentTitle);
 		client.getAttribute(".contentListTitle", "href", function(result) {
-			client.click("div > div > a > span");
+			client.click("div > div > a > div");
 			client.waitForElementVisible(".contentTitle", testWaitTime);
 			client.pause(1000);
 			client.assert.containsText(".contentTitle", contentTitle);
@@ -179,8 +179,8 @@ var self = {
 		client.assert.containsText("#groupName", groupName);
 		client.assert.containsText("#groupDescription", groupDescription);
 		if (callback) {
-			client.getAttribute("#toMessage", "href", function(result) {
-				callback(groupName, result.value.match(/(http:\/\/[^\/]+\/[^\/]+\/[^\/]+)/)[1])
+			client.url(function(result) {
+				callback(groupName, (result.value).match(/(http:\/\/[^\/]+\/[^\/]+\/[^\/]+)/)[1])
 			});
 		}
 	},

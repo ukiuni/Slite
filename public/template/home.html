@@ -1,6 +1,6 @@
 <div style="height: 100%;">
 	<div class="row">
-		<div class="col-sm-8 col-sm-offset-2 col-xs-10 col-xs-offset-1">
+		<div class="col-xs-10 col-xs-offset-1">
 			<div class="row">
 				<div>Home</div>
 				<div>
@@ -20,7 +20,7 @@
 					<div class="row" ng-repeat="content in myContents track by content.id">
 						<div class="col-xs-12 contentListColmun">
 							<div class="row">
-								<a class="contentListTitle col-sm-6 col-xs-12" href="/content/{{content.accessKey}}"><span ng-bind="content.ContentBodies[0].title"></span></a>
+								<a class="contentListTitle col-sm-6 col-xs-12" href="/content/{{content.accessKey}}"><div ng-bind="content.ContentBodies[0].title" class="ellipsis"></div></a>
 								<div class="col-sm-2 col-xs-12">
 									<span class="contentListStatus row" ng-bind="statuses[content.ContentBodies[0].status - 1].message"></span> <span class="contentListStatus row" ng-bind="content.updatedAt | date:'yyyy-MM-dd'"></span>
 								</div>
@@ -34,19 +34,22 @@
 						</div>
 					</div>
 				</div>
-
 				<div id="groupArea" class="col-sm-4 col-sm-offset-1">
 					<div class="row">
 						<h3 ng-bind="messages.group" class="col-sm-7 col-xs-12"></h3>
-						<button class="col-sm-5 col-xs-12 btn btn-default" ng-click="goto('/group/0/edit')" ng-bind="messages.groups.newGroup"></button>
+						<div class="col-sm-5 col-xs-12">
+							<button class="btn btn-default" style="width: 100%" ng-click="goto('/group/0/edit')" ng-bind="messages.groups.newGroup"></button>
+						</div>
 					</div>
 					<div class="row" ng-repeat="group in myGroups track by group.id">
-						<div class="col-sm-9 col-xs-12">
-							<a ng-href="/group/{{group.accessKey}}" ng-bind="group.name"></a>
-						</div>
-						<div class="col-sm-2 col-xs-12">
-							<img style="width: 20px; height: 20px" ng-src="{{1 == group.AccountInGroup.inviting ? inviteImageUrls[0] : inviteImageUrls[group.AccountInGroup.authorization]}}" />
-						</div>
+						<a ng-href="/group/{{group.accessKey}}"><div class="col-xs-12 block" style="margin-top: 3px;">
+								<div class="row" style="width: 100%">
+									<div class="col-xs-10" ng-bind="group.name"></div>
+									<div class="col-xs-2">
+										<img style="height: 20px" ng-src="{{1 == group.AccountInGroup.inviting ? inviteImageUrls[0] : inviteImageUrls[group.AccountInGroup.authorization]}}" />
+									</div>
+								</div>
+							</div> </a>
 					</div>
 				</div>
 			</div>

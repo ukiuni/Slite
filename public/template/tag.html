@@ -6,9 +6,9 @@
 				<button id="editButton" ng-show="myAccount" class="btn btn-default col-xs-2" ng-bind="messages.edit" ng-click="gotoEdit()"></button>
 			</div>
 			<div class="row">
-				<div id="descriptionArea" class="col-sm-3 col-sm-offset-1" ng-bind="tag.description"></div>
+				<div id="descriptionArea" class="col-sm-3 col-sm-offset-1" marked="tag.description"></div>
 				<div class="col-sm-8">
-					<div class="row" ng-repeat="content in tag.Contents track by content.id">
+					<div class="row block" style="margin-top: 3px" ng-repeat="content in tag.Contents track by content.id">
 						<a ng-href="/content/{{content.accessKey}}"><div ng-bind="content.ContentBodies[0].title"></div></a>
 					</div>
 				</div>

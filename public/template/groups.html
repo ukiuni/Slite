@@ -6,9 +6,9 @@
 				<button id="createNewGroupButton" class="col-xs-3 btn btn-default" ng-bind="messages.groups.newGroup" ng-click="gotoCreateNewGroup()"></button>
 			</div>
 			<div class="row" ng-repeat="group in groups track by group.id">
-				<div class="col-xs-12 groupListColmun">
+				<div class="col-xs-12 groupListRow block" style="margin-top: 3px">
 					<div class="row">
-						<a class="contentListTitle col-xs-12" ng-href="/group/{{group.accessKey}}"><h3 ng-bind="group.name"></h3></a>
+						<a class="col-xs-12" ng-href="/group/{{group.accessKey}}"><h3 ng-bind="group.name"></h3></a>
 						<div class="col-xs-12">
 							<span class="" ng-bind="group.description"></span>
 						</div>

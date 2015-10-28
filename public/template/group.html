@@ -1,19 +1,22 @@
 <div style="height: 100%;">
-	<div class="row" ng-show="group">
-		<div class="col-sm-7 col-sm-offset-2 col-xs-12">
+	<div ng-show="group">
+		<div class="col-sm-7 col-sm-offset-1 col-xs-12">
 			<div class="row">
-				<div id="groupName" class="col-sm-8" ng-bind="group.name"></div>
-				<div id="groupVisibility" class="col-sm-2" ng-bind="group.visibility.message"></div>
-				<button id="saveButton" ng-show="myAccount" class="btn btn-default col-sm-2" ng-bind="messages.edit" ng-click="gotoEdit()"></button>
+				<div id="groupName" class="col-xs-8" ng-bind="group.name"></div>
+				<div id="groupVisibility" class="col-xs-2" ng-bind="group.visibility.message"></div>
+				<div class="col-xs-2">
+					<button id="saveButton" ng-show="myAccount" class="btn btn-default" ng-bind="messages.edit" ng-click="gotoEdit()"></button>
+				</div>
 			</div>
+
 			<div class="row">
 				<div class="col-sm-12">
 					<img ng-src="{{group.imageUrl}}">
 				</div>
 			</div>
 			<div class="row">
-				<div class="col-sm-12">
-					<div id="groupDescription" class="col-sm-12" ng-bind="group.description"></div>
+				<div class="col-xs-12">
+					<div id="groupDescription" ng-bind="group.description"></div>
 				</div>
 			</div>
 			<div class="row">
@@ -21,65 +24,85 @@
 				<button ng-show="isEditable()" class="col-xs-2 btn btn-default" ng-bind="messages.menu.newContent" ng-click="createNewContent()"></button>
 			</div>
 			<div id="contentArea" class="row" style="margin-top: 10px">
-				<div class="col-sm-12" ng-repeat="content in group.Contents track by content.id">
-					<div class="col-xs-12 contentListColmun">
-						<div class="row">
-							<a class="contentListTitle col-sm-7 col-xs-12" href="/content/{{content.accessKey}}"><span ng-bind="content.ContentBodies[0].title"></span></a>
-							<div class="col-sm-2 col-xs-12">
-								<span class="contentListStatus row" ng-bind="statuses[content.ContentBodies[0].status - 1].message"></span> <span class="contentListStatus row" ng-bind="content.updatedAt | date:'yyyy-MM-dd'"></span>
+				<div class="col-xs-12" ng-repeat="content in group.Contents track by content.id">
+					<div class="row">
+						<div class="col-xs-12 contentListColmun">
+							<div class="row">
+								<a class="contentListTitle col-sm-6 col-xs-12" href="/content/{{content.accessKey}}"><div ng-bind="content.ContentBodies[0].title" class="ellipsis"></div></a>
+								<div class="col-sm-2 col-xs-12">
+									<span class="contentListStatus row" ng-bind="statuses[content.ContentBodies[0].status - 1].message"></span> <span class="contentListStatus row" ng-bind="content.updatedAt | date:'yyyy-MM-dd'"></span>
+								</div>
+								<div class="col-sm-3 col-sm-offset-1 col-xs-12">
+									<div class="row">
+										<button class="editButton col-xs-6 btn btn-primary" type="submit" ng-click="goto('/editContent/'+content.accessKey)" ng-bind="messages.edit"></button>
+										<button class="deleteButton col-xs-6 btn btn-default" type="submit" ng-click="deleteContent($index, content.ContentBodies[0].title, content.accessKey)" ng-bind="messages.delete"></button>
+									</div>
+								</div>
 							</div>
-							<button ng-show="isEditable()" class="col-sm-2 col-sm-offset-1 col-xs-12 btn btn-lg btn-primary" type="submit" ng-click="goto('/editContent/'+content.accessKey)">Edit</button>
 						</div>
 					</div>
 				</div>
 			</div>
-			<h3 class="row" ng-bind="messages.groups.member"></h3>
+			<div class="row">
+				<div class="col-xs-12">
+					<h3 ng-bind="messages.groups.member"></h3>
+				</div>
+			</div>
 			<div id="memberArea" class="row">
-				<div class="row" ng-repeat="account in group.Accounts track by account.id">
-					<div class="col-sm-1">
-						<img style="width: 20px; height: 20px" ng-src="{{account.iconUrl ? account.iconUrl : '/images/icons.noone.png'}}" />
-					</div>
-					<div class="col-sm-10">
-						<a ng-href="/account/{{account.id}}"><div ng-bind="account.name ? account.name : account.mail "></div></a>
-					</div>
-					<div class="col-sm-1">
-						<img style="width: 20px; height: 20px" ng-src="{{1 == account.AccountInGroup.inviting ? inviteImageUrls[0] : inviteImageUrls[account.AccountInGroup.authorization]}}" />
+				<div class="col-xs-12">
+					<div class="row" ng-repeat="account in group.Accounts track by account.id">
+						<div class="col-sm-6 col-xs-12">
+							<div class="row">
+								<div class="col-xs-2">
+									<img style="width: 20px; height: 20px" ng-src="{{account.iconUrl ? account.iconUrl : '/images/icons.noone.png'}}" />
+								</div>
+								<div class="col-xs-8">
+									<a ng-href="/account/{{account.id}}"><div ng-bind="account.name ? account.name : account.mail" title="{{account.name ? account.name : account.mail}}" class="ellipsis"></div></a>
+								</div>
+								<div class="col-xs-2">
+									<img style="width: 20px; height: 20px" ng-src="{{1 == account.AccountInGroup.inviting ? inviteImageUrls[0] : inviteImageUrls[account.AccountInGroup.authorization]}}" />
+								</div>
+							</div>
+						</div>
 					</div>
 				</div>
 			</div>
 			<div class="row" style="margin-top: 10px" ng-show="isEditable()">
-				<div class="col-sm-3" ng-bind="messages.groups.addsMember"></div>
-				<div class="col-sm-5">
+				<div class="col-sm-3 col-xs-12" ng-bind="messages.groups.addsMember"></div>
+				<div class="col-sm-5 col-xs-8">
 					<form name="addMemberForm">
 						<input type="email" name="mail" class="form-control" ng-model="inviteUserMail" placeholder="{{messages.accounts.mail}}" required />
 					</form>
 				</div>
-				<div class="col-sm-2">
+				<div class="col-sm-2 col-xs-4">
 					<select ng-model="inviteUserAuthorization" ng-options="authorization as authorization.message for authorization in groupAuthorizations"></select>
 				</div>
-				<button id="inviteButton" class="col-sm-2 btn btn-default" ng-bind="messages.groups.invite" ng-disabled="addMemberForm.mail.$error.email || addMemberForm.mail.$error.required" ng-click="invite()"></button>
+				<div class="col-sm-2 col-xs-12">
+					<button id="inviteButton" style="width: 100%" class="btn btn-default" ng-bind="messages.groups.invite" ng-disabled="addMemberForm.mail.$error.email || addMemberForm.mail.$error.required" ng-click="invite()"></button>
+				</div>
 			</div>
-			<div class="row" style="margin-top: 10px" ng-show="isInviting()">
-				<button id="joinButton" class="col-sm-10 col-sm-offset-1 btn btn-default" ng-bind="messages.groups.join" ng-click="join()"></button>
+			<div class="row" class="col-xs-12" style="margin-top: 10px" ng-show="isInviting()">
+				<button id="joinButton" class="btn btn-default" ng-bind="messages.groups.join" ng-click="join()"></button>
 			</div>
 		</div>
-		<div class="col-sm-2 col-xs-12">
+		<div class="hidden-sm hidden-md hidden-lg col-xs-12" style="height: 20px"></div>
+		<div class="col-sm-3 col-xs-12">
 			<div class="row">
-				<a id="toMessage" ng-href="{{'/group/'+group.accessKey+'/message'}}"><h2 class="col-xs-12" ng-bind="messages.message"></h2></a>
-				<button id="createNewChannelButton" class="col-xs-12" ng-bind="messages.channels.new" ng-click="createNewChannel()"></button>
+				<h3 class="col-xs-12" ng-bind="messages.message"></h3>
+				<div class="col-xs-12">
+					<button id="createNewChannelButton" class="btn btn-default" style="width: 100%" ng-bind="messages.channels.new" ng-click="createNewChannel()"></button>
+				</div>
 				<div class="col-xs-12" ng-repeat="channel in group.Channels track by channel.id">
 					<div class="row">
 						<div class="col-xs-12">
-							<a class="toChannelLink" ng-href="group/{{group.accessKey}}/channel/{{channel.accessKey}}/messages"><div ng-bind="channel.name"></div></a>
+							<a class="toChannelLink" ng-href="group/{{group.accessKey}}/channel/{{channel.accessKey}}/messages"><div class="block" style="margin-top: 3px" ng-bind="channel.name"></div></a>
 						</div>
 					</div>
 				</div>
 			</div>
 		</div>
 	</div>
-	<div class="row">
-		<div class="col-sm-10 col-sm-offset-1 col-xs-10 col-xs-offset-1" align="center" style="margin-top: 10px">
-			<a id="groupListLink" href="/groups">&lt;<span ng-bind="messages.groups.groupList"></span></a>
-		</div>
+	<div align="center" style="margin-top: 10px">
+		<a id="groupListLink" class="col-xs-12" href="/groups">&lt;<span ng-bind="messages.groups.groupList"></span></a>
 	</div>
 </div>

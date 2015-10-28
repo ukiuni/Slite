@@ -3,8 +3,11 @@ h2, h3 {
 	padding: 0;
 }
 
+button {
+	overflow: hidden;
+}
+
 .article {
-	font-size: 20px;
 	white-space: pre;
 	white-space: pre-wrap;
 	white-space: pre-line;
@@ -63,10 +66,24 @@ h2, h3 {
 	background-color: #FAFAFA;
 }
 
+.block {
+	background-color: #EEE;
+	border-radius: 5px;
+	padding: 5px;
+}
+
+.message {
+	white-space: pre;
+	white-space: pre-wrap;
+	white-space: pre-line;
+	white-space: -hp-pre-line;
+	word-wrap: break-word;
+}
+
 #groupArea {
 	border: solid 1px #DDD;
 	border-radius: 3px;
-	padding-bottom: 10px
+	padding-top: 5px;
 }
 /* Group input */
 #groupName {
