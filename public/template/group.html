@@ -19,11 +19,11 @@
 					<div id="groupDescription" ng-bind="group.description"></div>
 				</div>
 			</div>
-			<div class="row">
+			<div class="row" style="margin-top: 20px">
 				<h3 class=col-xs-10 ng-bind="messages.content"></h3>
 				<button ng-show="isEditable()" class="col-xs-2 btn btn-default" ng-bind="messages.menu.newContent" ng-click="createNewContent()"></button>
 			</div>
-			<div id="contentArea" class="row" style="margin-top: 10px">
+			<div id="contentArea" class="row">
 				<div class="col-xs-12" ng-repeat="content in group.Contents track by content.id">
 					<div class="row">
 						<div class="col-xs-12 contentListColmun">
@@ -44,7 +44,7 @@
 				</div>
 			</div>
 			<div class="row">
-				<div class="col-xs-12">
+				<div class="col-xs-12" style="margin-top: 20px">
 					<h3 ng-bind="messages.groups.member"></h3>
 				</div>
 			</div>
