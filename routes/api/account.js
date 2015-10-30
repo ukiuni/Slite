@@ -40,6 +40,7 @@ router.post('/', function(req, res) {
 				name : req.body.name,
 				mail : req.body.mail,
 				iconUrl : iconUrl,
+				language : req.headers["accept-language"],
 				status : Account.STATUS_REQUEST_ACTIVATION
 			})
 		}

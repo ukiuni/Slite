@@ -331,6 +331,7 @@ router.post('/', function(req, res) {
 		return Content.create({
 			ownerId : accessAccount.id,
 			accessKey : createdContentAccessKey,
+			language : req.headers["accept-language"],
 			currentVersion : 1
 		});
 	}).then(function(content) {

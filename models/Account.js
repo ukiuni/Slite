@@ -9,6 +9,7 @@ module.exports = function(sequelize, DataTypes) {
 		name : DataTypes.TEXT,
 		information : DataTypes.TEXT,
 		iconUrl : DataTypes.TEXT,
+		language : DataTypes.TEXT,
 		status : DataTypes.INTEGER
 	}, {
 		paranoid : true,

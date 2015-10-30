@@ -2,7 +2,8 @@ module.exports = function(sequelize, DataTypes) {
 	var Content = sequelize.define("Content", {
 		accessKey : DataTypes.TEXT,
 		type : DataTypes.TEXT,
-		currentVersion : DataTypes.INTEGER
+		currentVersion : DataTypes.INTEGER,
+		language : DataTypes.TEXT
 	}, {
 		paranoid : true,
 		classMethods : {},
