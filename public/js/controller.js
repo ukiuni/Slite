@@ -198,6 +198,10 @@ myapp.run([ "$rootScope", "$location", "$resource", "$cookies", function($rootSc
 			$rootScope.removeSessionKey();
 			$rootScope.myAccount = null;
 			$rootScope.sessionKey = null;
+			$rootScope.socket = io.connect({
+				'forceNew' : true
+			});
+			initSocket();
 			$location.path("/signout");
 		}, function() {
 			$rootScope.showError($rootScope.messages.error.withServer);
@@ -217,7 +221,7 @@ myapp.run([ "$rootScope", "$location", "$resource", "$cookies", function($rootSc
 			$rootScope.removeSessionKey();
 		});
 	}
-	var contentSocketListeners = new Map();
+	var contentSocketListeners;
 	$rootScope.listenComment = function(contentKey, callback) {
 		if (contentSocketListeners.has(contentKey)) {
 			return;
@@ -231,7 +235,7 @@ myapp.run([ "$rootScope", "$location", "$resource", "$cookies", function($rootSc
 		$rootScope.socket.removeListener(contentKey, callback);
 		contentSocketListeners["delete"](contentKey);
 	};
-	var channelSocketListeners = new Map();
+	var channelSocketListeners;
 	$rootScope.listenChannel = function(accessKey, callback) {
 		if (channelSocketListeners.has(accessKey)) {
 			return;
@@ -255,23 +259,28 @@ myapp.run([ "$rootScope", "$location", "$resource", "$cookies", function($rootSc
 		return _targetGroupId;
 	}
 	$rootScope.socket = io.connect();
-	$rootScope.disconnected = false;
-	$rootScope.socket.on('connect', function(data) {
-		$rootScope.socket.emit('authorize', $rootScope.getSessionKey());
-		if (!$rootScope.disconnected) {
-			return;
-		}
+	var initSocket = function() {
+		channelSocketListeners = new Map();
+		contentSocketListeners = new Map();
 		$rootScope.disconnected = false;
-		contentSocketListeners.forEach(function(value, key) {
-			$rootScope.socket.emit('listenComment', key);
+		$rootScope.socket.on('connect', function(data) {
+			$rootScope.socket.emit('authorize', $rootScope.getSessionKey());
+			if (!$rootScope.disconnected) {
+				return;
+			}
+			$rootScope.disconnected = false;
+			contentSocketListeners.forEach(function(value, key) {
+				$rootScope.socket.emit('listenComment', key);
+			});
+			channelSocketListeners.forEach(function(value, key) {
+				$rootScope.socket.emit('listenChannel', key);
+			})
 		});
-		channelSocketListeners.forEach(function(value, key) {
-			$rootScope.socket.emit('listenChannel', key);
-		})
-	});
-	$rootScope.socket.on('disconnect', function(data) {
-		$rootScope.disconnected = true;
-	});
+		$rootScope.socket.on('disconnect', function(data) {
+			$rootScope.disconnected = true;
+		});
+	}
+	initSocket();
 	$rootScope.inviteImageUrls = [ "/images/inviting.png", "/images/viewer.png", "/images/editor.png", "/images/admin.png" ];
 } ]);
 var indexController = [ "$rootScope", "$scope", "$modal", "$location", "$http", "$window", "$resource", "$routeParams", function($rootScope, $scope, $modal, $location, $http, $window, $resource, $routeParams) {
@@ -367,6 +376,7 @@ var signinController = [ "$rootScope", "$scope", "$resource", "$location", funct
 			} else {
 				$rootScope.setSessionKey($rootScope.sessionKey);
 			}
+			$rootScope.socket.emit('authorize', $rootScope.getSessionKey());
 			$location.path("/home");
 		}, function(error) {
 			$rootScope.showError($rootScope.messages.signin.error);
@@ -674,7 +684,6 @@ var groupController = [ "$rootScope", "$scope", "$resource", "$location", "$http
 	}, function(group) {
 		$scope.group = group;
 		$scope.group.visibility = $rootScope.groupVisibilities[group.visibility - 1];
-		console.log(JSON.stringify(group));
 	}, function(error) {
 		$rootScope.showErrorWithStatus(error.status);
 	});
