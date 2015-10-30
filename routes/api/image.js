@@ -44,9 +44,11 @@ router.get('/:contentKey/:imageKey', function(req, res) {
 		});
 	}).then(function(contentBody) {
 		if (contentBody.status == ContentBody.STATUS_OPEN || contentBody.status == ContentBody.STATUS_URLACCESS) {
-			return;
+			return new Promise(function(success) {
+				success()
+			});
 		} else {
-			var accessKey = req.body.sessionKey || req.body.access_token;
+			var accessKey = req.query.sessionKey || req.query.access_token;
 			if (!accessKey) {
 				throw ERROR_NOTACCESSIBLE;
 			}

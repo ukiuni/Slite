@@ -299,11 +299,15 @@ function saveTag(content, tagsString) {
 	dummyPromise = dummyPromise.then(function() {
 		appendedTag.forEach(function(tag) {
 			dummyPromise = dummyPromise.then(function() {
-				content.addTag(tag)
+				return content.addTag(tag);
 			});
 		});
 	});
-	return dummyPromise;
+	return dummyPromise.then(function() {
+		return new Promise(function(success) {
+			success(appendedTag);
+		})
+	});
 }
 router.post('/', function(req, res) {
 	var accessKey = req.body.sessionKey || req.body.access_token;
@@ -314,6 +318,7 @@ router.post('/', function(req, res) {
 	var accessAccount;
 	var createdContentAccessKey;
 	var createdContent;
+	var createdTags;
 	var appendedTag = [];
 	AccessKey.findBySessionKey(accessKey).then(function(accessKey) {
 		if (!accessKey) {
@@ -348,7 +353,8 @@ router.post('/', function(req, res) {
 	}).then(function(contentBody) {
 		createdContent.body = contentBody;
 		return saveTag(createdContent, req.body.tags);
-	}).then(function() {
+	}).then(function(tags) {
+		createdTags = tags;
 		if (req.body.groupId || 0 != req.body.groupId) {
 			return Group.findById(req.body.groupId).then(function(group) {
 				if (!group) {
@@ -363,6 +369,7 @@ router.post('/', function(req, res) {
 	}).then(function() {
 		createdContent.dataValues.ContentBodies = [];
 		createdContent.dataValues.ContentBodies.push(createdContent.body);
+		createdContent.dataValues.Tags = createdTags;
 		createdContent.dataValues.owner = accessAccount;
 		res.status(201).json(createdContent);
 	})["catch"](function(error) {
@@ -383,6 +390,7 @@ router.put('/:contentKey', function(req, res) {
 	var loadedAccessKey;
 	var loadedContent;
 	var updatedContentBody;
+	var updatedTags;
 	var accessKey = req.body.sessionKey || req.body.auth_token;
 	AccessKey.findBySessionKey(accessKey).then(function(accessKey) {
 		if (!accessKey || !(AccessKey.TYPE_SESSION == accessKey.type || AccessKey.TYPE_LOGIN == accessKey.type)) {
@@ -461,11 +469,12 @@ router.put('/:contentKey', function(req, res) {
 		updatedContentBody = contentBody;
 		if (!req.body.tags) {
 			return new Promise(function(success) {
-				success()
+				success([])
 			});
 		}
 		return saveTag(loadedContent, req.body.tags);
-	}).then(function() {
+	}).then(function(tags) {
+		updatedTags = tags;
 		if (req.body.groupId || 0 != req.body.groupId) {
 			Group.findById(req.body.groupId).then(function(group) {
 				if (!group) {
@@ -477,6 +486,7 @@ router.put('/:contentKey', function(req, res) {
 	}).then(function() {
 		loadedContent.dataValues.ContentBodies = [];
 		loadedContent.dataValues.ContentBodies.push(updatedContentBody);
+		loadedContent.dataValues.Tag = updatedTags;
 		res.status(201).json(loadedContent);
 	})["catch"](function(error) {
 		console.log(error.stack);

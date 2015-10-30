@@ -470,11 +470,14 @@ var editContentController = [ "$rootScope", "$scope", "$resource", "$location", 
 			func = post;
 			url = '/api/content';
 		}
-		var tags = $scope.editingContent.tags.map(function(val) {
-			return val.text
-		}).filter(function(val) {
-			return "" != val && val.indexOf(",") < 0;
-		}).join(",");
+		var tags
+		if ($scope.editingContent.tags) {
+			tags = $scope.editingContent.tags.map(function(val) {
+				return val.text
+			}).filter(function(val) {
+				return "" != val && val.indexOf(",") < 0;
+			}).join(",");
+		}
 		func($http, url, {
 			title : $scope.editingContent.title,
 			article : $scope.editingContent.article,
@@ -498,26 +501,30 @@ var editContentController = [ "$rootScope", "$scope", "$resource", "$location", 
 			}
 		});
 	}
+	var parseContentToEdit = function(content) {
+		var editingContent = {}
+		editingContent.status = $rootScope.statuses[content.ContentBodies[0].status - 1];
+		editingContent.contentKey = content.accessKey;
+		editingContent.title = content.ContentBodies[0].title;
+		editingContent.article = content.ContentBodies[0].article;
+		editingContent.topImageUrl = content.ContentBodies[0].topImageUrl;
+		editingContent.group = content.Group;
+		if (content.Tags) {
+			editingContent.tags = content.Tags.map(function(val) {
+				return {
+					text : val.name
+				}
+			});
+		}
+		return editingContent;
+	}
 	$scope.currentTime = new Date().getTime();
 	if ($routeParams.contentKey) {
 		$resource('/api/content/:contentKey?sessionKey=:sessionKey').get({
 			contentKey : $routeParams.contentKey,
 			sessionKey : $rootScope.getSessionKey()
 		}, function(content) {
-			$scope.editingContent = {}
-			$scope.editingContent.status = $rootScope.statuses[content.ContentBodies[0].status - 1];
-			$scope.editingContent.contentKey = content.accessKey;
-			$scope.editingContent.title = content.ContentBodies[0].title;
-			$scope.editingContent.article = content.ContentBodies[0].article;
-			$scope.editingContent.topImageUrl = content.ContentBodies[0].topImageUrl;
-			$scope.editingContent.group = content.Group;
-			if (content.Tags) {
-				$scope.editingContent.tags = content.Tags.map(function(val) {
-					return {
-						text : val.name
-					}
-				});
-			}
+			$scope.editingContent = parseContentToEdit(content);
 			initGroupSelect();
 		}, function(error) {
 			$rootScope.showError($rootScope.messages.error.withServer);
@@ -530,6 +537,9 @@ var editContentController = [ "$rootScope", "$scope", "$resource", "$location", 
 			id : 0,
 			name : ""
 		}
+		$scope.save("POST", function(content) {
+			$scope.editingContent = parseContentToEdit(content);
+		})
 	}
 	$scope.$watch('editingContent.contentImageFile', function() {
 		if ($scope.editingContent && $scope.editingContent.contentImageFile) {
