@@ -53,6 +53,8 @@
 		"save" : "save",
 		"delete" : "delete",
 		"cancel" : "cancel",
+		"next" : "next",
+		"prev" : "prev",
 		"content" : "content",
 		"contents" : {
 			"self" : "content",
@@ -129,6 +131,8 @@
 		"save" : "保存",
 		"delete" : "削除",
 		"cancel" : "キャンセル",
+		"next" : "次へ",
+		"prev" : "前へ",
 		"content" : "投稿",
 		"contents" : {
 			"self" : "自分の投稿",

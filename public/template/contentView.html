@@ -3,7 +3,7 @@
 		<div class="col-xs-10 col-xs-offset-1">
 			<div class="row">
 				<div class="row" style="height: 200px; overflow: hidden">
-					<div class="row" style="margin-top: -100px">
+					<div class="row" style="margin-top: -100px"  ng-show="!!content.ContentBodies[0].topImageUrl">
 						<img ng-show="content.ContentBodies[0].topImageUrl" ng-src="{{content.ContentBodies[0].topImageUrl + '?sessionKey=' + sessionKey}}" style="width: 100%" />
 					</div>
 				</div>
@@ -43,7 +43,7 @@
 								<img ng-show="myAccount.iconUrl" class="img-circle" style="width: 100%" ng-src="{{myAccount.iconUrl}}" />
 							</div>
 							<textarea ng-model="newComment.message" class="col-xs-10" placeholder="{{messages.contents.comment}}" rows="4"></textarea>
-							<div class="col-sm-3 col-sm-offset-7 col-xs-10 col-xs-offset-1" style="padding: 0">
+							<div class="col-sm-3 col-sm-offset-8 col-xs-10 col-xs-offset-1" style="padding: 0">
 								<button class="btn btn-lg btn-primary btn-block" ng-bind="messages.contents.comment" ng-click="comment()"></button>
 							</div>
 						</div>

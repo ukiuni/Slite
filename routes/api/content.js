@@ -22,7 +22,7 @@ function createFindContentBase() {
 		include : [ {
 			model : ContentBody,
 			where : [ "\"ContentBodies\".\"version\" = \"Content\".\"currentVersion\"" ],
-			attributes : [ "title", "topImageUrl", "status" ],
+			attributes : [ "title", "topImageUrl", "status", "version" ],
 			include : [ {
 				model : Account,
 				as : "updator",
@@ -65,12 +65,49 @@ router.get('/', function(req, res) {
 			}
 		})
 	} else {
-		var findContentCriteria = createFindContentBase();
-		findContentCriteria.include[0].where.push("\"ContentBodies\".\"version\" = " + Content.STATUS_OPEN)
-		Content.findAll(findContentCriteria).then(function(contents) {
+		ContentBody.findAll({
+			where : {
+				status : ContentBody.STATUS_OPEN
+			},
+			include : [ {
+				model : Content,
+				where : [ "\"ContentBody\".\"version\" = \"Content\".\"currentVersion\"" ],
+				attributes : [ "id", "accessKey" ],
+				include : [ {
+					model : Account,
+					as : "owner"
+				} ],
+				require : true
+			} ],
+			order : [ [ "updatedAt", "DESC" ] ],
+			limit : 20,
+			offset : req.query.page ? req.query.page * 20 : 0
+		}).then(function(contentBodies) {
+			var contents = []
+			contentBodies.forEach(function(body) {
+				var content = {
+					id : body.Content.id,
+					accessKey : body.Content.accessKey,
+					updatedAt : body.updatedAt
+				};
+				content.owner = {
+					name : body.Content.owner.name,
+					iconUrl : body.Content.owner.name
+				}
+				content.ContentBodies = [ {
+					title : body.title,
+					article : body.article,
+					topImageUrl : body.topImageUrl
+				} ];
+				contents.push(content);
+			})
 			res.status(200).json(contents);
 		})["catch"](function(error) {
-			console.trace(error)
+			if (error.stack) {
+				console.log(error.stack)
+			} else {
+				console.trace(error)
+			}
 			if (ERROR_NOTACCESSIBLE == error) {
 				res.status(403).end();
 			} else {

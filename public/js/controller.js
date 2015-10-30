@@ -21,10 +21,6 @@ myapp.config([ "$locationProvider", "$httpProvider", "$routeProvider", "markedPr
 		smartLists : true,
 		smartypants : false
 	});
-	$routeProvider.when("/", {
-		templateUrl : "template/indexView.html",
-		controller : "indexController"
-	});
 	$routeProvider.when("/signin", {
 		templateUrl : "template/signinView.html",
 		controller : "signinController"
@@ -105,8 +101,13 @@ myapp.config([ "$locationProvider", "$httpProvider", "$routeProvider", "markedPr
 	$routeProvider.when("/signout", {
 		templateUrl : "template/signouted.html"
 	});
+	$routeProvider.when("/:page", {
+		templateUrl : "template/indexView.html",
+		controller : "indexController"
+	});
 	$routeProvider.otherwise({
-		redirectTo : "/"
+		templateUrl : "template/indexView.html",
+		controller : "indexController"
 	});
 } ]);
 myapp.run([ "$rootScope", "$location", "$resource", "$cookies", function($rootScope, $location, $resource, $cookies) {
@@ -273,7 +274,7 @@ myapp.run([ "$rootScope", "$location", "$resource", "$cookies", function($rootSc
 	});
 	$rootScope.inviteImageUrls = [ "/images/inviting.png", "/images/viewer.png", "/images/editor.png", "/images/admin.png" ];
 } ]);
-var indexController = [ "$rootScope", "$scope", "$modal", "$location", "$http", "$window", function($rootScope, $scope, $modal, $location, $http, $window) {
+var indexController = [ "$rootScope", "$scope", "$modal", "$location", "$http", "$window", "$resource", "$routeParams", function($rootScope, $scope, $modal, $location, $http, $window, $resource, $routeParams) {
 	$scope.openCreateAccountDialog = function() {
 		var dialogController = [ "$scope", "$modalInstance", function($dialogScope, $modalInstance) {
 			$dialogScope.create = function() {
@@ -313,6 +314,14 @@ var indexController = [ "$rootScope", "$scope", "$modal", "$location", "$http", 
 			});
 		});
 	}
+	$resource("/api/content/").query({
+		page : $routeParams.page
+	}, function(contents) {
+		$scope.contents = contents;
+	}, function(error) {
+		$rootScope.showErrorWithStatus(error.status);
+	});
+	$scope.page = $routeParams.page ? parseInt($routeParams.page) : 0;
 } ];
 var post = function($http, url, object) {
 	return httpRequest($http, "POST", url, object);
