@@ -855,19 +855,20 @@ var editGroupController = [ "$rootScope", "$scope", "$resource", "$location", "$
 	}
 } ];
 var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$http", "$routeParams", function($rootScope, $scope, $resource, $location, $http, $routeParams) {
-	$resource('/api/groups/:accessKey').get({
-		accessKey : $routeParams.groupAccessKey,
+	$resource('/api/groups/:groupAccessKey/:channelAccessKey').get({
+		groupAccessKey : $routeParams.groupAccessKey,
+		channelAccessKey : $routeParams.channelAccessKey,
 		sessionKey : $rootScope.getSessionKey()
-	}, function(group) {
-		$scope.group = group;
-		$scope.group.visibility = $rootScope.groupVisibilities[group.visibility - 1];
-		$scope.group.messages = [];
+	}, function(channel) {
+		$scope.channel = channel;
+		$scope.channel.Group.visibility = $rootScope.groupVisibilities[channel.Group.visibility - 1];
+		$scope.channel.messages = [];
 		var jqScrollPane = $("#messageScrollPane");
 		var jqScrollInner = $("#messageScrollInner");
 		var listenComment = function(message) {
 			message = JSON.parse(message);
 			$scope["$apply"](function() {
-				$scope.group.messages.push(message);
+				$scope.channel.messages.push(message);
 				if (jqScrollPane.scrollTop() > jqScrollInner.height() - jqScrollPane.height() - 30) {
 					jqScrollPane.animate({
 						scrollTop : jqScrollInner.height()

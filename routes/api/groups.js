@@ -44,7 +44,7 @@ router.get('/self', function(req, res) {
 		}
 	});
 });
-router.get('/:accessKey/messages', function(req, res) {
+router.get('/:groupAccessKey/:channelAccessKey', function(req, res) {
 	var sessionKey = req.query.sessionKey || req.query.access_token;
 	if (!sessionKey) {
 		res.status(400).end();
@@ -64,8 +64,11 @@ router.get('/:accessKey/messages', function(req, res) {
 		loadedAccount = account;
 		return Group.find({
 			where : {
-				accessKey : req.params.accessKey
-			}
+				accessKey : req.params.groupAccessKey
+			},
+			include : [ {
+				model : Account
+			} ]
 		});
 	}).then(function(group) {
 		if (!group) {
@@ -82,12 +85,29 @@ router.get('/:accessKey/messages', function(req, res) {
 		if (!accountInGroup || accountInGroup.authorization < Account.AUTHORIZATION_EDITOR) {
 			throw ERROR_NOTACCESSIBLE;
 		}
-		return loadedGroup.getMessages();
-	}).then(function(messages) {
-		res.status(200).json(messages);
+		return loadedGroup.getChannels({
+			where : {
+				accessKey : req.params.channelAccessKey
+			},
+			include : [ {
+				model : Account,
+				as : "owner"
+			} ]
+		});
+	}).then(function(channels) {
+		if (!channels || !channels[0]) {
+			throw ERROR_NOTFOUND
+		}
+		var channel = channels[0];
+		channel.dataValues.Group = loadedGroup;
+		channel.Group = loadedGroup;
+		console.log("$$$$$$$$$$$$$$$$$ channel " + JSON.stringify(channel));
+		res.status(200).json(channel);
 	})["catch"](function(error) {
 		if (ERROR_NOTACCESSIBLE == error) {
 			res.status(403).end();
+		} else if (ERROR_NOTFOUND == error) {
+			res.status(404).end();
 		} else {
 			console.log(error.stack);
 			res.status(500).end();
