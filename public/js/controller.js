@@ -922,6 +922,9 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 	}, function(channel) {
 		$scope.channel = channel;
 		$scope.channel.Group.visibility = $rootScope.groupVisibilities[channel.Group.visibility - 1];
+		$scope.channel.Group.Accounts = $scope.channel.Group.Accounts.filter(function(account) {
+			return 2 == account.AccountInGroup.inviting;
+		});
 		$scope.channel.messages = [];
 		var jqScrollPane = $("#messageScrollPane");
 		var jqScrollInner = $("#messageScrollInner");
