@@ -103,6 +103,21 @@ var tests = {
 			client.end();
 		}, 'option:last-child');
 	},
+	'Goto Account Page' : function(client) {
+		Actions.createAccountAndSignin(client);
+		Actions.createContentAndCheckExists(client, function(contentUrl, content) {
+			Actions.createGroupAndCheckExists(client, function(groupName, groupUrl, group) {
+				client.url(contentUrl);
+				client.pause(1000)
+				client.waitForElementVisible('#accountName', 1000);
+				client.click("#accountName");
+				client.waitForElementVisible('.contentListTitle', 1000);
+				client.assert.containsText(".contentListTitle", content.title);
+				client.assert.containsText("#groupArea", groupName);
+				client.end();
+			});
+		});
+	},
 	'[API] create account and signin' : function(client) {
 		ApiActions.createAccount(client.assert, function(account) {
 			ApiActions.signin(client.assert, account, function(sessionKey) {

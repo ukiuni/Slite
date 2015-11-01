@@ -102,6 +102,10 @@ myapp.config([ "$locationProvider", "$httpProvider", "$routeProvider", "markedPr
 		templateUrl : "template/invitation.html",
 		controller : "invitationController"
 	});
+	$routeProvider.when("/account/:id", {
+		templateUrl : "template/account.html",
+		controller : "accountController"
+	});
 	$routeProvider.when("/signout", {
 		templateUrl : "template/signouted.html"
 	});
@@ -630,6 +634,9 @@ var editContentController = [ "$rootScope", "$scope", "$resource", "$location", 
 	$resource('/api/groups/self').query({
 		sessionKey : $rootScope.getSessionKey()
 	}, function(groups) {
+		groups = groups.filter(function(group) {
+			return group.AccountInGroup.authorization >= 2;
+		});
 		groups.unshift({
 			id : 0,
 			name : ""
@@ -969,6 +976,16 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 	$scope.text = "";
 	$scope.sendWithEnter = true;
 } ];
+var accountController = [ "$rootScope", "$scope", "$resource", "$location", "$http", "$modal", "$routeParams", function($rootScope, $scope, $resource, $location, $http, $modal, $routeParams) {
+	var id = $routeParams.id;
+	$resource("/api/account/:id").get({
+		id : id
+	}, function(account) {
+		$scope.account = account;
+	}, function(error) {
+		$rootScope.showErrorWithStatus(error.status);
+	});
+} ];
 var homeController = [ "$rootScope", "$scope", "$resource", "$location", "$http", "$modal", function($rootScope, $scope, $resource, $location, $http, $modal) {
 	if (!$rootScope.getSessionKey()) {
 		$location.path("/");
@@ -1030,4 +1047,5 @@ myapp.controller('groupsController', groupsController);
 myapp.controller('groupController', groupController);
 myapp.controller('editGroupController', editGroupController);
 myapp.controller('messageController', messageController);
+myapp.controller('accountController', accountController);
 myapp.controller('homeController', homeController);

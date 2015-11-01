@@ -1,6 +1,8 @@
 var Account = global.db.Account;
 var AccessKey = global.db.AccessKey;
 var Group = global.db.Group;
+var Content = global.db.Content;
+var ContentBody = global.db.ContentBody;
 var express = require('express');
 var router = express.Router();
 var env = process.env.NODE_ENV || "development";
@@ -132,20 +134,6 @@ router.post('/', function(req, res) {
 		}
 	});
 });
-var sendActivationMail = function(toMailAddress, activationUrl, errorFunc) {
-	var dataForTemplate = {
-		app : {
-			name : serverConfig.app.name
-		},
-		activationUrl : activationUrl
-	};
-	return SendMail.send({
-		from : serverConfig.admin.mail,
-		to : toMailAddress,
-		subject : 'Welcome to ' + serverConfig.app.name,
-		text : renderer.render('activationMailTemplate.ect', dataForTemplate)
-	});
-}
 var hash = function(src) {
 	if (!src) {
 		return src;
@@ -515,4 +503,43 @@ router["delete"]('/accessKey', function(req, res) {
 		res.status(200).end();
 	});
 });
+router.get("/:id", function(req, res) {
+	var loadedAccount;
+	Account.find({
+		where : {
+			id : req.params.id
+		},
+		attributes : [ "id", "name", "iconUrl" ],
+		include : [ {
+			model : Content,
+			include : [ {
+				model : ContentBody,
+				where : [ "\"ContentBodies\".\"version\" = \"Content\".\"currentVersion\"", [ {
+					status : ContentBody.STATUS_OPEN
+				} ] ]
+			} ],
+			limit : 5
+		} ]
+	}).then(function(account) {
+		if (!account) {
+			throw ERROR_NOTFOUND;
+		}
+		loadedAccount = account;
+		return account.getGroups({
+			where : {
+				visibility : Group.VISIBILITY_OPEN
+			}
+		})
+	}).then(function(groups) {
+		loadedAccount.dataValues.Groups = groups;
+		res.status(200).json(loadedAccount);
+	})["catch"](function(error) {
+		if (ERROR_NOTFOUND == error) {
+			res.status(404).end();
+		} else {
+			console.log(error.stack);
+			res.status(500).end();
+		}
+	})
+})
 module.exports = router;

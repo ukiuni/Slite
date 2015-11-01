@@ -1,0 +1,44 @@
+<div style="height: 100%;">
+	<div class="row">
+		<div class="col-xs-10 col-xs-offset-1">
+			<div class="row">
+				<div class="col-xs-12">
+					<h2 ng-bind="account.name"></h2>
+					<p marked="account.information"></p>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-sm-7">
+					<div class="row" style="margin-bottom: 10px">
+						<h2 class="col-sm-10 col-xs-12" ng-bind="messages.content"></h2>
+					</div>
+					<div class="row" ng-repeat="content in account.Contents track by content.id">
+						<div class="col-xs-12 contentListColmun">
+							<div class="row">
+								<a class="contentListTitle col-sm-8 col-xs-12" href="/content/{{content.accessKey}}"><div ng-bind="content.ContentBodies[0].title" class="ellipsis"></div></a>
+								<div class="col-sm-4 col-xs-12">
+									<span class="contentListStatus row" ng-bind="content.updatedAt | date:'yyyy-MM-dd'"></span>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div id="groupArea" class="col-sm-4 col-sm-offset-1">
+					<div class="row">
+						<h3 ng-bind="messages.group" class="col-xs-12"></h3>
+					</div>
+					<div class="row" ng-repeat="group in account.Groups track by group.id">
+						<a ng-href="/group/{{group.accessKey}}"><div class="col-xs-12 block" style="margin-top: 3px;">
+								<div class="row" style="width: 100%">
+									<div class="col-xs-10" ng-bind="group.name"></div>
+									<div class="col-xs-2">
+										<img style="height: 20px" ng-src="{{1 == group.AccountInGroup.inviting ? inviteImageUrls[0] : inviteImageUrls[group.AccountInGroup.authorization]}}" />
+									</div>
+								</div>
+							</div> </a>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

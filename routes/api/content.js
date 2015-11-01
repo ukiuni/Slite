@@ -356,11 +356,15 @@ router.post('/', function(req, res) {
 	}).then(function(tags) {
 		createdTags = tags;
 		if (req.body.groupId || 0 != req.body.groupId) {
-			return Group.findById(req.body.groupId).then(function(group) {
-				if (!group) {
+			return accessAccount.getGroups({
+				where : {
+					id : req.body.groupId
+				}
+			}).then(function(group) {
+				if (!group || 0 == group.length || group.AccountInGroup.authorization < Account.AUTHORIZATION_EDITOR) {
 					return;
 				}
-				return createdContent.setGroup(group);
+				return createdContent.setGroup(group[0]);
 			})
 		}
 		return Promise(function(success) {

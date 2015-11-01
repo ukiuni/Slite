@@ -180,7 +180,10 @@ var self = {
 		client.assert.containsText("#groupDescription", groupDescription);
 		if (callback) {
 			client.url(function(result) {
-				callback(groupName, (result.value).match(/(http:\/\/[^\/]+\/[^\/]+\/[^\/]+)/)[1])
+				callback(groupName, (result.value).match(/(http:\/\/[^\/]+\/[^\/]+\/[^\/]+)/)[1], {
+					name : groupName,
+					description : groupDescription
+				})
 			});
 		}
 	},
