@@ -34,8 +34,8 @@
 								</div>
 								<div class="col-sm-3 col-sm-offset-1 col-xs-12">
 									<div class="row">
-										<button class="editButton col-xs-6 btn btn-primary" type="submit" ng-click="goto('/editContent/'+content.accessKey)" ng-bind="messages.edit"></button>
-										<button class="deleteButton col-xs-6 btn btn-default" type="submit" ng-click="deleteContent($index, content.ContentBodies[0].title, content.accessKey)" ng-bind="messages.delete"></button>
+										<button ng-show="isEditable()" class="editButton col-xs-6 btn btn-primary" type="submit" ng-click="goto('/editContent/'+content.accessKey)" ng-bind="messages.edit"></button>
+										<button ng-show="isEditable()" class="deleteButton col-xs-6 btn btn-default" type="submit" ng-click="deleteContent($index, content.ContentBodies[0].title, content.accessKey)" ng-bind="messages.delete"></button>
 									</div>
 								</div>
 							</div>
@@ -90,7 +90,7 @@
 			<div class="row">
 				<h3 class="col-xs-12" ng-bind="messages.message"></h3>
 				<div class="col-xs-12">
-					<button id="createNewChannelButton" class="btn btn-default" style="width: 100%" ng-bind="messages.channels.new" ng-click="createNewChannel()"></button>
+					<button id="createNewChannelButton" ng-show="isEditable()" class="btn btn-default" style="width: 100%" ng-bind="messages.channels.new" ng-click="createNewChannel()"></button>
 				</div>
 				<div class="col-xs-12" ng-repeat="channel in group.Channels track by channel.id">
 					<div class="row">
