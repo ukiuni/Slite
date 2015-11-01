@@ -509,7 +509,7 @@ router.get("/:id", function(req, res) {
 		where : {
 			id : req.params.id
 		},
-		attributes : [ "id", "name", "iconUrl" ],
+		attributes : [ "id", "name", "iconUrl", "information" ],
 		include : [ {
 			model : Content,
 			include : [ {
