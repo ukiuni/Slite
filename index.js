@@ -49,8 +49,8 @@ db.sequelize.sync().done(function(param) {
 					process.exit();
 				}, 3000);
 			});
-		}).listen(app.get('port') + 10000, '127.0.0.1', function() {
-			console.log('Slite server listening on port ' + app.get('port') + " and manage port " + app.get('port') + 10000)
+		}).listen(parseInt(app.get('port')) + 10000, '127.0.0.1', function() {
+			console.log('Slite server listening on port ' + app.get('port') + " and manage port " + (parseInt(app.get('port')) + 10000))
 		});
 	});
 });
