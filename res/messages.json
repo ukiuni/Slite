@@ -23,7 +23,10 @@
 				"viewer" : "viewer",
 				"editor" : "editor",
 				"administrator" : "admin"
-			}
+			},
+			"signup0rSignin" : "Sign up or Sign in",
+			"signup" : "Sign up",
+			"signin" : "Sign in"
 		},
 		"group" : "Group",
 		"groups" : {
@@ -100,7 +103,10 @@
 				"viewer" : "閲覧者",
 				"editor" : "編集者",
 				"administrator" : "管理者"
-			}
+			},
+			"signup0rSignin" : "アカウント登録もしくはサインイン",
+			"signup" : "アカウント登録",
+			"signin" : "サインイン"
 		},
 		"group" : "グループ",
 		"groups" : {

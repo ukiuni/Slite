@@ -1,5 +1,6 @@
 var Account = global.db.Account;
 var AccessKey = global.db.AccessKey;
+var Group = global.db.Group;
 var express = require('express');
 var router = express.Router();
 var env = process.env.NODE_ENV || "development";
@@ -7,11 +8,12 @@ var serverConfig = require(__dirname + "/../../config/server.json")[env];
 var renderer = require('ect')({
 	root : './res/template'
 });
-var sendmail = require('sendmail')();
 var crypto = require('crypto');
 var ImageTrimmer = require(__dirname + "/../../util/imageTrimmer");
 var Storage = require(__dirname + "/../../util/storage");
 var Random = require(__dirname + "/../../util/random");
+var SendMail = require(__dirname + "/../../util/sendMail");
+var ERROR_WRONG_ACCESS = "ERROR_WRONG_ACCESS";
 var ERROR_NOTACCESSIBLE = "ERROR_NOTACCESSIBLE";
 var ERROR_NOTFOUND = "ERROR_NOTFOUND";
 var ERROR_DUPLICATE = "ERROR_DUPLICATE";
@@ -21,6 +23,8 @@ router.post('/', function(req, res) {
 		return;
 	}
 	var createdAccount;
+	var savedActivationKey;
+	var activationUrl;
 	Account.find({
 		where : {
 			mail : req.body.mail
@@ -63,20 +67,55 @@ router.post('/', function(req, res) {
 			status : AccessKey.STATUS_CREATED
 		})
 	}).then(function(accessKey) {
-		var activationUrl = serverConfig.hostURL + "/activation?key=" + accessKey.secret;
-		accessKey.setAccount(createdAccount).then(function() {
-			sendActivationMail(createdAccount.mail, activationUrl, function() {
-				res.status(424).end();
+		savedActivationKey = accessKey;
+		return accessKey.setAccount(createdAccount);
+	}).then(function() {
+		if (req.body.invitationKey) {
+			return AccessKey.find({
+				where : {
+					secret : req.body.invitationKey,
+					type : AccessKey.TYPE_INVITATION
+				},
+				include : [ {
+					model : Account,
+					required : true
+				} ]
+			}).then(function(invitationKey) {
+				if (!invitationKey) {
+					throw ERROR_NOTFOUND;
+				}
+				if (createdAccount.id != invitationKey.Account.id) {
+					return Account.aggregate(createdAccount, invitationKey.Account);
+				}
+				return new Promise(function(success) {
+					success();
+				});
 			});
-			res.status(201).json({
-				name : createdAccount.name,
-				mail : createdAccount.mail,
-				iconUrl : createdAccount.iconUrl,
-				activationUrl : activationUrl
-			});
-		})["catch"](function(error) {
-			console.trace(error);
-			res.status(500).json(error);
+		} else {
+			return new Promise(function(success) {
+				success();
+			})
+		}
+	}).then(function() {
+		activationUrl = serverConfig.hostURL + "/activation?key=" + savedActivationKey.secret;
+		var dataForTemplate = {
+			app : {
+				name : serverConfig.app.name
+			},
+			activationUrl : activationUrl
+		};
+		return SendMail.send({
+			from : serverConfig.admin.mail,
+			to : createdAccount.mail,
+			subject : 'Welcome to ' + serverConfig.app.name,
+			text : renderer.render('activationMailTemplate.ect', dataForTemplate)
+		});
+	}).then(function() {
+		res.status(201).json({
+			name : createdAccount.name,
+			mail : createdAccount.mail,
+			iconUrl : createdAccount.iconUrl,
+			activationUrl : activationUrl
 		});
 	})["catch"](function(error) {
 		if (ERROR_NOTACCESSIBLE == error) {
@@ -98,17 +137,11 @@ var sendActivationMail = function(toMailAddress, activationUrl, errorFunc) {
 		},
 		activationUrl : activationUrl
 	};
-	console.log("---------send maill " + renderer.render('activationMailTemplate.ect', dataForTemplate));
-	return;
-	sendmail({
+	return SendMail.send({
 		from : serverConfig.admin.mail,
 		to : toMailAddress,
 		subject : 'Welcome to ' + serverConfig.app.name,
-		content : renderer.render('activationMailTemplate.ect', dataForTemplate)
-	}, function(err, reply) {
-		if (err) {
-			errorFunc(error.stack, replay);
-		}
+		text : renderer.render('activationMailTemplate.ect', dataForTemplate)
 	});
 }
 var hash = function(src) {
@@ -130,97 +163,172 @@ router.get('/activation', function(req, res) {
 			type : AccessKey.TYPE_ACTIVATION
 		}
 	}).then(function(activationKey) {
+		if (!activationKey) {
+			throw ERROR_NOTFOUND;
+		}
 		activationKey.status = AccessKey.STATUS_DISABLED;
 		activationKey.save();
-		activationKey.getAccount().then(function(account) {
-			res.status(200).json(account);
-		})["catch"](function(error) {
-			console.trace(error);
-			res.status(500).end();
-		})
+		return activationKey.getAccount();
+	}).then(function(account) {
+		res.status(200).json(account);
 	})["catch"](function(error) {
-		console.trace(error);
-		res.status(500).end();
+		if (ERROR_NOTACCESSIBLE == error) {
+			res.status(403).end();
+		} else if (ERROR_NOTFOUND == error) {
+			res.status(404).end();
+		} else if (ERROR_DUPLICATE == error) {
+			res.status(409).end();
+		} else {
+			console.log(error.stack);
+			res.status(500).end();
+		}
+	})
+});
+router.get('/invitation', function(req, res) {
+	if (!req.query.key) {
+		res.status(404).end();
+		return;
+	}
+	AccessKey.find({
+		where : {
+			secret : req.query.key,
+			type : AccessKey.TYPE_INVITATION
+		}
+	}).then(function(activationKey) {
+		if (!activationKey) {
+			throw ERROR_NOTFOUND;
+		}
+		return activationKey.getAccount({
+			include : [ {
+				model : Group
+			} ]
+		});
+	}).then(function(account) {
+		res.status(200).json(account);
+	})["catch"](function(error) {
+		if (ERROR_NOTACCESSIBLE == error) {
+			res.status(403).end();
+		} else if (ERROR_NOTFOUND == error) {
+			res.status(404).end();
+		} else if (ERROR_DUPLICATE == error) {
+			res.status(409).end();
+		} else {
+			console.log(error.stack);
+			res.status(500).end();
+		}
 	})
 });
 router.get('/', function(req, res) {
-	if (req.query.sessionKey) {
-		AccessKey.find({
+	if (!req.query.sessionKey) {
+		res.status(400).end();
+		return;
+	}
+	AccessKey.find({
+		where : {
+			secret : req.query.sessionKey,
+			type : AccessKey.TYPE_SESSION
+		}
+	}).then(function(accessKey) {
+		if (!accessKey) {
+			throw ERROR_NOTACCESSIBLE;
+		}
+		return Account.find({
 			where : {
-				secret : req.query.sessionKey,
-				type : AccessKey.TYPE_SESSION
-			}
-		}).then(function(accessKey) {
-			if (!accessKey) {
-				throw ERROR_NOTACCESSIBLE;
-			}
-			return Account.find({
-				where : {
-					id : accessKey.AccountId
-				}
-			});
-		}).then(function(account) {
-			if (!account) {
-				res.status(400).end();
-				return;
-			}
-			res.status(200).json(account);
-		})["catch"](function(error) {
-			if (error == ERROR_NOTACCESSIBLE) {
-				res.status(400).end();
-			} else {
-				res.status(500).end();
+				id : accessKey.AccountId
 			}
 		});
-	} else {
-		res.status(400).end();
-	}
+	}).then(function(account) {
+		if (!account) {
+			throw ERROR_NOTACCESSIBLE;
+		}
+		res.status(200).json(account);
+	})["catch"](function(error) {
+		if (error == ERROR_NOTACCESSIBLE) {
+			res.status(400).end();
+		} else {
+			res.status(500).end();
+		}
+	});
 });
 router.get('/signin', function(req, res) {
 	if (null == req.query.mail || "" == req.query.mail || null == req.query.password || "" == req.query.password) {
 		res.status(400).end();
 		return;
 	}
+	var loadedAccount;
+	var createdAccessKey;
 	Account.find({
 		where : {
 			mail : req.query.mail
 		}
 	}).then(function(account) {
 		if (!account) {
-			res.status(400).end();
+			throw ERROR_WRONG_ACCESS;
 			return;
 		}
-		AccessKey.find({
+		loadedAccount = account;
+		return AccessKey.find({
 			where : {
 				AccountId : account.id,
 				secret : hash(req.query.password),
 				type : AccessKey.TYPE_LOGIN
 			}
-		}).then(function(activationKey) {
-			if (!activationKey) {
-				res.status(400).end();
-			} else {
-				Random.createRandomBase62().then(function(sessionKey) {
-					return AccessKey.create({
-						AccountId : account.id,
-						secret : sessionKey,
-						type : AccessKey.TYPE_SESSION,
-						status : AccessKey.STATUS_CREATED
-					}).then(function(accessKey) {
-						res.status(200).json({
-							sessionKey : accessKey,
-							account : account
-						});
-					});
+		})
+	}).then(function(loginAccessKey) {
+		if (!loginAccessKey) {
+			throw ERROR_WRONG_ACCESS;
+			return;
+		}
+		return Random.createRandomBase62();
+	}).then(function(sessionKey) {
+		return AccessKey.create({
+			AccountId : loadedAccount.id,
+			secret : sessionKey,
+			type : AccessKey.TYPE_SESSION,
+			status : AccessKey.STATUS_CREATED
+		})
+	}).then(function(accessKey) {
+		createdAccessKey = accessKey;
+		if (req.query.invitationKey) {
+			return AccessKey.find({
+				where : {
+					secret : req.query.invitationKey,
+					type : AccessKey.TYPE_INVITATION
+				},
+				include : [ {
+					model : Account,
+					required : true
+				} ]
+			}).then(function(invitationKey) {
+				if (!invitationKey) {
+					throw ERROR_NOTFOUND;
+				}
+				if (loadedAccount.id != invitationKey.Account.id) {
+					return Account.aggregate(loadedAccount, invitationKey.Account);
+				}
+				return new Promise(function(success) {
+					success();
 				});
-			}
-		})["catch"](function(error) {
-			console.trace(error);
-			res.status(500).end();
+			});
+		} else {
+			return new Promise(function(success) {
+				success();
+			});
+		}
+	}).then(function() {
+		res.status(200).json({
+			sessionKey : createdAccessKey,
+			account : loadedAccount
 		});
 	})["catch"](function(error) {
-		console.trace(error);
-		res.status(500).end();
+		if (ERROR_WRONG_ACCESS == error) {
+			res.status(400).end();
+		} else if (ERROR_NOTFOUND == error) {
+			res.status(404).end();
+		} else {
+			console.log(error.stack);
+			res.status(500).end();
+		}
 	})
 });
 router.post('/sendResetpasswordMail', function(req, res) {
@@ -236,8 +344,7 @@ router.post('/sendResetpasswordMail', function(req, res) {
 		}
 	}).then(function(account) {
 		if (!account) {
-			res.status(400).end();
-			return;
+			throw ERROR_WRONG_ACCESS;
 		}
 		createdAccount = account
 		return Random.createRandomBase62();
@@ -251,14 +358,29 @@ router.post('/sendResetpasswordMail', function(req, res) {
 		})
 	}).then(function(activationKey) {
 		if (!activationKey) {
-			res.status(400).end();
-		} else {
-			res.status(200).json(activationKey);
-			sendResetPasswordMail(createdAccount, createdRandom);
+			throw ERROR_NOTFOUND;
 		}
+		var dataForTemplate = {
+			account : createdAccount,
+			resetPassswordURL : serverConfig.hostURL + "/resetPassword?key=" + createdRandom
+		};
+		return SendMail.send({
+			from : serverConfig.admin.mail,
+			to : toMailAddress,
+			subject : 'Welcome to ' + serverConfig.app.name,
+			body : renderer.render('resetPasswordMailTemplate.ect', dataForTemplate)
+		});
+	}).then(function(activationKey) {
+		res.status(200).json(activationKey);
 	})["catch"](function(error) {
-		console.trace(error);
-		res.status(500).end();
+		if (ERROR_WRONG_ACCESS == error) {
+			res.status(400).end();
+		} else if (ERROR_NOTFOUND == error) {
+			res.status(404).end();
+		} else {
+			console.log(error.stack);
+			res.status(500).end();
+		}
 	})
 });
 router.put('/', function(req, res) {
@@ -389,22 +511,4 @@ router["delete"]('/accessKey', function(req, res) {
 		res.status(200).end();
 	});
 });
-var sendResetPasswordMail = function(account, resetKey, errorFunc) {
-	var dataForTemplate = {
-		account : account,
-		resetPassswordURL : serverConfig.hostURL + "/resetPassword?key=" + resetKey
-	};
-	console.log("---------send maill " + renderer.render('resetPasswordMailTemplate.ect', dataForTemplate));
-	return;
-	sendmail({
-		from : serverConfig.admin.mail,
-		to : toMailAddress,
-		subject : 'Welcome to ' + serverConfig.app.name,
-		content : renderer.render('resetPasswordMailTemplate.ect', dataForTemplate)
-	}, function(err, reply) {
-		if (err) {
-			errorFunc(error.stack, replay);
-		}
-	});
-}
 module.exports = router;

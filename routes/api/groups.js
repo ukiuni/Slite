@@ -14,9 +14,9 @@ var serverConfig = require(__dirname + "/../../config/server.json")[env];
 var ERROR_NOTACCESSIBLE = "ERROR_NOTACCESSIBLE";
 var ERROR_NOTFOUND = "ERROR_NOTFOUND";
 var ERROR_DUPLICATED = "ERROR_DUPLICATED";
-var sendmail = require('sendmail')();
 var Promise = require("bluebird");
 var Random = require(__dirname + "/../../util/random");
+var SendMail = require(__dirname + "/../../util/sendMail");
 var renderer = require('ect')({
 	root : './res/template'
 });
@@ -429,6 +429,7 @@ router.post('/:accessKey/invite', function(req, res) {
 	var loadedAccount;
 	var targetAccount;
 	var loadedGroup;
+	var createdAccountInGroup;
 	AccessKey.findBySessionKey(accessKey).then(function(accessKey) {
 		if (!accessKey) {
 			throw ERROR_NOTACCESSIBLE;
@@ -474,15 +475,42 @@ router.post('/:accessKey/invite', function(req, res) {
 			inviting : Group.INVITING_START
 		});
 	}).then(function(accountInGroup) {
+		createdAccountInGroup = accountInGroup;
 		if (Account.STATUS_INVITING == targetAccount.status) {
-			sendInvitationMail(loadedAccount, targetAccount);
+			var dataForTemplate = {
+				inviter : loadedAccount,
+				app : {
+					name : serverConfig.app.name
+				},
+				group : loadedGroup,
+				activationURL : serverConfig.hostURL + "/invitation?key=" + targetAccount.inviteKey.secret
+			};
+			return SendMail.send({
+				from : serverConfig.admin.mail,
+				to : targetAccount.mail,
+				subject : 'Hi, you are invited to ' + serverConfig.app.name + " by " + loadedAccount.name,
+				text : renderer.render('inviteMailTemplate.ect', dataForTemplate)
+			});
 		} else {
-			sendInvitedToGroupMail(loadedAccount, targetAccount);
+			var dataForTemplate = {
+				inviter : loadedAccount,
+				app : {
+					name : serverConfig.app.name
+				},
+				group : loadedGroup
+			};
+			return SendMail.send({
+				from : serverConfig.admin.mail,
+				to : targetAccount.mail,
+				subject : 'Hi, you are invited to ' + serverConfig.app.name + " by " + loadedAccount.name,
+				text : renderer.render('inviteToGroupMailTemplate.ect', dataForTemplate)
+			});
 		}
+	}).then(function() {
 		res.status(201).json({
 			id : targetAccount.id,
 			mail : targetAccount.mail,
-			AccountInGroup : accountInGroup[0][0]
+			AccountInGroup : createdAccountInGroup[0][0]
 		});
 	})["catch"](function(error) {
 		if (ERROR_NOTACCESSIBLE == error) {
@@ -549,27 +577,4 @@ router.put('/:accessKey/join', function(req, res) {
 		}
 	});
 });
-function sendInvitationMail(inviter, invited) {
-	var dataForTemplate = {
-		inviter : inviter,
-		app : {
-			name : serverConfig.app.name
-		},
-		activationURL : serverConfig.hostURL + "/invitation?key=" + invited.inviteKey.secret
-	};
-	console.log("---------send maill " + renderer.render('inviteMailTemplate.ect', dataForTemplate));
-	return;
-	sendmail({
-		from : serverConfig.admin.mail,
-		to : invited.mail,
-		subject : 'Hi, youare invited to ' + serverConfig.app.name,
-		content : renderer.render('inviteMailTemplate.ect', dataForTemplate)
-	}, function(err, reply) {
-		if (err) {
-			errorFunc(error.stack, replay);
-		}
-	});
-}
-function sendInvitedToGroupMail(inviter, invited) {
-}
 module.exports = router;

@@ -1,0 +1,32 @@
+<div class="row">
+	<div class="col-xs-10 col-xs-offset-1">
+		<div class="row">
+			<h2 class="form-signin-heading" ng-bind="messages.accounts.signup0rSignin"></h2>
+		</div>
+		<div class="row" style="margin-top: 10px">
+			<div class="col-sm-6 col-xs-12">
+				<div ng-bind="messages.accounts.signup"></div>
+				<form class="form-signin">
+					<label for="inputName" class="sr-only">Name</label> <input type="name" id="inputName" class="form-control" placeholder="Name" required autofocus ng-model="signupAccount.name"> <label for="inputEmail" class="sr-only">Email address</label> <input type="email" id="inputMail" class="form-control" placeholder="Email address" required autofocus ng-model="signupAccount.mail"> <label for="inputPassword" class="sr-only">Password</label> <input type="password" id="inputPassword" class="form-control" placeholder="Password" required ng-model="signupAccount.password">
+					<div class="checkbox">
+						<label> <input type="checkbox" value="remember-me" ng-model="persist"> Remember me
+						</label>
+					</div>
+					<button class="btn btn-lg btn-primary btn-block" type="submit" id="signinButton" ng-click="signup()" ng-bind="messages.accounts.signup"></button>
+				</form>
+			</div>
+			<div class="col-sm-6 col-xs-12">
+				<div ng-bind="messages.accounts.signin"></div>
+				<form class="form-signin">
+					<label for="inputEmail" class="sr-only">Email address</label> <input type="email" id="inputMail" class="form-control" placeholder="Email address" required autofocus ng-model="signinAccount.mail"> <label for="inputPassword" class="sr-only">Password</label> <input type="password" id="inputPassword" class="form-control" placeholder="Password" required ng-model="signinAccount.password">
+					<div class="checkbox">
+						<label> <input type="checkbox" value="remember-me" ng-model="persist"> Remember me
+						</label>
+					</div>
+					<a href="/requestResetPassword">Forget password?</a>
+					<button class="btn btn-lg btn-primary btn-block" type="submit" id="signinButton" ng-click="signin()" ng-bind="messages.accounts.signin"></button>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>

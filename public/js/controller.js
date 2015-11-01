@@ -98,6 +98,10 @@ myapp.config([ "$locationProvider", "$httpProvider", "$routeProvider", "markedPr
 		templateUrl : "template/message.html",
 		controller : "messageController"
 	});
+	$routeProvider.when("/invitation", {
+		templateUrl : "template/invitation.html",
+		controller : "invitationController"
+	});
 	$routeProvider.when("/signout", {
 		templateUrl : "template/signouted.html"
 	});
@@ -381,6 +385,55 @@ var signinController = [ "$rootScope", "$scope", "$resource", "$location", funct
 		}, function(error) {
 			$rootScope.showError($rootScope.messages.signin.error);
 		})
+	}
+} ];
+var invitationController = [ "$rootScope", "$scope", "$resource", "$location", function($rootScope, $scope, $resource, $location) {
+	var invitationKey = $location.search()["key"];
+	var Invitation = $resource('/api/account/invitation?key=:key');
+	Invitation.get({
+		key : invitationKey
+	}, function(account) {
+		$scope.account = account;
+		$scope.signinAccount.mail = $scope.account.mail;
+		$scope.signupAccount.mail = $scope.account.mail;
+	}, function(error) {
+		$rootScope.showErrorWithStatus(error.status);
+	});
+	$scope.signinAccount = {}
+	$scope.signin = function() {
+		var Signin = $resource('/api/account/signin');
+		Signin.get({
+			mail : $scope.signinAccount.mail,
+			password : $scope.signinAccount.password,
+			invitationKey : invitationKey
+		}, function(loginInfo) {
+			$rootScope.myAccount = loginInfo.account;
+			$rootScope.sessionKey = loginInfo.sessionKey.secret;
+			if ($scope.persist) {
+				$rootScope.setSessionKey($rootScope.sessionKey, "Tue, 1-Jan-2030 00:00:00 GMT;");
+			} else {
+				$rootScope.setSessionKey($rootScope.sessionKey);
+			}
+			$rootScope.socket.emit('authorize', $rootScope.getSessionKey());
+			$location.path("/home");
+		}, function(error) {
+			$rootScope.showError($rootScope.messages.signin.error);
+		})
+	}
+	$scope.signupAccount = {}
+	$scope.signup = function() {
+		$scope.signupAccount.invitationKey = invitationKey;
+		post($http, '/api/account', $scope.signupAccount).then(function(data, status, headers, config) {
+			$location.path("/signin");
+		})["catch"](function(response) {
+			$rootScope.showErrorWithStatus(response.status, function(status) {
+				if (409 == status) {
+					$rootScope.showError($rootScope.messages.accounts.error.aleadyHaveAccount);
+					return true;
+				}
+				return false;
+			});
+		});
 	}
 } ];
 var requestResetPasswordController = [ "$rootScope", "$scope", "$resource", "$location", "$http", function($rootScope, $scope, $resource, $location, $http) {
@@ -963,6 +1016,7 @@ var homeController = [ "$rootScope", "$scope", "$resource", "$location", "$http"
 myapp.controller('indexController', indexController);
 myapp.controller('activationController', activationController);
 myapp.controller('signinController', signinController);
+myapp.controller('invitationController', invitationController);
 myapp.controller('requestResetPasswordController', requestResetPasswordController);
 myapp.controller('resetPasswordController', resetPasswordController);
 myapp.controller('editProfileController', editProfileController);

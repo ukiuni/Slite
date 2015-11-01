@@ -15,6 +15,18 @@
 		},
 		"admin":{
 			"mail":"no_replay@ukiuni.com"
+		},
+		"smtp":{
+			"transport" : "nodemailer-smtp-transport",
+			"host" : "192.168.11.13",
+			"port" : 25,
+			"auth" : {
+				"user" : "no_replay",
+				"pass" : "password"
+			},
+    		"tls":{
+        		"rejectUnauthorized": false
+    		}
 		}
 	},
 	"production": {
@@ -24,6 +36,18 @@
 		},
 		"admin":{
 			"mail":"no_replay@ukiuni.com"
+		},
+		"smtp":{
+			"transport" : "nodemailer-smtp-transport",
+			"host" : "192.168.11.13",
+			"port" : 25,
+			"auth" : {
+				"user" : "no_replay",
+				"pass" : "password"
+			},
+    		"tls":{
+        		"rejectUnauthorized": false
+    		}
 		}
 	}
 }

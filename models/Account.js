@@ -44,7 +44,7 @@ module.exports = function(sequelize, DataTypes) {
 						return global.db.AccessKey.create({
 							AccountId : createdAccount.id,
 							secret : activationKey,
-							type : global.db.AccessKey.TYPE_SESSION,
+							type : global.db.AccessKey.TYPE_INVITATION,
 							status : global.db.AccessKey.STATUS_CREATED
 						});
 					}).then(function(accessKey) {
@@ -57,6 +57,51 @@ module.exports = function(sequelize, DataTypes) {
 			})["catch"](function(error) {
 				fail(error)
 			});
+		});
+	};
+	Account.aggregate = function(baseAccount, aggregateAccount) {
+		return global.db.AccountInGroup.findAll({
+			where : {
+				AccountId : baseAccount.id
+			}
+		}).then(function(existAssociations) {
+			var existingGroupIds = existAssociations.map(function(association) {
+				return association.GroupId
+			});
+			return global.db.AccountInGroup.update({
+				AccountId : baseAccount.id
+			}, {
+				where : {
+					AccountId : aggregateAccount.id,
+					GroupId : {
+						$notIn : existingGroupIds
+					}
+				}
+			});
+		}).then(function(updatedAccountInGroups) {
+			return global.db.AccountInGroup.destroy({
+				where : {
+					AccountId : aggregateAccount.id,
+				}
+			});
+		}).then(function(deletedAccountInGroups) {
+			return global.db.Content.update({
+				ownerId : baseAccount.id
+			}, {
+				where : {
+					ownerId : aggregateAccount.id
+				}
+			});
+		}).then(function(accountInGroups) {
+			return global.db.ContentComment.update({
+				ownerId : baseAccount.id
+			}, {
+				where : {
+					ownerId : aggregateAccount.id
+				}
+			});
+		}).then(function(accountInGroups) {
+			return aggregateAccount.destroy()
 		});
 	}
 	Account.associate = function(sequelize) {
