@@ -36,6 +36,21 @@ db.sequelize.sync().done(function(param) {
 	global.socket = new require('./socket')(io);
 	require('./routes')(app);
 	server.listen(app.get('port'), function() {
-		console.log('Slite server listening on port ' + app.get('port'))
+		http.createServer(function(req, res) {
+			res.writeHead(200, {
+				'Content-Type' : 'text/plain'
+			});
+			res.write('shutdowning.');
+			server.close(function() {
+				res.write('.');
+				setTimeout(function() {
+					res.write('.');
+					res.end('complete\n');
+					process.exit();
+				}, 3000);
+			});
+		}).listen(app.get('port') + 10000, '127.0.0.1', function() {
+			console.log('Slite server listening on port ' + app.get('port') + " and manage port " + app.get('port') + 10000)
+		});
 	});
 });
