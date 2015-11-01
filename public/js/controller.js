@@ -387,7 +387,7 @@ var signinController = [ "$rootScope", "$scope", "$resource", "$location", funct
 		})
 	}
 } ];
-var invitationController = [ "$rootScope", "$scope", "$resource", "$location", function($rootScope, $scope, $resource, $location) {
+var invitationController = [ "$rootScope", "$scope", "$resource", "$location", "$http", function($rootScope, $scope, $resource, $location, $http) {
 	var invitationKey = $location.search()["key"];
 	var Invitation = $resource('/api/account/invitation?key=:key');
 	Invitation.get({

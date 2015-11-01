@@ -85,7 +85,9 @@ router.post('/', function(req, res) {
 					throw ERROR_NOTFOUND;
 				}
 				if (createdAccount.id != invitationKey.Account.id) {
-					return Account.aggregate(createdAccount, invitationKey.Account);
+					return Account.aggregate(createdAccount, invitationKey.Account).then(function() {
+						return invitationKey.destroy();
+					});
 				}
 				return new Promise(function(success) {
 					success();
@@ -304,7 +306,9 @@ router.get('/signin', function(req, res) {
 					throw ERROR_NOTFOUND;
 				}
 				if (loadedAccount.id != invitationKey.Account.id) {
-					return Account.aggregate(loadedAccount, invitationKey.Account);
+					return Account.aggregate(loadedAccount, invitationKey.Account).then(function() {
+						return invitationKey.destroy();
+					});
 				}
 				return new Promise(function(success) {
 					success();
