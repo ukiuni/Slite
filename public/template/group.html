@@ -5,7 +5,7 @@
 				<div id="groupName" class="col-xs-8" ng-bind="group.name"></div>
 				<div id="groupVisibility" class="col-xs-2" ng-bind="group.visibility.message"></div>
 				<div class="col-xs-2">
-					<button id="saveButton" ng-show="myAccount" class="btn btn-default" ng-bind="messages.edit" ng-click="gotoEdit()"></button>
+					<button id="saveButton" ng-show="isEditable()" class="btn btn-default" ng-bind="messages.edit" ng-click="gotoEdit()"></button>
 				</div>
 			</div>
 
