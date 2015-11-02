@@ -82,7 +82,7 @@ router.get('/:groupAccessKey/:channelAccessKey', function(req, res) {
 			}
 		});
 	}).then(function(accountInGroup) {
-		if (!accountInGroup || accountInGroup.authorization < Account.AUTHORIZATION_EDITOR) {
+		if (!accountInGroup) {
 			throw ERROR_NOTACCESSIBLE;
 		}
 		return loadedGroup.getChannels({
