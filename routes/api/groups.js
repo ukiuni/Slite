@@ -375,11 +375,14 @@ router.get('/:accessKey', function(req, res) {
 		if (!group) {
 			throw ERROR_NOTFOUND;
 		}
-		if (group.visibility == Group.VISIBILITY_OPEN) {
+		var accessKey = req.query.sessionKey || req.query.access_token;
+		if (group.visibility == Group.VISIBILITY_OPEN && !accessKey) {
+			group.dataValues.Accounts = group.Accounts.filter(function(account) {
+				return Group.INVITING_DONE == account.AccountInGroup.inviting
+			})
 			res.status(200).json(group);
 			return;
 		}
-		var accessKey = req.query.sessionKey || req.query.access_token;
 		if (!accessKey) {
 			throw ERROR_NOTACCESSIBLE;
 		}
@@ -391,14 +394,22 @@ router.get('/:accessKey', function(req, res) {
 			loadedAccessKey = accessKey;
 			for ( var i in group.Accounts) {
 				if (group.Accounts[i].id == loadedAccessKey.AccountId) {
-					if (Group.VISIBILITY_SECRET_EVEN_MEMBER == group.visibility && Account.AUTHORIZATION_ADMIN != group.Accounts[i].AccountInGroup.authorization) {
-						delete group.Accounts
+					if (Account.AUTHORIZATION_ADMIN != group.Accounts[i].AccountInGroup.authorization) {
+						if (Group.VISIBILITY_SECRET_EVEN_MEMBER == group.visibility) {
+							group.dataValues.Accounts = group.Accounts.filter(function(account) {
+								return account.id == loadedAccessKey.AccountId || Group.INVITING_DONE == account.AccountInGroup.inviting
+							})
+						} else {
+							group.dataValues.Accounts = group.Accounts.filter(function(account) {
+								return account.id == loadedAccessKey.AccountId || Group.INVITING_DONE == account.AccountInGroup.inviting
+							});
+						}
 					}
 					res.status(200).json(group);
 					return;
 				}
-				throw ERROR_NOTACCESSIBLE;
 			}
+			throw ERROR_NOTACCESSIBLE;
 		})["catch"](function(error) {
 			if (ERROR_NOTACCESSIBLE == error) {
 				res.status(403).end();
