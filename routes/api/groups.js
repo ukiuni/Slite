@@ -299,7 +299,7 @@ router.put('/', function(req, res) {
 		if (!accessKey) {
 			throw ERROR_NOTACCESSIBLE;
 		}
-		return Account.findById(accessKey.AccountId);
+		return accessKey.getAccount();
 	}).then(function(account) {
 		if (!account) {
 			throw ERROR_NOTACCESSIBLE;

@@ -802,6 +802,17 @@ var groupController = [ "$rootScope", "$scope", "$resource", "$location", "$http
 		}
 		return false;
 	}
+	$scope.isMemberOrInviting = function() {
+		if (!$rootScope.myAccount || !$scope.group) {
+			return false;
+		}
+		for ( var i in $scope.group.Accounts) {
+			if ($scope.group.Accounts[i].id === $rootScope.myAccount.id) {
+				return true;
+			}
+		}
+		return false;
+	}
 	$scope.isEditable = function() {
 		if (!$rootScope.myAccount || !$scope.group) {
 			return false;
