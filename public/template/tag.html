@@ -8,15 +8,32 @@
 			<div class="row">
 				<div id="descriptionArea" class="col-sm-3 col-sm-offset-1" marked="tag.description"></div>
 				<div class="col-sm-8">
-					<div class="row block" style="margin-top: 3px" ng-repeat="content in tag.Contents track by content.id">
-						<a ng-href="/content/{{content.accessKey}}"><div ng-bind="content.ContentBodies[0].title"></div></a>
+					<div class="row" style="margin-top: 3px">
+						<div class="col-sm-4 col-xs-12" style="margin-bottom: 5px" ng-repeat="content in tag.Contents track by content.id">
+							<a ng-href="/content/{{content.accessKey}}">
+								<h3 class="col-xs-12 ellipsis" style="background-color: #333; color: white; padding: 10px" ng-bind="content.ContentBodies[0].title"></h3>
+								<div class="col-xs-12" ng-show="{{!!content.ContentBodies[0].topImageUrl}}" style="overflow: hidden; height: 100px; padding: 0">
+									<img style="width: 100%; margin: 0" ng-src="{{content.ContentBodies[0].topImageUrl}}" />
+								</div>
+								<div class="col-xs-12" marked="content.ContentBodies[0].article" style="position: static; max-height: 100px; overflow: hidden; border: 1px solid #333"></div>
+							</a>
+						</div>
 					</div>
 				</div>
 			</div>
 		</div>
 	</div>
-	<div class="row">
-		<div class="col-xs-10 col-xs-offset-1" align="center" style="margin-top: 10px">
+
+	<div class="row" style="margin-top: 10px">
+		<div class="col-xs-3 col-xs-offset-2" align="center">
+			<a ng-href="{{'/tag/'+tag.id+'?page='+(page-1)}}"><h2 ng-show="page != 0" ng-bind="'&lt;' + messages.prev"></h2></a>
+		</div>
+		<div class="col-xs-3 col-xs-offset-2" align="center">
+			<a ng-href="{{'/tag/'+tag.id+'?page='+(page+1)}}"><h2 ng-show="tag.Contents.length == 24" ng-bind="messages.next + '&gt;' "></h2></a>
+		</div>
+	</div>
+	<div class="row" style="margin-top: 10px">
+		<div class="col-xs-10 col-xs-offset-1" align="center">
 			<a href="/tags">&lt;<span ng-bind="messages.contents.tagsList"></span></a>
 		</div>
 	</div>

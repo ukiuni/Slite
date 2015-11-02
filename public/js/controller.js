@@ -707,7 +707,16 @@ var tagsController = [ "$rootScope", "$scope", "$resource", "$location", "$http"
 	});
 } ];
 var tagController = [ "$rootScope", "$scope", "$resource", "$location", "$http", "$routeParams", function($rootScope, $scope, $resource, $location, $http, $routeParams) {
-	$resource('/api/tags/' + $routeParams.id + "/contents").get({}, function(tag) {
+	try {
+		$scope.page = parseInt($location.search()["page"]);
+	} catch (e) {
+	}
+	if (!$scope.page) {
+		$scope.page = 0;
+	}
+	$resource('/api/tags/' + $routeParams.id + "/contents").get({
+		page : $scope.page
+	}, function(tag) {
 		$scope.tag = tag;
 	}, function(error) {
 		$rootScope.showErrorWithStatus(error.status);

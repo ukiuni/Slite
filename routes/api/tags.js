@@ -51,24 +51,36 @@ router.put('/:id', function(req, res) {
 	});
 });
 router.get('/:id/contents', function(req, res) {
-	Tag.findAll({
+	var loadedTag;
+	Tag.find({
 		where : {
 			id : req.params.id
-		},
-		include : [ {
-			model : Content,
-			include : [ {
-				model : ContentBody,
-				where : [ "\"Contents\".\"currentVersion\" = \"Contents.ContentBodies\".\"version\"" ],
-				attributes : [ "title" ]
-			} ]
-		} ]
-	}).then(function(tags) {
-		var tag = tags[0];
+		}
+	}).then(function(tag) {
 		if (!tag) {
 			throw ERROR_NOTFOUND;
 		}
-		res.status(200).json(tag);
+		loadedTag = tag;
+		var page = req.query.page ? parseInt(req.query.page) : 0;
+		return tag.getContents({
+			include : [ {
+				model : ContentBody,
+				where : [ "\"currentVersion\" = \"version\"" ],
+				attributes : [ "title", "article", "topImageUrl" ],
+				require : true
+			}, {
+				model : Tag,
+				where : {
+					id : loadedTag.id
+				},
+				require : true
+			} ],
+			offset : page * 24,
+			limit : 24
+		})
+	}).then(function(contents) {
+		loadedTag.dataValues.Contents = contents;
+		res.status(200).json(loadedTag);
 	})["catch"](function(error) {
 		console.log(error.stack);
 		if (error == ERROR_NOTFOUND) {
