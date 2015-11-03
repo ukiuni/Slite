@@ -162,13 +162,16 @@ myapp.run([ "$rootScope", "$location", "$resource", "$cookies", function($rootSc
 	$rootScope.showError = function(message) {
 		toastr.error(message);
 	}
+	$rootScope.showToast = function(message) {
+		toastr.info(message);
+	}
 	$rootScope.showErrorWithStatus = function(status, otherFunc) {
-		if (403 == status) {
+		if (otherFunc && otherFunc(status)) {
+			// DO Nothing
+		} else if (403 == status) {
 			$rootScope.showError($rootScope.messages.error.notAccessible);
 		} else if (404 == status) {
 			$rootScope.showError($rootScope.messages.error.notFound);
-		} else if (otherFunc && otherFunc(status)) {
-			// DO Nothing
 		} else {
 			$rootScope.showError($rootScope.messages.error.withServer);
 		}
@@ -289,7 +292,16 @@ myapp.run([ "$rootScope", "$location", "$resource", "$cookies", function($rootSc
 		});
 	}
 	initSocket();
-	$rootScope.inviteImageUrls = [ "/images/inviting.png", "/images/viewer.png", "/images/editor.png", "/images/admin.png" ];
+	var authorizationImageUrls = [ "", "/images/viewer.png", "/images/editor.png", "/images/admin.png" ];
+	$rootScope.getAccountImageUrlInGroup = function(accountInGroup) {
+		if (1 == accountInGroup.inviting) {
+			return "/images/inviting.png"
+		} else if (2 == accountInGroup.inviting) {
+			return "/images/request_invitation.png"
+		} else if (3 == accountInGroup.inviting) {
+			return authorizationImageUrls[accountInGroup.authorization]
+		}
+	}
 } ]);
 var indexController = [ "$rootScope", "$scope", "$modal", "$location", "$http", "$window", "$resource", "$routeParams", function($rootScope, $scope, $modal, $location, $http, $window, $resource, $routeParams) {
 	$scope.openCreateAccountDialog = function() {
@@ -757,15 +769,31 @@ var groupsController = [ "$rootScope", "$scope", "$resource", "$location", "$htt
 	}
 } ];
 var groupController = [ "$rootScope", "$scope", "$resource", "$location", "$http", "$routeParams", "$modal", function($rootScope, $scope, $resource, $location, $http, $routeParams, $modal) {
-	$resource('/api/groups/:accessKey').get({
-		accessKey : $routeParams.accessKey,
-		sessionKey : $rootScope.getSessionKey()
-	}, function(group) {
-		$scope.group = group;
-		$scope.group.visibility = $rootScope.groupVisibilities[group.visibility - 1];
-	}, function(error) {
-		$rootScope.showErrorWithStatus(error.status);
-	});
+	var initGroup = function(callback) {
+		$resource('/api/groups/:accessKey').get({
+			accessKey : $routeParams.accessKey,
+			sessionKey : $rootScope.getSessionKey()
+		}, function(group) {
+			$scope.group = group;
+			$scope.group.visibility = $rootScope.groupVisibilities[group.visibility - 1];
+			$scope.visible = ((1 == $scope.group.visibility.keyNumber) || $scope.isMember()) ? 'YES' : 'NO';
+			if (callback) {
+				callback();
+			}
+		}, function(error) {
+			$rootScope.showErrorWithStatus(error.status, function(status) {
+				if (403 == status) {
+					$scope.visible = 'NO'
+					return true;
+				}
+				return false;
+			});
+			if (callback) {
+				callback();
+			}
+		});
+	}
+	initGroup();
 	$scope.gotoEdit = function() {
 		$location.path("/group/" + $routeParams.accessKey + "/edit");
 	}
@@ -787,17 +815,73 @@ var groupController = [ "$rootScope", "$scope", "$resource", "$location", "$http
 			});
 		});
 	}
+	$scope.inviteWithRequest = function(targetMail, authorization) {
+		post($http, '/api/groups/' + $routeParams.accessKey + "/invite", {
+			sessionKey : $rootScope.getSessionKey(),
+			mail : targetMail,
+			authorization : authorization
+		}).then(function(response) {
+			for ( var i in $scope.group.Accounts) {
+				if ($scope.group.Accounts[i].id == response.data.id) {
+					$scope.group.Accounts[i].AccountInGroup = response.data.AccountInGroup;
+					return;
+				}
+			}
+		})["catch"](function(response) {
+			$rootScope.showErrorWithStatus(response.status, function(status) {
+				if (409 == status) {
+					$rootScope.showError($rootScope.messages.groups.error.aleadyIn);
+					return true;
+				}
+				return false;
+			});
+		});
+	}
 	$scope.join = function() {
 		put($http, "/api/groups/" + $routeParams.accessKey + "/join", {
 			sessionKey : $rootScope.getSessionKey()
 		}).then(function(response) {
-			for ( var i in $scope.group.Accounts) {
-				if ($scope.group.Accounts[i].id == $rootScope.myAccount.id) {
-					$scope.group.Accounts[i].AccountInGroup = response.data;
+			initGroup(function() {
+				for ( var i in $scope.group.Accounts) {
+					if ($scope.group.Accounts[i].id == $rootScope.myAccount.id) {
+						$scope.group.Accounts[i].AccountInGroup = response.data;
+						return;
+					}
 				}
-			}
+			});
 		})["catch"](function(response) {
 			$rootScope.showErrorWithStatus(response.status);
+		});
+	}
+	$rootScope.$watch("myAccount", function(oldValue, newValue) {
+		$scope.requestInvitationMail = $rootScope.myAccount ? $rootScope.myAccount.mail : "";
+		if ($scope.group) {
+			$scope.visible = ((1 == $scope.group.visibility.keyNumber) || $scope.isMember()) ? 'YES' : 'NO';
+		}
+	});
+	$scope.sendInvitationRequest = function() {
+		post($http, "/api/groups/" + $routeParams.accessKey + "/invitaionRequest", {
+			mail : $scope.requestInvitationMail,
+			sessionKey : $rootScope.getSessionKey()
+		}).then(function(response) {
+			if (!$scope.group) {
+				$scope.group = {};
+				$scope.group.Accounts = [];
+			}
+			$scope.group.Accounts.push(response.data);
+			$scope.currentInvited = true;
+			$rootScope.showToast($rootScope.messages.groups.invitationRequestSended);
+		})["catch"](function(response) {
+			$rootScope.showErrorWithStatus(response.status, function(status) {
+				if (409 == status) {
+					$rootScope.showError($rootScope.messages.groups.error.aleadyIn);
+					return true;
+				} else if (412 == status) {
+					$rootScope.showError($rootScope.messages.accounts.error.aleadyHaveAccount);
+					return true;
+				}
+				return false;
+			});
 		});
 	}
 	$scope.isInviting = function() {
@@ -805,7 +889,31 @@ var groupController = [ "$rootScope", "$scope", "$resource", "$location", "$http
 			return false;
 		}
 		for ( var i in $scope.group.Accounts) {
-			if ($scope.group.Accounts[i].id === $rootScope.myAccount.id && 1 === $scope.group.Accounts[i].AccountInGroup.inviting) {
+			if ($scope.group.Accounts[i].id === $rootScope.myAccount.id && 1 == $scope.group.Accounts[i].AccountInGroup.inviting) {
+				return true;
+			}
+		}
+		return false;
+	}
+	$scope.isNotMember = function() {
+		if (!$rootScope.myAccount || !$scope.group) {
+			return true;
+		}
+		for ( var i in $scope.group.Accounts) {
+			if ($scope.group.Accounts[i].id === $rootScope.myAccount.id) {
+				return false;
+			}
+		}
+		return true;
+	}
+	$scope.isMember = function() {
+		if (!$rootScope.myAccount || !$scope.group) {
+			return false;
+		}
+		for ( var i in $scope.group.Accounts) {
+			if ($scope.group.Accounts[i].id === $rootScope.myAccount.id) {
+			}
+			if ($scope.group.Accounts[i].id === $rootScope.myAccount.id || 3 == $scope.group.Accounts[i].AccountInGroup.inviting) {
 				return true;
 			}
 		}
@@ -827,7 +935,18 @@ var groupController = [ "$rootScope", "$scope", "$resource", "$location", "$http
 			return false;
 		}
 		for ( var i in $scope.group.Accounts) {
-			if ($scope.group.Accounts[i].id === $rootScope.myAccount.id && 1 < $scope.group.Accounts[i].AccountInGroup.inviting && 2 <= $scope.group.Accounts[i].AccountInGroup.authorization) {
+			if ($scope.group.Accounts[i].id === $rootScope.myAccount.id && 3 == $scope.group.Accounts[i].AccountInGroup.inviting && 2 <= $scope.group.Accounts[i].AccountInGroup.authorization) {
+				return true;
+			}
+		}
+		return false;
+	}
+	$scope.isAdmin = function() {
+		if (!$rootScope.myAccount || !$scope.group) {
+			return false;
+		}
+		for ( var i in $scope.group.Accounts) {
+			if ($scope.group.Accounts[i].id === $rootScope.myAccount.id && 3 == $scope.group.Accounts[i].AccountInGroup.inviting && 3 == $scope.group.Accounts[i].AccountInGroup.authorization) {
 				return true;
 			}
 		}
@@ -859,7 +978,6 @@ var groupController = [ "$rootScope", "$scope", "$resource", "$location", "$http
 				sessionKey : $rootScope.getSessionKey(),
 				name : channelName
 			}).then(function(response) {
-				console.log("-----" + JSON.stringify(response.data));
 				$scope.group.Channels.push(response.data);
 			})["catch"](function(response) {
 				$rootScope.showErrorWithStatus(response.status);

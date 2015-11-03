@@ -150,7 +150,8 @@ router.get('/:contentKey', function(req, res) {
 				return AccountInGroup.find({
 					where : {
 						GroupId : content.GroupId,
-						AccountId : accessKey.AccountId
+						AccountId : accessKey.AccountId,
+						inviting : Group.INVITING_DONE
 					}
 				});
 			}).then(function(accessible) {
@@ -237,7 +238,8 @@ router.get('/comment/:contentKey', function(req, res) {
 				return AccountInGroup.find({
 					where : {
 						GroupId : content.GroupId,
-						AccountId : accessKey.AccountId
+						AccountId : accessKey.AccountId,
+						inviting : Group.INVITING_DONE
 					}
 				});
 			}).then(function(accessible) {
@@ -437,7 +439,8 @@ router.put('/:contentKey', function(req, res) {
 		return AccountInGroup.find({
 			where : {
 				GroupId : loadedContent.GroupId,
-				AccountId : loadedAccessKey.AccountId
+				AccountId : loadedAccessKey.AccountId,
+				inviting : Group.INVITING_DONE
 			}
 		});
 	}).then(function(accessible) {

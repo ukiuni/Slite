@@ -2,6 +2,7 @@ var Account = global.db.Account;
 var AccessKey = global.db.AccessKey;
 var Content = global.db.Content;
 var ContentBody = global.db.ContentBody;
+var Group = global.db.Group;
 var AccountInGroup = global.db.AccountInGroup;
 var Channel = global.db.Channel;
 var ERROR_NOTACCESSIBLE = "ERROR_NOTACCESSIBLE";
@@ -27,7 +28,8 @@ var socket = function(io) {
 					AccountInGroup.find({
 						where : {
 							AccountId : socket.client.accountId,
-							GroupId : content.GroupId
+							GroupId : content.GroupId,
+							inviting : Group.INVITING_DONE
 						}
 					}).then(function(accountInGroup) {
 						if (accountInGroup) {
@@ -58,7 +60,8 @@ var socket = function(io) {
 				return AccountInGroup.find({
 					where : {
 						AccountId : socket.client.accountId,
-						GroupId : channel.GroupId
+						GroupId : channel.GroupId,
+						inviting : Group.INVITING_DONE
 					}
 				});
 			}).then(function(accountInGroup) {

@@ -34,7 +34,7 @@
 								<div class="row" style="width: 100%">
 									<div class="col-xs-10" ng-bind="group.name"></div>
 									<div class="col-xs-2">
-										<img style="height: 20px" ng-src="{{1 == group.AccountInGroup.inviting ? inviteImageUrls[0] : inviteImageUrls[group.AccountInGroup.authorization]}}" />
+										<img style="height: 20px" ng-src="{{getAccountImageUrlInGroup(group.AccountInGroup)}}" />
 									</div>
 								</div>
 							</div> </a>

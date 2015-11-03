@@ -29,7 +29,8 @@ module.exports = function(sequelize, DataTypes) {
 	Group.VISIBILITY_SECRET = 2;
 	Group.VISIBILITY_SECRET_EVEN_MEMBER = 3;
 	Group.INVITING_START = 1;
-	Group.INVITING_DONE = 2;
-	Group.INVITING_REJECT = 3;
+	Group.INVITING_REQUESTED = 2;
+	Group.INVITING_DONE = 3;
+	Group.INVITING_REJECTED = 4;
 	return Group;
 };

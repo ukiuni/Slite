@@ -31,19 +31,35 @@ module.exports = function(sequelize, DataTypes) {
 				}
 			}).then(function(account) {
 				if (account) {
-					success(account);
+					if (Account.STATUS_INVITING == account.status || Account.STATUS_REQUEST_ACTIVATION == account.status) {
+						return Random.createRandomBase62().then(function(random) {
+							return global.db.AccessKey.create({
+								AccountId : account.id,
+								secret : random,
+								type : global.db.AccessKey.TYPE_INVITATION,
+								status : global.db.AccessKey.STATUS_CREATED
+							});
+						}).then(function(accessKey) {
+							account.inviteKey = accessKey;
+							success(account);
+						})["catch"](function(error) {
+							fail(error)
+						});
+					} else {
+						success(account);
+					}
 				} else {
 					var createdAccount;
-					Account.create({
+					return Account.create({
 						mail : mail,
 						status : Account.STATUS_INVITING
 					}).then(function(account) {
 						createdAccount = account;
 						return Random.createRandomBase62();
-					}).then(function(activationKey) {
+					}).then(function(random) {
 						return global.db.AccessKey.create({
 							AccountId : createdAccount.id,
-							secret : activationKey,
+							secret : random,
 							type : global.db.AccessKey.TYPE_INVITATION,
 							status : global.db.AccessKey.STATUS_CREATED
 						});

@@ -41,6 +41,16 @@ var self = {
 		client.assert.containsText("p", "Hi");
 		return account;
 	},
+	signin : function(client, account) {
+		client.url(url+"/signin");
+		client.waitForElementVisible("#inputMail", testWaitTime);
+		client.setValue('#inputMail', account.mail);
+		client.setValue('#inputPassword', account.password);
+		client.click('#signinButton');
+		client.waitForElementVisible('#groupArea', testWaitTime);
+		client.assert.containsText("p", "Hi");
+		return account;
+	},
 	joinToFirstGroupWhenSignin : function(client) {
 		client.click('.block');
 		client.waitForElementVisible("#joinButton", testWaitTime);
@@ -238,7 +248,7 @@ var self = {
 		});
 	},
 	inviteAccountAfterCreateGroupAndCheckExists : function(client, account, callback) {
-		client.setValue('input', account.mail);
+		client.setValue('#inviteUserMailInput', account.mail);
 		client.click('select');
 		client.waitForElementVisible('option:first-child', testWaitTime);
 		client.click('option:first-child');

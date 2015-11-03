@@ -63,7 +63,8 @@ router.get('/:contentKey/:imageKey', function(req, res) {
 				return AccountInGroup.find({
 					where : {
 						GroupId : content.GroupId,
-						AccountId : accessKey.AccountId
+						AccountId : accessKey.AccountId,
+						inviting : Group.INVITING_DONE
 					}
 				});
 			}).then(function(accountInGroup) {

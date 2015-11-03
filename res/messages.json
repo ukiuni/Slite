@@ -41,8 +41,13 @@
 				"secret" : "Secret",
 				"secretEvenMember" : "Secret Even Member"
 			},
+			"requestInvitements" : "Request invitation",
+			"invitationRequestSended" : "Invitation Requested",
+			"request" : "Request",
+			"thisGroupIsNotOpen" : "This group is not open.\n Request invitements to Admin.",
+			"yourMailAddress" : "Your Mail Address",
 			"error" : {
-				"aleadyIn" : "Invited member is aleady in this group。"
+				"aleadyIn" : "Invited member is aleady in this group or inviting."
 			}
 		},
 		"channels" : {
@@ -122,8 +127,13 @@
 				"secret" : "非公開",
 				"secretEvenMember" : "メンバー非公開"
 			},
+			"requestInvitements" : "招待依頼",
+			"invitationRequestSended" : "招待依頼を行いました。",
+			"request" : "依頼",
+			"thisGroupIsNotOpen" : "このグループは公開されていません。\n参加するためには招待依頼を行ってください。",
+			"yourMailAddress" : "あなたのメールアドレス",
 			"error" : {
-				"aleadyIn" : "すでにメンバーです。"
+				"aleadyIn" : "すでにメンバーか招待中です。"
 			}
 		},
 		"channels" : {

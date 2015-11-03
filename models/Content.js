@@ -12,7 +12,8 @@ module.exports = function(sequelize, DataTypes) {
 				return global.db.AccountInGroup.find({
 					where : {
 						ContentId : this.GroupId,
-						AccountId : accountId
+						AccountId : accountId,
+						inviting : Group.INVITING_DONE
 					}
 				});
 			}
