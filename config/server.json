@@ -30,7 +30,7 @@
 		}
 	},
 	"production": {
-		"hostURL":"http://slite.ukiuni.com",
+		"hostURL":"https://slite.ukiuni.com",
 		"app":{
 		"name":"Slite"
 		},
