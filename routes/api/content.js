@@ -385,7 +385,7 @@ router.post('/', function(req, res) {
 					id : req.body.groupId
 				}
 			}).then(function(group) {
-				if (!group || 0 == group.length || group.AccountInGroup.authorization < Account.AUTHORIZATION_EDITOR) {
+				if (!group || 0 == group.length || group.AccountInGroup.authorization < Account.AUTHORIZATION_EDITOR || Group.INVITING_DONE != group.AccountInGroup.inviting) {
 					return;
 				}
 				return createdContent.setGroup(group[0]);
@@ -466,7 +466,7 @@ router.put('/:contentKey', function(req, res) {
 			}
 		});
 	}).then(function(accessible) {
-		if (!accessible) {
+		if (!accessible || accessible.authorization < Account.AUTHORIZATION_EDITOR) {
 			throw ERROR_NOTACCESSIBLE;
 		}
 		lastContentVersion = loadedContent.currentVersion;
