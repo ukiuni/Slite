@@ -126,6 +126,8 @@ router.get('/:contentKey', function(req, res) {
 		accessKey : req.params.contentKey
 	};
 	delete findContentCriteria.include[0].attributes;
+	var ERROR_REQUESTAUTHENTICATED = "ERROR_REQUESTAUTHENTICATED";
+	var ERROR_REQUESTJOIN = "ERROR_REQUESTJOIN";
 	Content.findAll(findContentCriteria).then(function(contents) {
 		var content = contents[0];
 		if (!content) {
@@ -135,10 +137,15 @@ router.get('/:contentKey', function(req, res) {
 			res.status(200).json(content);
 			return;
 		} else {
+			var loadedAccountInGroup;
 			var accessKey = req.query.sessionKey || req.query.auth_token;
 			AccessKey.findBySessionKey(accessKey).then(function(accessKey) {
 				if (!accessKey) {
-					throw ERROR_NOTACCESSIBLE;
+					if (ContentBody.STATUS_AUTHENTICATEDONLY == content.ContentBodies[0].status) {
+						throw ERROR_REQUESTAUTHENTICATED;
+					} else {
+						throw ERROR_NOTACCESSIBLE;
+					}
 				}
 				if (accessKey.AccountId == content.ownerId) {
 					return new Promise(function(success) {
@@ -150,22 +157,38 @@ router.get('/:contentKey', function(req, res) {
 				return AccountInGroup.find({
 					where : {
 						GroupId : content.GroupId,
-						AccountId : accessKey.AccountId,
-						inviting : Group.INVITING_DONE
+						AccountId : accessKey.AccountId
 					}
 				});
-			}).then(function(accessible) {
-				if (!accessible) {
-					throw ERROR_NOTACCESSIBLE;
+			}).then(function(accountInGroup) {
+				if (!accountInGroup) {
+					throw ERROR_REQUESTJOIN;
+				} else if ("accessible" == accountInGroup || Group.INVITING_DONE == accountInGroup.inviting) {
+					res.status(200).json(content);
+				} else {
+					loadedAccountInGroup = accountInGroup;
+					throw ERROR_REQUESTJOIN;
 				}
-				res.status(200).json(content);
 			})["catch"](function(error) {
-				console.log(error.stack);
-				if (error == ERROR_NOTACCESSIBLE) {
+				if (ERROR_REQUESTAUTHENTICATED == error) {
+					Group.findById(content.GroupId).then(function(group) {
+						res.status(403).json({
+							groupAccessKey : group.accessKey
+						});
+					});
+				} else if (ERROR_REQUESTJOIN == error) {
+					Group.findById(content.GroupId).then(function(group) {
+						res.status(403).json({
+							groupAccessKey : group.accessKey,
+							accountInGroup : loadedAccountInGroup
+						});
+					});
+				} else if (ERROR_NOTACCESSIBLE == error) {
 					res.status(403).end();
-					return;
+				} else {
+					res.status(500).end();
+					console.log(error.stack);
 				}
-				res.status(500).end();
 			});
 		}
 	})["catch"](function(error) {
@@ -251,7 +274,6 @@ router.get('/comment/:contentKey', function(req, res) {
 				})["catch"](function(error) {
 					console.log(error.stack);
 					res.status(500).end();
-					return;
 				});
 			})["catch"](function(error) {
 				console.log(error.stack);
@@ -369,7 +391,7 @@ router.post('/', function(req, res) {
 				return createdContent.setGroup(group[0]);
 			})
 		}
-		return Promise(function(success) {
+		return new Promise(function(success) {
 			success("true")
 		});
 	}).then(function() {

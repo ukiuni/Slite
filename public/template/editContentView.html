@@ -32,13 +32,13 @@
 			<div class="form-group col-sm-6">
 				<label for="status" class="col-sm-4 control-label" ng-bind="messages.contents.accessibility"></label>
 				<div>
-					<select ng-model="editingContent.status" ng-options="status as status.message for status in statuses"></select>
+					<select id="selectStatus" ng-model="editingContent.status" ng-options="status as status.message for status in statuses"></select>
 				</div>
 			</div>
 			<div class="form-group col-sm-6" ng-show="myGroups[1]">
 				<label for="contentGroup" class="col-sm-4 control-label" ng-bind="messages.group"></label>
 				<div>
-					<select ng-model="editingContent.group" ng-options="group as group.name for group in myGroups"></select>
+					<select id="selectGroup" ng-model="contentGroup" ng-options="group as group.name for group in myGroups"></select>
 				</div>
 			</div>
 			<div style="height: 10px"></div>

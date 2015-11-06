@@ -145,6 +145,38 @@ var tests = {
 	'Request Invitation from Not Exists Account To Group(secret)' : function(client) {
 		tests['Request Invitation from Not Exists Account To Group'](client, 'option:last-child', "#requestInvitationMailInputOnSecret", "#requestInvitationButtonOnSecret")
 	},
+	'Request Invite from Content' : function(client) {
+		var account = Actions.createAccountAndSignin(client);
+		Actions.createGroupAndCheckExists(client, function(groupName, groupUrl) {
+			Actions.createContentAndCheckExists(client, function(contentUrl, content) {
+				Actions.signout(client);// TODO
+				var account2 = {
+					name : Date.now() + account.name,
+					mail : Date.now() + account.mail,
+					password : Date.now() + account.password,
+				}
+				account2 = Actions.createAccountAndSignin(client, account2);
+				client.url(contentUrl);
+				client.waitForElementVisible('#requestInvitationButtonOnSecret', 1000);
+				client.click("#requestInvitationButtonOnSecret");
+				Actions.signout(client);
+				Actions.signin(client, account);
+				client.url(groupUrl);
+				client.waitForElementVisible('#memberArea', 1000);
+				client.click("#memberArea > div > div:last-child > div > div > div:last-child > div > a");
+				client.waitForElementVisible("#memberArea > div > div:last-child > div > div > div:last-child > div > ul > li:last-child > a", 10000);
+				client.click("#memberArea > div > div:last-child > div > div > div:last-child > div > ul > li:last-child > a");
+				Actions.signout(client);
+				Actions.signin(client, account2);
+				client.url(contentUrl);
+				client.waitForElementVisible('#joinButton', 1000);
+				client.click("#joinButton");
+				client.waitForElementVisible(".contentTitle", 10000);
+				client.assert.containsText(".contentTitle", content.title);
+				client.end();
+			}, "option:last-child", "option:last-child");
+		});
+	},
 	'Invite Not Exists Account To Group and Signin' : function(client) {
 		Actions.createAccountAndSignin(client);
 		Actions.createGroupAndCheckExists(client);

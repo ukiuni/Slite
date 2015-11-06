@@ -42,7 +42,7 @@ var self = {
 		return account;
 	},
 	signin : function(client, account) {
-		client.url(url+"/signin");
+		client.url(url + "/signin");
 		client.waitForElementVisible("#inputMail", testWaitTime);
 		client.setValue('#inputMail', account.mail);
 		client.setValue('#inputPassword', account.password);
@@ -59,7 +59,7 @@ var self = {
 		client.pause(1000);
 		client.assert.attributeContains("#memberArea > div:last-child > div:last-child > div:last-child > div:last-child > div:last-child > img", "src", "viewer.png");
 	},
-	createContentAndCheckExists : function(client, done) {
+	createContentAndCheckExists : function(client, done, optionStatus, optionGroup) {
 		var contentRandom = new Date().getTime();
 		var contentTitle = "contentTitle" + contentRandom;
 		var tags = "contentTag1" + contentRandom + "," + "contentTag2" + contentRandom + ",JavaScript";
@@ -73,10 +73,16 @@ var self = {
 		client.setValue('#contentTitle', contentTitle);
 		client.setValue('tags-input > div > div > input', tags);
 		client.setValue('#article', article);
-		client.click('select');
-		client.waitForElementVisible('option:first-child', testWaitTime);
-		client.click('option:first-child');
-		client.sendKeys('select', client.Keys.ENTER);
+		client.click('#selectStatus');
+		client.waitForElementVisible('#selectStatus > ' + (optionStatus ? optionStatus : "option:first-child"), testWaitTime);
+		client.click('#selectStatus > ' + (optionStatus ? optionStatus : "option:first-child"));
+		client.sendKeys('#selectStatus', client.Keys.ENTER);
+		if (optionGroup) {
+			client.click('#selectGroup');
+			client.waitForElementVisible('#selectGroup > ' + optionGroup, testWaitTime);
+			client.click('#selectGroup > ' + optionGroup);
+			client.sendKeys('#selectGroup', client.Keys.ENTER);
+		}
 		client.click('.btn-primary');
 		client.waitForElementVisible(".contentListColmun", testWaitTime);
 		client.assert.containsText("div > div > a > div", contentTitle);

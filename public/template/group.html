@@ -100,8 +100,10 @@
 					<button id="inviteButton" style="width: 100%" class="btn btn-default" ng-bind="messages.groups.invite" ng-disabled="addMemberForm.mail.$error.email || addMemberForm.mail.$error.required" ng-click="invite()"></button>
 				</div>
 			</div>
-			<div class="row" class="col-xs-12" style="margin-top: 10px" ng-show="isInviting()">
-				<button id="joinButton" class="btn btn-default" ng-bind="messages.groups.join" ng-click="join()"></button>
+			<div class="row" style="margin-top: 10px" ng-show="isInviting()">
+				<div class="col-xs-12">
+					<button id="joinButton" class="btn btn-default" ng-bind="messages.groups.join" ng-click="join()"></button>
+				</div>
 			</div>
 		</div>
 		<div class="hidden-sm hidden-md hidden-lg col-xs-12" style="height: 20px"></div>
