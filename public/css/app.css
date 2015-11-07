@@ -19,9 +19,13 @@ button {
 .contentTitle {
 	font-size: 30px;
 	margin-top: -115px;
-	text-shadow: white 0.1em 0.1em 0.2em;
+	text-shadow: black 0.1em 0.1em 0.2em;
 	font-size: 30px;
 	background-color: transparent;
+	color: white;
+}
+.tag {
+	color: #EEE;
 }
 
 .error {

@@ -302,6 +302,10 @@ myapp.run([ "$rootScope", "$location", "$resource", "$cookies", function($rootSc
 			return authorizationImageUrls[accountInGroup.authorization]
 		}
 	}
+	$rootScope.createTitleImage = function(text) {
+		var canvas = com.ukiuni.ImageUtil.createTextImage(100, 50, 40, 30, 5, text);
+		return canvas.toDataURL('image/png');
+	}
 } ]);
 var indexController = [ "$rootScope", "$scope", "$modal", "$location", "$http", "$window", "$resource", "$routeParams", function($rootScope, $scope, $modal, $location, $http, $window, $resource, $routeParams) {
 	$scope.openCreateAccountDialog = function() {
