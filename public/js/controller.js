@@ -602,7 +602,9 @@ var editContentController = [ "$rootScope", "$scope", "$resource", "$location", 
 			sessionKey : $rootScope.getSessionKey()
 		}, function(content) {
 			$scope.editingContent = parseContentToEdit(content);
-			$scope.targetGroupId = content.Group.id;
+			if (content.Group) {
+				$scope.targetGroupId = content.Group.id;
+			}
 			initGroupSelect();
 		}, function(error) {
 			$rootScope.showError($rootScope.messages.error.withServer);
