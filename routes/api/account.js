@@ -418,7 +418,7 @@ router.put('/', function(req, res) {
 			ImageTrimmer.trim(req.files.imageFile[0].buffer, 100, 100).then(function() {
 				return Random.createRandomBase62();
 			}).then(function(imageFileKey) {
-				return Storage.store(imageFileKey, req.files.imageFile[0].mimetype, req.files.imageFile[0].buffer).then(function(url) {
+				return Storage.store(imageFileKey, req.files.imageFile[0].mimetype, "dummy.img", req.files.imageFile[0].buffer).then(function(url) {
 					saveAccount(url);
 				})
 			})["catch"](function(error) {

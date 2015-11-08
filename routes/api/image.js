@@ -6,7 +6,6 @@ var ContentBody = global.db.ContentBody;
 var AccountInGroup = global.db.AccountInGroup;
 var Promise = require("bluebird");
 var Random = require(__dirname + "/../../util/random");
-var ImageTrimmer = require(__dirname + "/../../util/imageTrimmer");
 var Storage = require(__dirname + "/../../util/storage");
 var ERROR_NOTACCESSIBLE = "ERROR_NOTACCESSIBLE";
 router.get('/:imageKey', function(req, res) {
@@ -21,7 +20,7 @@ router.get('/:imageKey', function(req, res) {
 		res.status(404).send();
 	});
 })
-router.get('/:contentKey/:imageKey', function(req, res) {
+function getImage(req, res, name) {
 	if (!req.params.contentKey || !req.params.imageKey || req.params.imageKey.indexOf("/../") > -1) {
 		res.status(404).send();
 		return;
@@ -75,8 +74,16 @@ router.get('/:contentKey/:imageKey', function(req, res) {
 		}
 	}).then(function() {
 		return Storage.load(req.params.contentKey + "/" + req.params.imageKey).then(function(data) {
-			res.set('Content-Type', data.contentType);
-			res.status(200).send(data.buffer);
+			if (name && data.name == name) {
+				res.set('Content-Type', "application/octet-stream");
+				res.set('Content-Disposition', 'attachment; filename="' + name + '"');
+				res.status(200).send(data.buffer);
+			} else if (!name) {
+				res.set('Content-Type', data.contentType);
+				res.status(200).send(data.buffer);
+			} else {
+				res.status(404).end();
+			}
 		})
 	})["catch"](function(error) {
 		if (ERROR_NOTACCESSIBLE == error) {
@@ -86,6 +93,12 @@ router.get('/:contentKey/:imageKey', function(req, res) {
 			res.status(500).send();
 		}
 	});
+}
+router.get('/:contentKey/:imageKey', function(req, res) {
+	getImage(req, res);
+});
+router.get('/:contentKey/:imageKey/:fileName', function(req, res) {
+	getImage(req, res, req.params.fileName);
 });
 router.post('/:contentKey', function(req, res) {
 	var accessKey = req.body.sessionKey || req.body.access_token;
@@ -106,9 +119,7 @@ router.post('/:contentKey', function(req, res) {
 		return Random.createRandomBase62();
 	}).then(function(random) {
 		imageFileKey = random;
-		return ImageTrimmer.trim(req.files.imageFile[0].buffer, 100, 100);
-	}).then(function(image) {
-		return Storage.store(req.params.contentKey + "/" + imageFileKey, image.contentType, image.buffer);
+		return Storage.store(req.params.contentKey + "/" + imageFileKey, req.files.imageFile[0].mimetype, req.body.name, req.files.imageFile[0].buffer);
 	}).then(function(savedImageUrl) {
 		res.status(200).send({
 			url : savedImageUrl

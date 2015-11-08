@@ -18,7 +18,7 @@ try {
 } catch (e) {
 }
 module.exports = {
-	store : function(key, contentType, data) {
+	store : function(key, contentType, name, data) {
 		return new Promise(function(onFulfilled, onRejected) {
 			if (key.indexOf("/") > 0) {
 				try {
@@ -31,7 +31,11 @@ module.exports = {
 				}
 			}
 			fs.writeFile(path.join(__dirname, STORAGE_PATH, key), data, function() {
-				fs.writeFile(path.join(__dirname, STORAGE_CONTENTTYPE_PATH, key), contentType, {
+				var paramData = {
+					name : name,
+					contentType : contentType
+				}
+				fs.writeFile(path.join(__dirname, STORAGE_CONTENTTYPE_PATH, key), JSON.stringify(paramData), {
 					encoding : "utf8"
 				}, function() {
 					onFulfilled(serverConfig.hostURL + "/api/image/" + key);
@@ -43,7 +47,17 @@ module.exports = {
 		return new Promise(function(onFulfilled, onRejected) {
 			fs.readFile(path.join(__dirname, STORAGE_CONTENTTYPE_PATH, key), {
 				encording : "utf8"
-			}, function(error, contentType) {
+			}, function(error, paramData) {
+				try {
+					var param = JSON.parse(paramData);
+					var name = param.name;
+					var contentType = param.contentType;
+					if (!contentType) {
+						contentType = paramData;
+					}
+				} catch (e) {
+					contentType = paramData;
+				}
 				if (error) {
 					onRejected(error);
 				} else {
@@ -53,6 +67,7 @@ module.exports = {
 						} else {
 							onFulfilled({
 								contentType : contentType,
+								name : name,
 								buffer : data
 							});
 						}

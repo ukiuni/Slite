@@ -130,10 +130,11 @@ var tests = {
 			Actions.signin(client, account);
 			client.url(groupUrl);
 			client.waitForElementVisible('#memberArea', 1000);
-			client.waitForElementVisible("#memberArea > div > div:last-child > div > div > div:last-child > div > a", 1000);
+			client.waitForElementVisible("#memberArea > div > div:last-child > div > div > div:last-child > div > a", 10000);
 			client.click("#memberArea > div > div:last-child > div > div > div:last-child > div > a");
 			client.waitForElementVisible("#memberArea > div > div:last-child > div > div > div:last-child > div > ul > li:last-child", 10000);
 			client.click("#memberArea > div > div:last-child > div > div > div:last-child > div > ul > li:last-child");
+			client.pause(1000);
 			Actions.signout(client);
 			Actions.createAccountAndSignin(client, account2);
 			client.url(groupUrl);
@@ -163,9 +164,11 @@ var tests = {
 				Actions.signin(client, account);
 				client.url(groupUrl);
 				client.waitForElementVisible('#memberArea', 1000);
+				client.waitForElementVisible("#memberArea > div > div:last-child > div > div > div:last-child > div > a", 10000);
 				client.click("#memberArea > div > div:last-child > div > div > div:last-child > div > a");
 				client.waitForElementVisible("#memberArea > div > div:last-child > div > div > div:last-child > div > ul > li:last-child > a", 10000);
 				client.click("#memberArea > div > div:last-child > div > div > div:last-child > div > ul > li:last-child > a");
+				client.pause(1000);
 				Actions.signout(client);
 				Actions.signin(client, account2);
 				client.url(contentUrl);

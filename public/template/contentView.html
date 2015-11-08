@@ -50,6 +50,8 @@
 					</div>
 				</div>
 			</div>
+		</div>
+		<div class="col-xs-12">
 			<div class="row" ng-show="groupAccessKey && !accountInGroup">
 				<div class="col-sm-8 col-sm-offset-2 col-xs-12">
 					<div ng-bind="messages.contents.thisContentIsNotVisible"></div>
@@ -74,4 +76,7 @@
 			</div>
 		</div>
 	</div>
+</div>
+<div id="imagePane" ng-show="imagePaneSrc" align="center" ng-click="clearImagePaneSrc()">
+	<img ng-src="{{imagePaneSrc}}">
 </div>

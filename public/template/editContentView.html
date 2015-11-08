@@ -26,9 +26,16 @@
 				</div>
 			</div>
 			<div class="row">
-				<div class="col-xs-12">
-					<textarea id="article" rows="30" id="article" class="article" ng-model="editingContent.article" placeholder="Article"></textarea>
+				<div class="col-xs-6" style="position: relative;" ondragenter="document.getElementById('fileDropArea').style.display='inline'" ondrop="event.preventDefault();">
+					<textarea id="article" rows="30" class="article" style="float: left" ng-model="editingContent.article" placeholder="Article" dragenter="console.log('dragenter');" ondrop="event.preventDefault();"></textarea>
+					<div id="fileDropArea" class="col-xs-12" ng-model="articleAppendsImage" ngf-drop ngf-drag-over-class="'dragover'" ondragleave="document.getElementById('fileDropArea').style.display='none'" ondrop="document.getElementById('fileDropArea').style.display='none'" style="display: none; position: absolute; top: 0; left: 0; height: 100%; background-color: #000; opacity: 0.1;">
+						<div style="background-color: #F00"></div>
+					</div>
 				</div>
+				<div class="col-xs-6" style="float: left; height: 100%; overflow: scroll">
+					<div id="articlePreview" marked="editingContent.article"></div>
+				</div>
+				<br style="clear: both" />
 			</div>
 			<div style="height: 10px"></div>
 			<div class="form-group col-sm-6">
@@ -48,4 +55,9 @@
 
 		</div>
 	</div>
+</div>
+<div id="imagePane" ng-show="imagePaneSrc" align="center">
+</div>
+<div id="imagePaneImgBase" ng-show="imagePaneSrc" align="center" ng-click="clearImagePaneSrc()">
+	<img ng-src="{{imagePaneSrc}}">
 </div>

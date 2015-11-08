@@ -529,7 +529,7 @@ var editProfileController = [ "$rootScope", "$scope", "$resource", "$location", 
 	}
 } ];
 var editContentController = [ "$rootScope", "$scope", "$resource", "$location", "$http", "Upload", "$routeParams", function($rootScope, $scope, $resource, $location, $http, $uploader, $routeParams) {
-	if (!$rootScope.myAccount) {
+	if (!$rootScope.getSessionKey()) {
 		$location.path("/home");
 		return;
 	}
@@ -619,9 +619,93 @@ var editContentController = [ "$rootScope", "$scope", "$resource", "$location", 
 		}
 		$scope.save("POST", function(content) {
 			$scope.editingContent = parseContentToEdit(content);
+			$scope.editingContent.article = "";
 			initGroupSelect();
 		})
 	}
+	var upload = function(data, name, success, fail) {
+		$uploader.upload({
+			url : '/api/image/' + $scope.editingContent.contentKey,
+			fields : {
+				sessionKey : $rootScope.getSessionKey(),
+				name : name
+			},
+			file : data,
+			fileFormDataName : "imageFile",
+			sendFieldsAs : "form",
+			method : "POST"
+		}).success(function(response) {
+			if (success) {
+				success(response);
+			}
+		}).error(function(error) {
+			if (fail) {
+				fail(error);
+			}
+		});
+	};
+	var articleTextArea = document.getElementById("article");
+	var insertImageToTextarea = function(tumbUrl, fileUrl, name, clazz) {
+		var text = "[![" + name + "](" + tumbUrl + " \"" + name + "\"){col-xs-12}](" + fileUrl + ")" + (clazz ? "{" + clazz + " col-xs-12 col-sm-3}" : "");
+		var index = articleTextArea.selectionStart;
+		if ($scope.editingContent) {
+			$scope.editingContent.article = $scope.editingContent.article.substr(0, index) + text + $scope.editingContent.article.substr(index);
+		}
+	}
+	$scope.$watch('articleAppendsImage', function() {
+		if (!$scope.articleAppendsImage) {
+			return;
+		}
+		var image = new Image();
+		image.onload = function() {
+			var trimmedImage = com.ukiuni.ImageUtil.trim(image, 500, 500);
+			var updloadFileName = $scope.articleAppendsImage.name;
+			upload(trimmedImage, updloadFileName, function(response) {
+				var tumbnailImageUrl = response.url;
+				upload($scope.articleAppendsImage, updloadFileName, function(response) {
+					insertImageToTextarea(tumbnailImageUrl, response.url, $scope.articleAppendsImage.name, "targetOverray");
+				}, function(error) {
+					$rootScope.showError($rootScope.messages.error.withServer);
+				})
+			}, function(error) {
+				$rootScope.showError($rootScope.messages.error.withServer);
+			})
+		}
+		image.onerror = function(error) {
+			var contentType = $scope.articleAppendsImage.type ? $scope.articleAppendsImage.type : "file/unknown";
+			var iconCanvas = com.ukiuni.ImageUtil.createIconImage(500, 500, contentType);
+			var iconData = com.ukiuni.ImageUtil.canvasToPingBlob(iconCanvas);
+			var updloadFileName = $scope.articleAppendsImage.name;
+			upload(iconData, updloadFileName, function(response) {
+				var tumbnailImageUrl = response.url;
+				upload($scope.articleAppendsImage, updloadFileName, function(response) {
+					insertImageToTextarea(tumbnailImageUrl, response.url + "/" + updloadFileName, $scope.articleAppendsImage.name, "targetBlank");
+				}, function(error) {
+					$rootScope.showError($rootScope.messages.error.withServer);
+				})
+			}, function(error) {
+				$rootScope.showError($rootScope.messages.error.withServer);
+			})
+		}
+		image.src = URL.createObjectURL($scope.articleAppendsImage);
+	});
+	$scope.clearImagePaneSrc = function() {
+		$scope.imagePaneSrc = null;
+	}
+	$scope.$watch('editingContent.article', function(value) {
+		if (value) {
+			setTimeout(function() {
+				$("#articlePreview").find(".targetBlank").attr("target", "_blank");
+				$("#articlePreview").find(".targetOverray").click(function(event) {
+					var imageSource = $(this).attr('href');
+					$scope.$apply(function() {
+						$scope.imagePaneSrc = imageSource;
+					})
+					return false;
+				});
+			});
+		}
+	});
 	$scope.$watch('editingContent.contentImageFile', function() {
 		if ($scope.editingContent && $scope.editingContent.contentImageFile) {
 			$scope.fileName = $scope.editingContent.contentImageFile.name;
@@ -739,6 +823,20 @@ var contentController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 		$scope.comments = comments;
 	}, function(error) {
 		$rootScope.showErrorWithStatus(error.status);
+	});
+	$scope.$watch('content.ContentBodies[0].article', function(value) {
+		if (value) {
+			setTimeout(function() {
+				$("#article").find(".targetBlank").attr("target", "_blank");
+				$("#article").find(".targetOverray").click(function(event) {
+					var imageSource = $(this).attr('href');
+					$scope.$apply(function() {
+						$scope.imagePaneSrc = imageSource;
+					})
+					return false;
+				});
+			});
+		}
 	});
 	$scope.newComment = {};
 	$scope.comment = function() {

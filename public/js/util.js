@@ -42,6 +42,52 @@ com.ukiuni.ImageUtil = {
 		// this.blur(canvas, context);
 		return canvas;
 	},
+	createIconImage : function(imageWidth, imageHeight, contentType) {
+		var margin = 20;
+		var dogEar = 40;
+		var filePathHeight = imageHeight - margin * 2;
+		var filePathWidth = filePathHeight / 5 * 4;
+		var canvas = document.createElement("canvas");
+		canvas.width = imageWidth;
+		canvas.height = imageHeight;
+		var context = canvas.getContext('2d');
+		var typeText = (contentType).match(/([^\/]+)\/[^\/]/)[1];
+		var context = canvas.getContext('2d');
+		context.fillStyle = 'rgba(255, 255, 255, 0)';
+		context.fillRect(0, 0, imageWidth, imageHeight)
+		context.fillStyle = 'rgba(255, 255, 255, 1.0)';
+		context.lineJoin = "round";
+		context.beginPath();
+		context.moveTo((imageWidth - filePathWidth) / 2, 10);
+		context.lineTo((imageWidth - filePathWidth) / 2 + filePathWidth - dogEar, 10);
+		context.lineTo((imageWidth - filePathWidth) / 2 + filePathWidth, 10 + dogEar);
+		context.lineTo((imageWidth - filePathWidth) / 2 + filePathWidth, 10 + filePathHeight);
+		context.lineTo((imageWidth - filePathWidth) / 2, 10 + filePathHeight);
+		context.lineTo((imageWidth - filePathWidth) / 2, 10);
+		context.fill();
+		context.strokeStyle = "#333";
+		context.lineWidth = 5;
+		context.beginPath();
+		context.moveTo((imageWidth - filePathWidth) / 2, 10);
+		context.lineTo((imageWidth - filePathWidth) / 2 + filePathWidth - dogEar, 10);
+		context.lineTo((imageWidth - filePathWidth) / 2 + filePathWidth - dogEar, 10 + dogEar);
+		context.lineTo((imageWidth - filePathWidth) / 2 + filePathWidth, 10 + dogEar);
+		context.lineTo((imageWidth - filePathWidth) / 2 + filePathWidth - dogEar, 10);
+		context.moveTo((imageWidth - filePathWidth) / 2 + filePathWidth, 10 + dogEar);
+		context.lineTo((imageWidth - filePathWidth) / 2 + filePathWidth, 10 + filePathHeight);
+		context.lineTo((imageWidth - filePathWidth) / 2, 10 + filePathHeight);
+		context.lineTo((imageWidth - filePathWidth) / 2, 10);
+		context.lineTo((imageWidth) / 2, 10);
+		context.stroke();
+		context.fillStyle = 'rgba(48, 48, 48, 1.0)';
+		context.shadowBlur = 10;
+		context.shadowColor = "#FFFFFF";
+		var fontSize = (imageWidth / 6);
+		context.font = fontSize + "px sans-serif";
+		var textMetrix = context.measureText(typeText);
+		context.fillText(typeText, (imageWidth - textMetrix.width) / 2, (imageHeight) / 2 + margin);
+		return canvas;
+	},
 	trimImage : function(imageSrc, destWidth, destHeight, callback) {
 		var image = new Image();
 		image.onload = function() {
@@ -49,13 +95,14 @@ com.ukiuni.ImageUtil = {
 		}
 		image.src = imageSrc;
 	},
-	trim : function(image, destWidth, destHeight, callback) {
+	trim : function(image, destWidth, destHeight) {
 		var scale = destWidth / image.width > destHeight / image.height ? destWidth / image.width : destHeight / image.height;
 		var trimCanvas = document.createElement('canvas');
 		trimCanvas.width = destWidth;
 		trimCanvas.height = destHeight;
-		var smCtx = smallCanvas.getContext('2d');
-		trimCanvas(image, 0, 0, image.width, image.height, image.width * (scale - 1) / 2, image.height * (scale - 1) / 2, image.width, image.height);
+		var trimCanvasContext = trimCanvas.getContext('2d');
+		trimCanvasContext.drawImage(image, 0, 0, image.width, image.height, image.width * (scale - 1) / 2, image.height * (scale - 1) / 2, image.width, image.height);
+		return this.canvasToPingBlob(trimCanvas);
 	},
 	canvasToPingBlob : function(canvas) {
 		var base64Data = canvas.toDataURL('image/png').split(',')[1];
@@ -68,7 +115,7 @@ com.ukiuni.ImageUtil = {
 		var blob = new Blob([ arr ], {
 			type : 'image/png'
 		});
-		callback(blob);
+		return blob;
 	},
 	blur : function(canvas, context) {
 		var data = context.getImageData(0, 0, canvas.width, canvas.height);
