@@ -565,6 +565,7 @@ var editContentController = [ "$rootScope", "$scope", "$resource", "$location", 
 			if (successCallback) {
 				successCallback(content);
 			} else {
+				alertOnLeave = false;
 				if ($scope.contentGroup && 0 != $scope.contentGroup.id) {
 					$location.path("/group/" + $scope.contentGroup.accessKey);
 				} else {
@@ -581,6 +582,9 @@ var editContentController = [ "$rootScope", "$scope", "$resource", "$location", 
 	}
 	var parseContentToEdit = function(content) {
 		var editingContent = {}
+		if ($scope.editingContent) {
+			var contentImageFile = $scope.editingContent.contentImageFile;
+		}
 		editingContent.status = $rootScope.statuses[content.ContentBodies[0].status - 1];
 		editingContent.contentKey = content.accessKey;
 		editingContent.title = content.ContentBodies[0].title;
@@ -593,6 +597,7 @@ var editContentController = [ "$rootScope", "$scope", "$resource", "$location", 
 				}
 			});
 		}
+		editingContent.contentImageFile = contentImageFile;
 		return editingContent;
 	}
 	$scope.currentTime = new Date().getTime();
@@ -617,11 +622,8 @@ var editContentController = [ "$rootScope", "$scope", "$resource", "$location", 
 			id : 0,
 			name : ""
 		}
-		$scope.save("POST", function(content) {
-			$scope.editingContent = parseContentToEdit(content);
-			$scope.editingContent.article = "";
-			initGroupSelect();
-		})
+		$scope.editingContent.article = "";
+		initGroupSelect();
 	}
 	var upload = function(data, name, success, fail) {
 		$uploader.upload({
@@ -708,21 +710,33 @@ var editContentController = [ "$rootScope", "$scope", "$resource", "$location", 
 	});
 	$scope.$watch('editingContent.contentImageFile', function() {
 		if ($scope.editingContent && $scope.editingContent.contentImageFile) {
-			$scope.fileName = $scope.editingContent.contentImageFile.name;
-			$uploader.upload({
-				url : '/api/image/' + $scope.editingContent.contentKey,
-				fields : {
-					sessionKey : $rootScope.getSessionKey()
-				},
-				file : $scope.editingContent.contentImageFile,
-				fileFormDataName : "imageFile",
-				sendFieldsAs : "form",
-				method : "POST"
-			}).success(function(response) {
-				$scope.editingContent.topImageUrl = response.url;
-			}).error(function(error) {
-				$rootScope.showError($rootScope.messages.error.withServer);
-			});
+			var uploadFunc = function() {
+				$scope.fileName = $scope.editingContent.contentImageFile.name;
+				$uploader.upload({
+					url : '/api/image/' + $scope.editingContent.contentKey,
+					fields : {
+						sessionKey : $rootScope.getSessionKey()
+					},
+					file : $scope.editingContent.contentImageFile,
+					fileFormDataName : "imageFile",
+					sendFieldsAs : "form",
+					method : "POST"
+				}).success(function(response) {
+					$scope.editingContent.topImageUrl = response.url;
+				}).error(function(error) {
+					$rootScope.showError($rootScope.messages.error.withServer);
+				});
+			}
+			if ($scope.editingContent.contentKey) {
+				uploadFunc();
+			} else {
+				$scope.save("POST", function(content) {
+					$scope.editingContent = parseContentToEdit(content);
+					$scope.editingContent.article = "";
+					initGroupSelect();
+					uploadFunc();
+				})
+			}
 		}
 	});
 	$scope.loadTags = function(query) {
@@ -753,6 +767,16 @@ var editContentController = [ "$rootScope", "$scope", "$resource", "$location", 
 		initGroupSelect();
 	}, function(error) {
 		$rootScope.showErrorWithStatus(error.status);
+	});
+	var alertOnLeave = true;
+	$scope.$on('$locationChangeStart', function(event) {
+		if (!alertOnLeave) {
+			return;
+		}
+		var answer = confirm($rootScope.messages.alertOnLeave);
+		if (!answer) {
+			event.preventDefault();
+		}
 	});
 } ];
 var contentController = [ "$rootScope", "$scope", "$resource", "$location", "$http", "$routeParams", function($rootScope, $scope, $resource, $location, $http, $routeParams) {

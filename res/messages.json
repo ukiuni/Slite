@@ -84,7 +84,8 @@
 			"withServer" : "Something happen with Server, please try again later.",
 			"notAccessible" : "Can't access to this resource",
 			"notFound" : "This resource is not fouded."
-		}
+		},
+		"alertOnLeave" : "Are you sure you want to leave this page?"
 	},
 	"ja" : {
 		"signin" : {
@@ -172,6 +173,7 @@
 			"withServer" : "サーバーとの通信で問題が発生しました。後ほど再実行してください。",
 			"notAccessible" : "アクセスできませんでした。",
 			"notFound" : "ページがみつかりません。"
-		}
+		},
+		"alertOnLeave" : "本当にこのページから遷移してもいいですか？"
 	}
 }
