@@ -32,7 +32,7 @@ com.ukiuni.ImageUtil = {
 		canvas.height = imageHeight;
 		var context = canvas.getContext('2d');
 		var ranHex = this.toHex(text, 0, 100);
-		context.fillStyle = "#" + ranHex + "4F4F";
+		context.fillStyle = "#" + ranHex + "88CC";
 		context.fillRect(0, 0, imageWidth, imageHeight)
 		context.fillStyle = "#99CC" + ranHex;
 		context.shadowBlur = 10;
