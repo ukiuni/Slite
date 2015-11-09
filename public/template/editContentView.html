@@ -13,7 +13,7 @@
 				<div class="col-xs-4">
 					<button ngf-drop ngf-select ng-model="editingContent.contentImageFile" class="btn btn-lg btn-default btn-block drop-box" style="text-overflow: ellipsis;" ngf-drag-over-class="dragover" ngf-allow-dir="true" ngf-accept="'image/jpeg,image/png,image/bmp'">
 						Image file<span ng-show="fileName">(<span ng-bind="fileName"></span>)
-						</span> <span ng-show="!fileName">(select JPEG or PNG) </span>
+						</span> <span ng-show="!fileName"></span>
 					</button>
 				</div>
 				<div class="col-xs-4 col-xs-offset-4">
@@ -26,14 +26,14 @@
 				</div>
 			</div>
 			<div class="row">
-				<div class="col-xs-6" style="position: relative;" ondragenter="document.getElementById('fileDropArea').style.display='inline'" ondrop="event.preventDefault();">
-					<textarea id="article" rows="30" class="article" style="float: left" ng-model="editingContent.article" placeholder="Article" dragenter="console.log('dragenter');" ondrop="event.preventDefault();"></textarea>
+				<div class="col-xs-6" style="position: relative; height: 100%;" ondragenter="document.getElementById('fileDropArea').style.display='inline'" ondrop="event.preventDefault();">
+					<textarea id="article" rows="30" class="article" style="float: left; height: 100%;" ng-model="editingContent.article" placeholder="Article" dragenter="console.log('dragenter');" ondrop="event.preventDefault();"></textarea>
 					<div id="fileDropArea" class="col-xs-12" ng-model="articleAppendsImage" ngf-drop ngf-drag-over-class="'dragover'" ondragleave="document.getElementById('fileDropArea').style.display='none'" ondrop="document.getElementById('fileDropArea').style.display='none'" style="display: none; position: absolute; top: 0; left: 0; height: 100%; background-color: #000; opacity: 0.1;">
 						<div style="background-color: #F00"></div>
 					</div>
 				</div>
 				<div class="col-xs-6" style="float: left; height: 100%; overflow: scroll">
-					<div id="articlePreview" marked="editingContent.article"></div>
+					<div id="articlePreview" class="article" marked="editingContent.article"></div>
 				</div>
 				<br style="clear: both" />
 			</div>
