@@ -101,7 +101,7 @@ com.ukiuni.ImageUtil = {
 		trimCanvas.width = destWidth;
 		trimCanvas.height = destHeight;
 		var trimCanvasContext = trimCanvas.getContext('2d');
-		trimCanvasContext.drawImage(image, 0, 0, image.width, image.height, image.width * (scale - 1) / 2, image.height * (scale - 1) / 2, image.width, image.height);
+		trimCanvasContext.drawImage(image, 0, 0, image.width, image.height, (destWidth - image.width * scale) / 2, (destHeight - image.height * scale) / 2, image.width * scale, image.height * scale);
 		return this.canvasToPingBlob(trimCanvas);
 	},
 	canvasToPingBlob : function(canvas) {
