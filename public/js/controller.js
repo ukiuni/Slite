@@ -1260,6 +1260,17 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 					}, 50);
 				}
 			});
+			if (!$rootScope.myAccount) {
+				return;
+			}
+			if (0 <= message.body.indexOf($rootScope.myAccount.name) && !document.hasFocus()) {
+				var n = new Notification($rootScope.messages.message, {
+					body : message.body
+				});
+				n.onclick = function() {
+					$("#messageInput").focus();
+				};
+			}
 		}
 		$rootScope.listenChannel($routeParams.channelAccessKey, listenComment);
 		$rootScope.requestMessage({
