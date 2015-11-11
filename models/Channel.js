@@ -16,6 +16,7 @@ module.exports = function(sequelize, DataTypes) {
 			as : 'owner'
 		});
 		Channel.belongsTo(sequelize.Group);
+		Channel.hasMany(sequelize.Message);
 	}
 	return Channel;
 };

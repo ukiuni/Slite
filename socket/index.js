@@ -3,12 +3,14 @@ var AccessKey = global.db.AccessKey;
 var Content = global.db.Content;
 var ContentBody = global.db.ContentBody;
 var Group = global.db.Group;
+var Message = global.db.Message;
 var AccountInGroup = global.db.AccountInGroup;
 var Channel = global.db.Channel;
 var ERROR_NOTACCESSIBLE = "ERROR_NOTACCESSIBLE";
 var socket = function(io) {
 	var connected;
-	this.context = io.sockets.on('connection', function(socket) {
+	var self = this;
+	self.context = io.sockets.on('connection', function(socket) {
 		connected = socket;
 		socket.on('listenComment', function(contentKey) {
 			Content.findAll({
@@ -48,8 +50,9 @@ var socket = function(io) {
 		socket.on('unListenComment', function(contentKey) {
 			socket.leave(contentKey);
 		});
-		socket.on('listenChannel', function(channelAccessKey) {
-			Channel.find({
+		var loadAccessibleChannel = function(channelAccessKey) {
+			var loadedChannel;
+			return Channel.find({
 				where : {
 					accessKey : channelAccessKey
 				}
@@ -57,6 +60,7 @@ var socket = function(io) {
 				if (!channel) {
 					throw ERROR_NOTACCESSIBLE;
 				}
+				loadedChannel = channel;
 				return AccountInGroup.find({
 					where : {
 						AccountId : socket.client.accountId,
@@ -65,12 +69,55 @@ var socket = function(io) {
 					}
 				});
 			}).then(function(accountInGroup) {
-				if (accountInGroup) {
+				if (!accountInGroup) {
+					throw ERROR_NOTACCESSIBLE;
+				}
+				return new Promise(function(success) {
+					success(loadedChannel)
+				});
+			});
+		}
+		socket.on('listenChannel', function(channelAccessKey) {
+			loadAccessibleChannel(channelAccessKey).then(function(channel) {
+				if (channel) {
 					socket.join(channelAccessKey);
 				} else {
-					// TODO send error
+					throw ERROR_NOTACCESSIBLE;
 				}
 			})["catch"](function(e) {
+				// TODO send error
+			});
+		});
+		socket.on('requestMessage', function(requestParam) {
+			requestParam = JSON.parse(requestParam);
+			var channelAccessKey = requestParam.channelAccessKey;
+			var limit = requestParam.limit || 10;
+			var idBefore = requestParam.idBefore;
+			loadAccessibleChannel(channelAccessKey).then(function(channel) {
+				var criteria = {
+					where : {
+						ChannelId : channel.id
+					},
+					include : [ {
+						model : Account,
+						as : "owner",
+						attributes : [ "id", "name", "iconUrl" ]
+					} ],
+					order : [ [ 'id', 'DESC' ] ],
+					limit : limit
+				}
+				if (idBefore) {
+					criteria.where.id = {
+						$lt : idBefore
+					}
+				}
+				return Message.findAll(criteria);
+			}).then(function(messages) {
+				messages.reverse().forEach(function(message) {
+					self.sendToChannel(channelAccessKey, message);
+				});
+			})["catch"](function(e) {
+				console.log(e.stack);
 				// TODO send error
 			});
 		});
@@ -86,12 +133,12 @@ var socket = function(io) {
 			})
 		});
 	});
-	this.sendToContent = function(contentKey, comment) {
+	self.sendToContent = function(contentKey, comment) {
 		io.to(contentKey).emit(contentKey, JSON.stringify(comment));
 	}
-	this.sendToChannel = function(channelAccessKey, message) {
+	self.sendToChannel = function(channelAccessKey, message) {
 		io.to(channelAccessKey).emit(channelAccessKey, JSON.stringify(message));
 	}
-	return this;
+	return self;
 }
 module.exports = socket;

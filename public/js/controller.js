@@ -255,6 +255,12 @@ myapp.run([ "$rootScope", "$location", "$resource", "$cookies", function($rootSc
 		$rootScope.socket.on(accessKey, callback);
 		channelSocketListeners.set(accessKey, callback);
 	};
+	$rootScope.requestMessage = function(params) {
+		if (!channelSocketListeners.has(params.channelAccessKey)) {
+			return;
+		}
+		$rootScope.socket.emit('requestMessage', JSON.stringify(params));
+	};
 	$rootScope.unListenChannel = function(accessKey, callback) {
 		$rootScope.socket.emit('unListenChannel', accessKey);
 		$rootScope.socket.removeListener(accessKey, callback);
@@ -1256,6 +1262,9 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 			});
 		}
 		$rootScope.listenChannel($routeParams.channelAccessKey, listenComment);
+		$rootScope.requestMessage({
+			channelAccessKey : $routeParams.channelAccessKey
+		})
 		var channelAccessKey = $routeParams.channelAccessKey;
 		$scope.$on('$destroy', function() {
 			$rootScope.unListenChannel(channelAccessKey, listenComment);

@@ -384,11 +384,11 @@ router.post('/', function(req, res) {
 				where : {
 					id : req.body.groupId
 				}
-			}).then(function(group) {
-				if (!group || 0 == group.length || group.AccountInGroup.authorization < Account.AUTHORIZATION_EDITOR || Group.INVITING_DONE != group.AccountInGroup.inviting) {
+			}).then(function(groups) {
+				if (!groups || 0 == groups.length || groups[0].AccountInGroup.authorization < Account.AUTHORIZATION_EDITOR || Group.INVITING_DONE != groups[0].AccountInGroup.inviting) {
 					return;
 				}
-				return createdContent.setGroup(group[0]);
+				return createdContent.setGroup(groups[0]);
 			})
 		}
 		return new Promise(function(success) {
