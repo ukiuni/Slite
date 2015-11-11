@@ -4,7 +4,8 @@
 			"error" : "Wrong mail or password."
 		},
 		"app" : {
-			"title" : "Slite" 
+			"title" : "Slite",
+			"imageUrl" : "/images/title.png"
 		},
 		"menu" : {
 			"home" : "Home",
@@ -92,7 +93,8 @@
 			"error" : "メールアドレスかパスワードが違います。"
 		},
 		"app" : {
-			"title" : "Slite" 
+			"title" : "Slite",
+			"imageUrl" : "/images/title.png"
 		},
 		"menu" : {
 			"home" : "Home",
