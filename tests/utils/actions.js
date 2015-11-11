@@ -241,7 +241,8 @@ var self = {
 							ApiActions.joinToGroup(client.assert, sessionKey, groupAccessKey, function() {
 								var secondMessage = "secondMessage" + contentRandom;
 								ApiActions.sendMessage(client.assert, sessionKey, groupAccessKey, channelAccessKey, secondMessage, function() {
-									client.assert.containsText("#messageScrollInner", secondMessage, "Second Message has commen.");
+									client.assert.containsText("#messageScrollInner", message, "first Message has commen.");
+									client.assert.containsText("#messageScrollInner", secondMessage, "Also Second Message has commen.");
 									if (callback) {
 										callback();
 									}
