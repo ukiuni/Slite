@@ -114,7 +114,7 @@ var socket = function(io) {
 				return Message.findAll(criteria);
 			}).then(function(messages) {
 				messages.reverse().forEach(function(message) {
-					self.sendToChannel(channelAccessKey, message);
+					socket.emit(channelAccessKey, JSON.stringify(message));
 				});
 			})["catch"](function(e) {
 				console.log(e.stack);
