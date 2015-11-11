@@ -1,8 +1,7 @@
 module.exports = function(sequelize, DataTypes) {
 	var Group = sequelize.define("Group", {
 		name : {
-			type : DataTypes.TEXT,
-			unique : true
+			type : DataTypes.TEXT
 		},
 		imageUrl : DataTypes.TEXT,
 		description : DataTypes.TEXT,
