@@ -622,7 +622,7 @@ var editContentController = [ "$rootScope", "$scope", "$resource", "$location", 
 		});
 	} else {
 		$scope.editingContent = {}
-		$scope.editingContent.status = $rootScope.statuses[0]
+		$scope.editingContent.status = $scope.targetGroupId ? $rootScope.statuses[3] : $rootScope.statuses[0]
 		$scope.editingContent.tags = []
 		$scope.contentGroup = {
 			id : 0,
