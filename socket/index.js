@@ -96,7 +96,7 @@ var socket = function(io) {
 			loadAccessibleChannel(channelAccessKey).then(function(channel) {
 				var criteria = {
 					where : {
-						ChannelId : channel.id
+						channelId : channel.id
 					},
 					include : [ {
 						model : Account,
