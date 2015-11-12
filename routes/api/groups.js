@@ -633,7 +633,7 @@ router.post('/:accessKey/invitaionRequest', function(req, res) {
 					name : serverConfig.app.name
 				},
 				group : {
-					name : loadedGroup,
+					name : loadedGroup.name,
 					url : serverConfig.hostURL + "/group/" + loadedGroup.accessKey
 				}
 			}
