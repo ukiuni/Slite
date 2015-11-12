@@ -283,6 +283,8 @@ router.post('/', function(req, res) {
 	})["catch"](function(error) {
 		if (ERROR_NOTACCESSIBLE == error) {
 			res.status(403).end();
+		} else if (error.name && "SequelizeUniqueConstraintError" == error.name) {
+			res.status(409).end();
 		} else {
 			console.log(error.stack);
 			res.status(500).end();
@@ -338,6 +340,8 @@ router.put('/', function(req, res) {
 	})["catch"](function(error) {
 		if (ERROR_NOTACCESSIBLE == error) {
 			res.status(403).end();
+		} else if (error.name && "SequelizeUniqueConstraintError" == error.name) {
+			res.status(409).end();
 		} else {
 			console.log(error.stack);
 			res.status(500).end();

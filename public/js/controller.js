@@ -1232,7 +1232,13 @@ var editGroupController = [ "$rootScope", "$scope", "$resource", "$location", "$
 		}).success(function(group) {
 			$location.path("/group/" + group.accessKey);
 		}).error(function(error) {
-			$rootScope.showErrorWithStatus(error.status);
+			$rootScope.showErrorWithStatus(error.status, function(status) {
+				if (409 == status) {
+					$rootScope.showError($rootScope.messages.groups.error.aleadyThisName);
+					return true;
+				}
+				return false;
+			});
 		});
 	}
 } ];

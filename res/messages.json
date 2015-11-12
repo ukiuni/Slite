@@ -48,7 +48,8 @@
 			"request" : "Request",
 			"thisGroupIsNotOpen" : "This group is not open.\n Request invitements to Admin.",
 			"error" : {
-				"aleadyIn" : "Invited member is aleady in this group or inviting."
+				"aleadyIn" : "Invited member is aleady in this group or inviting.",
+				"aleadyThisName" : "Group name is aleady exist."
 			}
 		},
 		"channels" : {
@@ -138,7 +139,8 @@
 			"request" : "依頼",
 			"thisGroupIsNotOpen" : "このグループは公開されていません。\n参加するためには招待依頼を行ってください。",
 			"error" : {
-				"aleadyIn" : "すでにメンバーか招待中です。"
+				"aleadyIn" : "すでにメンバーか招待中です。",
+				"aleadyThisName" : "このグループ名はすでに他で使われています。"
 			}
 		},
 		"channels" : {
