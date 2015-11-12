@@ -65,7 +65,7 @@ router.get('/:id/contents', function(req, res) {
 		return tag.getContents({
 			include : [ {
 				model : ContentBody,
-				where : [ "\"currentVersion\" = \"version\"" ],
+				where : [ "\"currentVersion\" = \"version\" and \"status\" = " + ContentBody.STATUS_OPEN ],
 				attributes : [ "title", "article", "topImageUrl" ],
 				require : true
 			}, {
@@ -76,7 +76,8 @@ router.get('/:id/contents', function(req, res) {
 				require : true
 			} ],
 			offset : page * 24,
-			limit : 24
+			limit : 24,
+			order : "updatedAt DESC"
 		})
 	}).then(function(contents) {
 		loadedTag.dataValues.Contents = contents;
