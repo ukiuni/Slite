@@ -77,7 +77,7 @@ router.get('/:id/contents', function(req, res) {
 			} ],
 			offset : page * 24,
 			limit : 24,
-			order : "updatedAt DESC"
+			order : "\"updatedAt\" DESC"
 		})
 	}).then(function(contents) {
 		loadedTag.dataValues.Contents = contents;
