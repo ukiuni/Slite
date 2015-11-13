@@ -118,7 +118,7 @@ button {
 	padding: 20px;
 }
 
- #imagePaneImgBase{
+#imagePaneImgBase {
 	position: fixed;
 	top: 0;
 	left: 0;
@@ -132,6 +132,18 @@ button {
 #imagePaneImgBase img {
 	height: 100%;
 	opacity: 1.0;
+}
+/* Message */
+.messageAccountArea {
+	opacity: 0.5;
+}
+
+.messageAccountAreaNow {
+	opacity: 1.0;
+}
+
+.channelAccountName.ng-hide {
+	opacity: 0.5;
 }
 /* Tag input */
 .bootstrap .tags {

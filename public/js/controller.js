@@ -1250,32 +1250,41 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 	}, function(channel) {
 		$scope.channel = channel;
 		$scope.channel.Group.visibility = $rootScope.groupVisibilities[channel.Group.visibility - 1];
-		$scope.channel.Group.Accounts = $scope.channel.Group.Accounts.filter(function(account) {
-			return 2 == account.AccountInGroup.inviting;
-		});
 		$scope.channel.messages = [];
 		var jqScrollPane = $("#messageScrollPane");
 		var jqScrollInner = $("#messageScrollInner");
-		var listenComment = function(message) {
-			message = JSON.parse(message);
-			$scope["$apply"](function() {
-				$scope.channel.messages.push(message);
-				if (jqScrollPane.scrollTop() > jqScrollInner.height() - jqScrollPane.height() - 30) {
-					jqScrollPane.animate({
-						scrollTop : jqScrollInner.height()
-					}, 50);
-				}
-			});
-			if (!$rootScope.myAccount) {
-				return;
-			}
-			if (0 <= message.body.indexOf($rootScope.myAccount.name) && !document.hasFocus()) {
-				var n = new Notification($rootScope.messages.message, {
-					body : message.body
+		var listenComment = function(event) {
+			event = JSON.parse(event);
+			if ("message" == event.type || "historicalMessage" == event.type) {
+				var message = event.message;
+				$scope["$apply"](function() {
+					$scope.channel.messages.push(message);
+					if (jqScrollPane.scrollTop() > jqScrollInner.height() - jqScrollPane.height() - 30) {
+						jqScrollPane.animate({
+							scrollTop : jqScrollInner.height()
+						}, 50);
+					}
 				});
-				n.onclick = function() {
-					$("#messageInput").focus();
-				};
+				if (!$rootScope.myAccount) {
+					return;
+				}
+				if (0 <= message.body.indexOf($rootScope.myAccount.name) && !document.hasFocus()) {
+					var n = new Notification($rootScope.messages.message, {
+						body : message.body
+					});
+					n.onclick = function() {
+						$("#messageInput").focus();
+					};
+				}
+			} else if ("join" == event.type) {
+				var joinedAccount = event.account;
+				if (channel.Group.Accounts) {
+					channel.Group.Accounts.forEach(function(account) {
+						if (account.id == joinedAccount.id) {
+							account.now = true;
+						}
+					});
+				}
 			}
 		}
 		$rootScope.listenChannel($routeParams.channelAccessKey, listenComment);

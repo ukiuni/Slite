@@ -12,11 +12,15 @@
 				</div>
 				<div class="row">
 					<div class="col-sm-12 col-xs-1" ng-repeat="account in channel.Group.Accounts track by account.id">
-						<div class="row">
+						<div class="row messageAccountArea" ng-class="{'messageAccountAreaNow' : account.now}">
 							<div class="col-sm-3 col-xs-12">
-								<img class="accountIcon img-circle" style="height: 40px" ng-src="{{account.iconUrl}}" />
+								<img class="accountIcon img-circle" style="height: 20px" ng-src="{{account.iconUrl}}" />
 							</div>
-							<div class="accountName col-sm-9 hidden-xs" ng-bind="account.name"></div>
+							<div class="accountName col-sm-9 hidden-xs" style="display: table; height: 20px;">
+								<div style="vertical-align: middle; display: table-cell;">
+									<div ng-bind="account.name"></div>
+								</div>
+							</div>
 						</div>
 					</div>
 				</div>
