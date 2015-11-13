@@ -1296,7 +1296,14 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 			$rootScope.unListenChannel(channelAccessKey, listenComment);
 		});
 	}, function(error) {
-		$rootScope.showErrorWithStatus(error.status);
+		$rootScope.showErrorWithStatus(error.status, function(status) {
+			if (403 == status) {
+				$rootScope.showErrorWithStatus(error.status);
+				$location.path("/group/" + $routeParams.groupAccessKey);
+				return true;
+			}
+			return false;
+		});
 	});
 	var sendingMessage;
 	$scope.sendMessage = function() {

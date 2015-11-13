@@ -45,14 +45,28 @@ router.get('/self', function(req, res) {
 	});
 });
 router.get('/:groupAccessKey/:channelAccessKey', function(req, res) {
-	var sessionKey = req.query.sessionKey || req.query.access_token;
-	if (!sessionKey) {
-		res.status(400).end();
-		return;
-	}
 	var loadedAccount;
 	var loadedGroup;
-	AccessKey.findBySessionKey(sessionKey).then(function(accessKey) {
+	Group.find({
+		where : {
+			accessKey : req.params.groupAccessKey
+		},
+		include : [ {
+			model : Account,
+			attributes : [ "id", "name", "iconUrl" ],
+			where : global.db.sequelize.where(global.db.sequelize.col("Accounts.AccountInGroup.inviting"), Group.INVITING_DONE)
+		} ]
+	}).then(function(group) {
+		if (!group) {
+			throw ERROR_NOTFOUND;
+		}
+		loadedGroup = group;
+		var sessionKey = req.query.sessionKey || req.query.access_token;
+		if (!sessionKey) {
+			throw ERROR_NOTACCESSIBLE;
+		}
+		return AccessKey.findBySessionKey(sessionKey)
+	}).then(function(accessKey) {
 		if (!accessKey) {
 			throw ERROR_NOTACCESSIBLE;
 		}
@@ -62,21 +76,6 @@ router.get('/:groupAccessKey/:channelAccessKey', function(req, res) {
 			throw ERROR_NOTACCESSIBLE;
 		}
 		loadedAccount = account;
-		return Group.find({
-			where : {
-				accessKey : req.params.groupAccessKey
-			},
-			include : [ {
-				model : Account,
-				attributes : [ "id", "name", "iconUrl" ],
-				where : global.db.sequelize.where(global.db.sequelize.col("Accounts.AccountInGroup.inviting"), Group.INVITING_DONE)
-			} ]
-		});
-	}).then(function(group) {
-		if (!group) {
-			throw ERROR_NOTACCESSIBLE;
-		}
-		loadedGroup = group;
 		return AccountInGroup.find({
 			where : {
 				AccountId : loadedAccount.id,
@@ -100,7 +99,7 @@ router.get('/:groupAccessKey/:channelAccessKey', function(req, res) {
 		});
 	}).then(function(channels) {
 		if (!channels || !channels[0]) {
-			throw ERROR_NOTFOUND
+			throw ERROR_NOTFOUND;
 		}
 		var channel = channels[0];
 		channel.dataValues.Group = loadedGroup;
