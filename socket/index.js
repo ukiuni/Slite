@@ -81,11 +81,13 @@ var socket = function(io) {
 			loadAccessibleChannel(channelAccessKey).then(function(channel) {
 				if (channel) {
 					socket.join(channelAccessKey);
+					self.sendJoinToChannelEvent(channelAccessKey, socket.client.account);
 				} else {
 					throw ERROR_NOTACCESSIBLE;
 				}
 			})["catch"](function(e) {
 				// TODO send error
+				console.log(e);
 			});
 		});
 		socket.on('requestMessage', function(requestParam) {
@@ -114,7 +116,10 @@ var socket = function(io) {
 				return Message.findAll(criteria);
 			}).then(function(messages) {
 				messages.reverse().forEach(function(message) {
-					socket.emit(channelAccessKey, JSON.stringify(message));
+					socket.emit(channelAccessKey, JSON.stringify({
+						type : "historicalMessage",
+						message : message
+					}));
 				});
 			})["catch"](function(e) {
 				console.log(e.stack);
@@ -127,17 +132,49 @@ var socket = function(io) {
 		socket.on('authorize', function(accessKey) {
 			AccessKey.findBySessionKey(accessKey).then(function(accessKey) {
 				if (!accessKey) {
-					return;
+					throw ERROR_NOTACCESSIBLE;
 				}
-				socket.client.accountId = accessKey.AccountId;
-			})
+				return Account.findById(accessKey.AccountId);
+			}).then(function(account) {
+				if (!account) {
+					throw ERROR_NOTACCESSIBLE;
+				}
+				socket.client.accountId = account.id;
+				socket.client.account = account;
+			})["catch"](function(e) {
+				if (e.stack) {
+					console.log(e.stack);
+				} else {
+					console.log(e);
+				}
+				// TODO send error
+			});
 		});
 	});
 	self.sendToContent = function(contentKey, comment) {
 		io.to(contentKey).emit(contentKey, JSON.stringify(comment));
 	}
 	self.sendToChannel = function(channelAccessKey, message) {
-		io.to(channelAccessKey).emit(channelAccessKey, JSON.stringify(message));
+		io.to(channelAccessKey).emit(channelAccessKey, JSON.stringify({
+			type : "message",
+			message : message
+		}));
+	}
+	self.sendJoinToChannelEvent = function(channelAccessKey, account) {
+		io.to(channelAccessKey).emit(channelAccessKey, JSON.stringify({
+			type : "join",
+			account : {
+				id : account.id,
+				name : account.name,
+				iconUrl : account.iconUrl
+			}
+		}));
+	}
+	self.sendReaveFromChannelEvent = function(channelAccessKey, account) {
+		io.to(channelAccessKey).emit(channelAccessKey, JSON.stringify({
+			type : "reave",
+			account : account
+		}));
 	}
 	return self;
 }

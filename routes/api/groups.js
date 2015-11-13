@@ -67,7 +67,9 @@ router.get('/:groupAccessKey/:channelAccessKey', function(req, res) {
 				accessKey : req.params.groupAccessKey
 			},
 			include : [ {
-				model : Account
+				model : Account,
+				attributes : [ "id", "name", "iconUrl" ],
+				where : global.db.sequelize.where(global.db.sequelize.col("Accounts.AccountInGroup.inviting"), Group.INVITING_DONE)
 			} ]
 		});
 	}).then(function(group) {
@@ -92,7 +94,8 @@ router.get('/:groupAccessKey/:channelAccessKey', function(req, res) {
 			},
 			include : [ {
 				model : Account,
-				as : "owner"
+				as : "owner",
+				attributes : [ "id", "name", "iconUrl" ]
 			} ]
 		});
 	}).then(function(channels) {
@@ -101,7 +104,6 @@ router.get('/:groupAccessKey/:channelAccessKey', function(req, res) {
 		}
 		var channel = channels[0];
 		channel.dataValues.Group = loadedGroup;
-		channel.Group = loadedGroup;
 		res.status(200).json(channel);
 	})["catch"](function(error) {
 		if (ERROR_NOTACCESSIBLE == error) {
