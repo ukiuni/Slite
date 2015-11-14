@@ -261,6 +261,12 @@ myapp.run([ "$rootScope", "$location", "$resource", "$cookies", function($rootSc
 		}
 		$rootScope.socket.emit('requestMessage', JSON.stringify(params));
 	};
+	$rootScope.sendHello = function(params) {
+		if (!channelSocketListeners.has(params.channelAccessKey)) {
+			return;
+		}
+		$rootScope.socket.emit('hello', JSON.stringify(params));
+	};
 	$rootScope.unListenChannel = function(accessKey, callback) {
 		$rootScope.socket.emit('unListenChannel', accessKey);
 		$rootScope.socket.removeListener(accessKey, callback);
@@ -1276,12 +1282,31 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 						$("#messageInput").focus();
 					};
 				}
-			} else if ("join" == event.type) {
+			} else if ("join" == event.type || "hello" == event.type) {
 				var joinedAccount = event.account;
 				if (channel.Group.Accounts) {
 					channel.Group.Accounts.forEach(function(account) {
 						if (account.id == joinedAccount.id) {
-							account.now = true;
+							$scope["$apply"](function() {
+								account.now = true;
+							});
+						}
+					});
+				}
+				if ("join" == event.type) {
+					$rootScope.sendHello({
+						channelAccessKey : $routeParams.channelAccessKey
+					})
+				}
+			} else if ("reave" == event.type) {
+				console.log("reave " + JSON.stringify(event));
+				var reaveAccount = event.account;
+				if (channel.Group.Accounts) {
+					channel.Group.Accounts.forEach(function(account) {
+						if (account.id == reaveAccount.id) {
+							$scope["$apply"](function() {
+								account.now = false;
+							});
 						}
 					});
 				}

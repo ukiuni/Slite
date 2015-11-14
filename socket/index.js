@@ -77,10 +77,12 @@ var socket = function(io) {
 				});
 			});
 		}
+		var listenChannels = [];
 		socket.on('listenChannel', function(channelAccessKey) {
 			loadAccessibleChannel(channelAccessKey).then(function(channel) {
 				if (channel) {
 					socket.join(channelAccessKey);
+					listenChannels[channelAccessKey] = channelAccessKey;
 					self.sendJoinToChannelEvent(channelAccessKey, socket.client.account);
 				} else {
 					throw ERROR_NOTACCESSIBLE;
@@ -126,8 +128,15 @@ var socket = function(io) {
 				// TODO send error
 			});
 		});
-		socket.on('unListenChannel', function(groupAccessKey) {
-			socket.leave(groupAccessKey);
+		socket.on('hello', function(requestParam) {
+			requestParam = JSON.parse(requestParam);
+			var channelAccessKey = requestParam.channelAccessKey;
+			self.sendHello(channelAccessKey, socket.client.account);
+		});
+		socket.on('unListenChannel', function(channelAccessKey) {
+			socket.leave(channelAccessKey);
+			self.sendReaveFromChannelEvent(channelAccessKey, socket.client.account);
+			delete listenChannels[channelAccessKey];
 		});
 		socket.on('authorize', function(accessKey) {
 			AccessKey.findBySessionKey(accessKey).then(function(accessKey) {
@@ -150,6 +159,11 @@ var socket = function(io) {
 				// TODO send error
 			});
 		});
+		socket.on("disconnect", function() {
+			for ( var i in listenChannels) {
+				self.sendReaveFromChannelEvent(i, socket.client.account);
+			}
+		});
 	});
 	self.sendToContent = function(contentKey, comment) {
 		io.to(contentKey).emit(contentKey, JSON.stringify(comment));
@@ -160,9 +174,9 @@ var socket = function(io) {
 			message : message
 		}));
 	}
-	self.sendJoinToChannelEvent = function(channelAccessKey, account) {
+	self.sendAccountEvent = function(channelAccessKey, account, type) {
 		io.to(channelAccessKey).emit(channelAccessKey, JSON.stringify({
-			type : "join",
+			type : type,
 			account : {
 				id : account.id,
 				name : account.name,
@@ -170,11 +184,14 @@ var socket = function(io) {
 			}
 		}));
 	}
+	self.sendJoinToChannelEvent = function(channelAccessKey, account) {
+		self.sendAccountEvent(channelAccessKey, account, "join");
+	}
+	self.sendHello = function(channelAccessKey, account) {
+		self.sendAccountEvent(channelAccessKey, account, "hello");
+	}
 	self.sendReaveFromChannelEvent = function(channelAccessKey, account) {
-		io.to(channelAccessKey).emit(channelAccessKey, JSON.stringify({
-			type : "reave",
-			account : account
-		}));
+		self.sendAccountEvent(channelAccessKey, account, "reave");
 	}
 	return self;
 }
