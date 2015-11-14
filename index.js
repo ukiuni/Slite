@@ -40,15 +40,18 @@ db.sequelize.sync().done(function(param) {
 			res.writeHead(200, {
 				'Content-Type' : 'text/plain'
 			});
+			console.log("====shutdown called...====");
 			res.write('shutdowning.');
 			server.close(function() {
+				console.log("====server closed...====");
 				res.write('.');
-				setTimeout(function() {
-					res.write('.');
-					res.end('complete\n');
-					process.exit();
-				}, 3000);
 			});
+			setTimeout(function() {
+				res.write('.');
+				res.end('complete\n');
+				console.log("====shutdown====");
+				process.exit();
+			}, 10000);
 		}).listen(parseInt(app.get('port')) + 10000, '127.0.0.1', function() {
 			console.log('Slite server listening on port ' + app.get('port') + " and manage port " + (parseInt(app.get('port')) + 10000))
 		});
