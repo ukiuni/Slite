@@ -638,7 +638,15 @@ var editContentController = [ "$rootScope", "$scope", "$resource", "$location", 
 			name : ""
 		}
 		$scope.editingContent.article = "";
-		initGroupSelect();
+		$scope.save(post, function(content) {
+			$scope.editingContent = parseContentToEdit(content);
+			if (content.Group) {
+				$scope.targetGroupId = content.Group.id;
+			}
+			initGroupSelect();
+		}, function(error) {
+			$rootScope.showError($rootScope.messages.error.withServer);
+		})
 	}
 	var upload = function(data, name, success, fail) {
 		$uploader.upload({
@@ -903,6 +911,9 @@ var contentController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 	$scope.$on('$destroy', function() {
 		$rootScope.unListenComment(contentKey, listenComment);
 	});
+	$scope.clearImagePaneSrc = function() {
+		$scope.imagePaneSrc = null;
+	}
 } ];
 var tagsController = [ "$rootScope", "$scope", "$resource", "$location", "$http", function($rootScope, $scope, $resource, $location, $http) {
 	$resource('/api/tags/listAll').query({}, function(tags) {
