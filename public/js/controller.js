@@ -189,10 +189,13 @@ myapp.run([ "$rootScope", "$location", "$resource", "$cookies", function($rootSc
 	$rootScope.setSessionKey = function(sessionKey, expires) {
 		if (expires) {
 			$cookies.putObject(SESSION_KEY, sessionKey, {
-				expires : expires
+				expires : expires,
+				secure : "https" == $location.protocol()
 			})
 		} else {
-			$cookies.putObject(SESSION_KEY, sessionKey);
+			$cookies.putObject(SESSION_KEY, sessionKey, {
+				secure : "https" == $location.protocol()
+			});
 		}
 	}
 	$rootScope.removeSessionKey = function() {

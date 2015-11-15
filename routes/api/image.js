@@ -47,7 +47,7 @@ function getImage(req, res, name) {
 				success()
 			});
 		} else {
-			var accessKey = req.query.sessionKey || req.query.access_token;
+			var accessKey = req.query.sessionKey || req.query.access_token || req.cookies["session_key"];
 			if (!accessKey) {
 				throw ERROR_NOTACCESSIBLE;
 			}
