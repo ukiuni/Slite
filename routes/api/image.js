@@ -51,7 +51,11 @@ function getImage(req, res, name) {
 			if (!accessKey) {
 				throw ERROR_NOTACCESSIBLE;
 			}
+			accessKey = accessKey.replace("\"", "").replace("\"", "");// for cookie;
 			return AccessKey.findBySessionKey(accessKey).then(function(accessKey) {
+				if (!accessKey) {
+					throw ERROR_NOTACCESSIBLE;
+				}
 				if (accessKey.AccountId == loadedContent.ownerId) {
 					return new Promise(function(success) {
 						success("authorized")
