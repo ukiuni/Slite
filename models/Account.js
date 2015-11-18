@@ -6,7 +6,10 @@ module.exports = function(sequelize, DataTypes) {
 			type : DataTypes.TEXT,
 			unique : true
 		},
-		name : DataTypes.TEXT,
+		name : {
+			type : DataTypes.TEXT,
+			unique : true
+		},
 		information : DataTypes.TEXT,
 		iconUrl : DataTypes.TEXT,
 		language : DataTypes.TEXT,

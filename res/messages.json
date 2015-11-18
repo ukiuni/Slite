@@ -18,7 +18,8 @@
 		"accounts" : {
 			"mail" : "mail",
 			"error" : {
-				"aleadyHaveAccount" : "You aleady have a account"
+				"aleadyHaveAccount" : "You aleady have a account",
+				"duplicatedName" : "The name is duplicated"
 			},
 			"authorization" : {
 				"viewer" : "viewer",
@@ -28,7 +29,8 @@
 			"signup0rSignin" : "Sign up or Sign in",
 			"signup" : "Sign up",
 			"signin" : "Sign in",
-			"yourMailAddress" : "Your Mail Address"
+			"yourMailAddress" : "Your Mail Address",
+			"nameIsAlphanumericOver5" : "Name must be alphanumeric and length over 4."
 		},
 		"group" : "Group",
 		"groups" : {
@@ -108,7 +110,8 @@
 		"accounts" : {
 			"mail" : "mail",
 			"error" : {
-				"aleadyHaveAccount" : "すでにアカウントをお持ちです。"
+				"aleadyHaveAccount" : "すでにアカウントをお持ちです。",
+				"duplicatedName" : "アカウント名が重複しています。"
 			},
 			"authorization" : {
 				"viewer" : "閲覧者",
@@ -118,7 +121,8 @@
 			"signup0rSignin" : "アカウント登録もしくはサインイン",
 			"signup" : "アカウント登録",
 			"signin" : "サインイン",
-			"yourMailAddress" : "あなたのメールアドレス"
+			"yourMailAddress" : "あなたのメールアドレス",
+			"nameIsAlphanumericOver5" : "名前は4文字以上の英数字で入力してください。"
 		},
 		"group" : "グループ",
 		"groups" : {

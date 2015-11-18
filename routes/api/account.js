@@ -20,20 +20,29 @@ var ERROR_NOTACCESSIBLE = "ERROR_NOTACCESSIBLE";
 var ERROR_NOTFOUND = "ERROR_NOTFOUND";
 var ERROR_DUPLICATE = "ERROR_DUPLICATE";
 router.post('/', function(req, res) {
-	if (null == req.body.name || "" == req.body.name || null == req.body.mail || "" == req.body.mail || null == req.body.password || "" == req.body.password) {
+	if (null == req.body.name || req.body.name.length < 4 || null == req.body.mail || "" == req.body.mail || null == req.body.password || "" == req.body.password || !/^[a-zA-Z0-9]*$/.test(req.body.name)) {
 		res.status(400).end();
 		return;
 	}
 	var createdAccount;
 	var savedActivationKey;
 	var activationUrl;
+	var ERROR_DUPLICATE_MAIL = "ERROR_DUPLICATE_MAIL";
+	var ERROR_DUPLICATE_NAME = "ERROR_DUPLICATE_NAME";
 	Account.find({
-		where : {
-			mail : req.body.mail
-		}
+		where : global.db.sequelize.where(global.db.sequelize.fn('lower', global.db.sequelize.col('name')), req.body.name.toLowerCase())
 	}).then(function(account) {
 		if (account && Account.STATUS_INVITING != account.status) {
-			throw ERROR_DUPLICATE;
+			throw ERROR_DUPLICATE_NAME;
+		}
+		return Account.find({
+			where : {
+				mail : req.body.mail
+			}
+		});
+	}).then(function(account) {
+		if (account && Account.STATUS_INVITING != account.status) {
+			throw ERROR_DUPLICATE_MAIL;
 		}
 		var iconUrl = serverConfig.hostURL + "/images/icons." + (Date.now() % 3 + 1) + ".png"
 		if (account) {
@@ -126,8 +135,14 @@ router.post('/', function(req, res) {
 			res.status(403).end();
 		} else if (ERROR_NOTFOUND == error) {
 			res.status(404).end();
-		} else if (ERROR_DUPLICATE == error) {
-			res.status(409).end();
+		} else if (ERROR_DUPLICATE_MAIL == error) {
+			res.status(409).json({
+				error : "mail"
+			});
+		} else if (ERROR_DUPLICATE_NAME == error) {
+			res.status(409).json({
+				error : "name"
+			});
 		} else {
 			console.log(error.stack);
 			res.status(500).end();
@@ -142,6 +157,22 @@ var hash = function(src) {
 	hashCommand.update(src)
 	return hashCommand.digest('base64');
 }
+router.get('/nameNotDuplicate', function(req, res) {
+	if (!req.query.name || "" == req.query.name) {
+		res.status(400).end();
+		return;
+	}
+	Account.find({
+		attributes : [ "id" ],
+		where : global.db.sequelize.where(global.db.sequelize.fn('lower', global.db.sequelize.col('name')), req.query.name.toLowerCase())
+	}).then(function(account) {
+		if (account) {
+			res.status(409).end();
+		} else {
+			res.status(200).end();
+		}
+	});
+});
 router.get('/activation', function(req, res) {
 	if (!req.query.key) {
 		res.status(404).end();
