@@ -1,6 +1,6 @@
 module.exports = function(sequelize, DataTypes) {
 	var ContentBody = sequelize.define("ContentBody", {
-		version : DataTypes.INTEGER,
+		version : DataTypes.BIGINT,
 		status : DataTypes.INTEGER,
 		title : DataTypes.TEXT,
 		article : DataTypes.TEXT,
