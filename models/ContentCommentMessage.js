@@ -1,6 +1,6 @@
 module.exports = function(sequelize, DataTypes) {
 	var ContentCommentMessage = sequelize.define("ContentCommentMessage", {
-		version : DataTypes.INTEGER,
+		version : DataTypes.BIGINT,
 		message : DataTypes.TEXT
 	}, {
 		paranoid : true,
