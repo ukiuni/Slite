@@ -335,6 +335,18 @@ var indexController = [ "$rootScope", "$scope", "$modal", "$location", "$http", 
 			$dialogScope.name = "";
 			$dialogScope.mail = "";
 			$dialogScope.password = "";
+			$dialogScope.isNameDuplicateName = false;
+			$dialogScope.$watch("name", function() {
+				if ($dialogScope.name && $dialogScope.name.length >= 4) {
+					$resource("/api/account/nameNotDuplicate").get({
+						name : $dialogScope.name
+					}, function(contents) {
+						$dialogScope.isNameDuplicateName = false;
+					}, function(error) {
+						$dialogScope.isNameDuplicateName = true;
+					});
+				}
+			});
 		} ];
 		var modalInstance = $modal.open({
 			templateUrl : 'template/createAccountDialog.html',
@@ -355,7 +367,12 @@ var indexController = [ "$rootScope", "$scope", "$modal", "$location", "$http", 
 		})["catch"](function(response) {
 			$rootScope.showErrorWithStatus(response.status, function(status) {
 				if (409 == status) {
-					$rootScope.showError($rootScope.messages.accounts.error.aleadyHaveAccount);
+					var responseData = JSON.stringify(response.data);
+					if (responseData.error = "name") {
+						$rootScope.showError($rootScope.messages.accounts.error.duplicateName);
+					} else {
+						$rootScope.showError($rootScope.messages.accounts.error.aleadyHaveAccount);
+					}
 					return true;
 				}
 				return false;

@@ -132,8 +132,8 @@ var tests = {
 			client.waitForElementVisible('#memberArea', 1000);
 			client.waitForElementVisible("#memberArea > div > div:last-child > div > div > div:last-child > div > a", 10000);
 			client.click("#memberArea > div > div:last-child > div > div > div:last-child > div > a");
-			client.waitForElementVisible("#memberArea > div > div:last-child > div > div > div:last-child > div > ul > li:last-child", 10000);
-			client.click("#memberArea > div > div:last-child > div > div > div:last-child > div > ul > li:last-child");
+			client.waitForElementVisible("#memberArea > div > div:last-child > div > div > div:last-child > div > ul > li:last-child > a", 10000);
+			client.click("#memberArea > div > div:last-child > div > div > div:last-child > div > ul > li:last-child > a");
 			client.pause(1000);
 			Actions.signout(client);
 			Actions.createAccountAndSignin(client, account2);
@@ -183,9 +183,10 @@ var tests = {
 	'Invite Not Exists Account To Group and Signin' : function(client) {
 		Actions.createAccountAndSignin(client);
 		Actions.createGroupAndCheckExists(client);
+		var name = Date.now() + "inviteAccount"
 		var nameAndMail = Date.now() + "inviteAccount@example.com"
 		var newAccount = {
-			name : nameAndMail,
+			name : name,
 			mail : nameAndMail,
 			password : Date.now()
 		}
@@ -198,9 +199,10 @@ var tests = {
 	'Account not member is unvisible group' : function(client) {
 		Actions.createAccountAndSignin(client);
 		Actions.createGroupAndCheckExists(client, function(groupName, groupUrl) {
+			var name = Date.now() + "inviteAccount"
 			var nameAndMail = Date.now() + "inviteAccount@example.com"
 			var newAccount = {
-				name : nameAndMail,
+				name : name,
 				mail : nameAndMail,
 				password : Date.now()
 			}
