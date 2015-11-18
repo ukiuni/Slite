@@ -1330,7 +1330,6 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 					})
 				}
 			} else if ("reave" == event.type) {
-				console.log("reave " + JSON.stringify(event));
 				var reaveAccount = event.account;
 				if (channel.Group.Accounts) {
 					channel.Group.Accounts.forEach(function(account) {
@@ -1340,6 +1339,11 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 							});
 						}
 					});
+				}
+				if ($rootScope.myAccount.id == reaveAccount.id) {
+					$rootScope.sendHello({
+						channelAccessKey : $routeParams.channelAccessKey
+					})
 				}
 			}
 		}

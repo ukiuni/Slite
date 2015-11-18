@@ -34,7 +34,8 @@ com.ukiuni.ImageUtil = {
 		var ranHex = this.toHex(text, 0, 100);
 		context.fillStyle = "#" + ranHex + "88CC";
 		context.fillRect(0, 0, imageWidth, imageHeight)
-		context.fillStyle = "#99CC" + ranHex;
+		ranHex = this.toHex(text, 200, 255);
+		context.fillStyle = "#DDFF" + ranHex;
 		context.shadowBlur = 10;
 		context.shadowColor = "#FFFFFF";
 		context.font = textSize + "px sans-serif";
