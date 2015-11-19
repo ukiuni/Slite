@@ -38,7 +38,9 @@ module.exports = {
 				fs.writeFile(path.join(__dirname, STORAGE_CONTENTTYPE_PATH, key), JSON.stringify(paramData), {
 					encoding : "utf8"
 				}, function() {
-					onFulfilled(serverConfig.hostURL + "/api/image/" + key);
+					var url = serverConfig.hostURL + "/api/image/" + key;
+					url = name ? url + "/" + name : url;
+					onFulfilled(url);
 				});
 			});
 		});

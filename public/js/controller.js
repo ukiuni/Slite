@@ -1,3 +1,15 @@
+if (!String.prototype.endsWith) {
+	Object.defineProperty(String.prototype, 'endsWith', {
+		enumerable : false,
+		configurable : false,
+		writable : false,
+		value : function(searchString, position) {
+			position = position || this.length;
+			position = position - searchString.length;
+			return this.lastIndexOf(searchString) === position;
+		}
+	});
+}
 toastr.options = {
 	"positionClass" : "toast-top-center"
 }
@@ -330,7 +342,6 @@ var openWithBrowser = function(url, event) {
 	}
 	event.preventDefault();
 }
-
 var indexController = [ "$rootScope", "$scope", "$modal", "$location", "$http", "$window", "$resource", "$routeParams", function($rootScope, $scope, $modal, $location, $http, $window, $resource, $routeParams) {
 	$scope.openCreateAccountDialog = function() {
 		var dialogController = [ "$scope", "$modalInstance", function($dialogScope, $modalInstance) {
@@ -707,25 +718,10 @@ var editContentController = [ "$rootScope", "$scope", "$resource", "$location", 
 		if (!$scope.articleAppendsImage) {
 			return;
 		}
-		var image = new Image();
-		image.onload = function() {
-			var trimmedImage = com.ukiuni.ImageUtil.trim(image, 500, 500);
-			var updloadFileName = $scope.articleAppendsImage.name;
-			upload(trimmedImage, updloadFileName, function(response) {
-				var tumbnailImageUrl = response.url;
-				upload($scope.articleAppendsImage, updloadFileName, function(response) {
-					insertImageToTextarea(tumbnailImageUrl, response.url, $scope.articleAppendsImage.name, "targetOverray");
-				}, function(error) {
-					$rootScope.showError($rootScope.messages.error.withServer);
-				})
-			}, function(error) {
-				$rootScope.showError($rootScope.messages.error.withServer);
-			})
-		}
-		image.onerror = function(error) {
+		var uploadAsFile = function() {
 			var contentType = $scope.articleAppendsImage.type ? $scope.articleAppendsImage.type : "file/unknown";
 			var iconCanvas = com.ukiuni.ImageUtil.createIconImage(500, 500, contentType);
-			var iconData = com.ukiuni.ImageUtil.canvasToPingBlob(iconCanvas);
+			var iconData = com.ukiuni.ImageUtil.canvasToPngBlob(iconCanvas);
 			var updloadFileName = $scope.articleAppendsImage.name;
 			upload(iconData, updloadFileName, function(response) {
 				var tumbnailImageUrl = response.url;
@@ -738,10 +734,63 @@ var editContentController = [ "$rootScope", "$scope", "$resource", "$location", 
 				$rootScope.showError($rootScope.messages.error.withServer);
 			})
 		}
-		image.src = URL.createObjectURL($scope.articleAppendsImage);
+		if (0 == $scope.articleAppendsImage.type.lastIndexOf("video", 0)) {
+			var video = document.createElement("video");
+			video.addEventListener("loadeddata", function() {
+				var width = video.videoWidth;
+				var height = video.videoHeight;
+				var duration = video.duration;
+				var canvas = document.createElement("canvas");
+				canvas.width = width;
+				canvas.height = height;
+				var context = canvas.getContext("2d")
+				context.drawImage(video, 0, 0, width, height);
+				var tumbImage = new Image();
+				tumbImage.onload = function() {
+					var tumbnailImage = com.ukiuni.ImageUtil.trimAndAppendPlayIcon(tumbImage, 500, 500);
+					var updloadFileName = $scope.articleAppendsImage.name;
+					upload(tumbnailImage, updloadFileName, function(response) {
+						var tumbnailImageUrl = response.url;
+						upload($scope.articleAppendsImage, updloadFileName, function(response) {
+							insertImageToTextarea(tumbnailImageUrl, response.url, $scope.articleAppendsImage.name, "targetOverray");
+						}, function(error) {
+							$rootScope.showError($rootScope.messages.error.withServer);
+						})
+					}, function(error) {
+						$rootScope.showError($rootScope.messages.error.withServer);
+					});
+				};
+				tumbImage.src = canvas.toDataURL("image/png");
+			});
+			video.addEventListener("error", function(error) {
+				uploadAsFile();
+			});
+			video.setAttribute("src", URL.createObjectURL($scope.articleAppendsImage));
+			video.currentTime = 0;
+		} else if (0 == $scope.articleAppendsImage.type.lastIndexOf("image", 0)) {
+			var image = new Image();
+			image.onload = function() {
+				var trimmedImage = com.ukiuni.ImageUtil.trim(image, 500, 500);
+				var updloadFileName = $scope.articleAppendsImage.name;
+				upload(trimmedImage, updloadFileName, function(response) {
+					var tumbnailImageUrl = response.url;
+					upload($scope.articleAppendsImage, updloadFileName, function(response) {
+						insertImageToTextarea(tumbnailImageUrl, response.url, $scope.articleAppendsImage.name, "targetOverray");
+					}, function(error) {
+						$rootScope.showError($rootScope.messages.error.withServer);
+					})
+				}, function(error) {
+					$rootScope.showError($rootScope.messages.error.withServer);
+				})
+			}
+			image.src = URL.createObjectURL($scope.articleAppendsImage);
+		} else {
+			uploadAsFile();
+		}
 	});
 	$scope.clearImagePaneSrc = function() {
 		$scope.imagePaneSrc = null;
+		$scope.videoPaneSrc = null;
 	}
 	$scope.$watch('editingContent.article', function(value) {
 		if (value) {
@@ -749,9 +798,21 @@ var editContentController = [ "$rootScope", "$scope", "$resource", "$location", 
 				$("#articlePreview").find(".targetBlank").attr("target", "_blank");
 				$("#articlePreview").find(".targetOverray").click(function(event) {
 					var imageSource = $(this).attr('href');
-					$scope.$apply(function() {
-						$scope.imagePaneSrc = imageSource;
-					})
+					if (imageSource.endsWith(".mp4") || imageSource.endsWith(".mov") || imageSource.endsWith(".mpeg4") || imageSource.endsWith(".webm")) {
+						$scope.$apply(function() {
+							$scope.videoPaneSrc = imageSource;
+							var overlayVideo = document.getElementById("overlayVideo");
+							if (window.innerWidth > window.innerHeight) {
+								overlayVideo.style.height = "100%";
+							} else {
+								overlayVideo.style.width = "100%";
+							}
+						})
+					} else {
+						$scope.$apply(function() {
+							$scope.imagePaneSrc = imageSource;
+						})
+					}
 					return false;
 				});
 			});
@@ -903,9 +964,21 @@ var contentController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 				$("#article").find(".targetBlank").attr("target", "_blank");
 				$("#article").find(".targetOverray").click(function(event) {
 					var imageSource = $(this).attr('href');
-					$scope.$apply(function() {
-						$scope.imagePaneSrc = imageSource;
-					})
+					if (imageSource.endsWith(".mp4") || imageSource.endsWith(".mov") || imageSource.endsWith(".mpeg4") || imageSource.endsWith(".webm")) {
+						$scope.$apply(function() {
+							$scope.videoPaneSrc = imageSource;
+							var overlayVideo = document.getElementById("overlayVideo");
+							if (window.innerWidth > window.innerHeight) {
+								overlayVideo.style.height = "100%";
+							} else {
+								overlayVideo.style.width = "100%";
+							}
+						})
+					} else {
+						$scope.$apply(function() {
+							$scope.imagePaneSrc = imageSource;
+						})
+					}
 					return false;
 				});
 			});
@@ -939,6 +1012,7 @@ var contentController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 	});
 	$scope.clearImagePaneSrc = function() {
 		$scope.imagePaneSrc = null;
+		$scope.videoPaneSrc = null;
 	}
 } ];
 var tagsController = [ "$rootScope", "$scope", "$resource", "$location", "$http", function($rootScope, $scope, $resource, $location, $http) {

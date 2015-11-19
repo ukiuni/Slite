@@ -77,8 +77,10 @@
 		</div>
 	</div>
 </div>
-<div id="imagePane" ng-show="imagePaneSrc" align="center">
-</div>
+<div id="imagePane" ng-show="imagePaneSrc || videoPaneSrc" align="center"></div>
 <div id="imagePaneImgBase" ng-show="imagePaneSrc" align="center" ng-click="clearImagePaneSrc()">
 	<img ng-src="{{imagePaneSrc}}">
+</div>
+<div id="imagePaneImgBase" ng-show="videoPaneSrc" align="center" ng-click="clearImagePaneSrc()">
+	<video id="overlayVideo" ng-src="{{videoPaneSrc}}" onclick="return false;" controls autoplay loop></video>
 </div>

@@ -97,15 +97,38 @@ com.ukiuni.ImageUtil = {
 		image.src = imageSrc;
 	},
 	trim : function(image, destWidth, destHeight) {
+		return this.canvasToPngBlob(this.justTrim(image, destWidth, destHeight));
+	},
+	justTrim : function(image, destWidth, destHeight) {
 		var scale = destWidth / image.width > destHeight / image.height ? destWidth / image.width : destHeight / image.height;
 		var trimCanvas = document.createElement('canvas');
 		trimCanvas.width = destWidth;
 		trimCanvas.height = destHeight;
 		var trimCanvasContext = trimCanvas.getContext('2d');
 		trimCanvasContext.drawImage(image, 0, 0, image.width, image.height, (destWidth - image.width * scale) / 2, (destHeight - image.height * scale) / 2, image.width * scale, image.height * scale);
-		return this.canvasToPingBlob(trimCanvas);
+		return trimCanvas;
 	},
-	canvasToPingBlob : function(canvas) {
+	trimAndAppendPlayIcon : function(image, destWidth, destHeight) {
+		var trimCanvas = this.justTrim(image, destWidth, destHeight);
+		var context = trimCanvas.getContext('2d');
+		context.fillStyle = 'rgba(255, 255, 255, 0.7)';
+		var circleWidth = destWidth / 10;
+		var circleHeight = destHeight / 10;
+		var ciecleX = destWidth / 10 * 9;
+		var ciecleY = destHeight / 10 * 9;
+		context.arc(ciecleX, ciecleY, circleWidth, 0, Math.PI * 2, false);
+		context.fill();
+		context.fillStyle = 'rgba(0, 0, 0, 0.5)';
+		context.beginPath();
+		var triangleSize = destWidth / 15;
+		context.moveTo(ciecleX - triangleSize, ciecleY - triangleSize);
+		context.lineTo(ciecleX - triangleSize, ciecleY + triangleSize);
+		context.lineTo(ciecleX + triangleSize, ciecleY);
+		context.closePath();
+		context.fill();
+		return this.canvasToPngBlob(trimCanvas);
+	},
+	canvasToPngBlob : function(canvas) {
 		var base64Data = canvas.toDataURL('image/png').split(',')[1];
 		var data = atob(base64Data);
 		var buff = new ArrayBuffer(data.length)
