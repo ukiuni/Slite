@@ -322,6 +322,15 @@ myapp.run([ "$rootScope", "$location", "$resource", "$cookies", function($rootSc
 		return canvas.toDataURL('image/png');
 	}
 } ]);
+var openWithBrowser = function(url, event) {
+	if (isElectron) {
+		require('shell').openExternal(url);
+	} else {
+		window.open(url);
+	}
+	event.preventDefault();
+}
+
 var indexController = [ "$rootScope", "$scope", "$modal", "$location", "$http", "$window", "$resource", "$routeParams", function($rootScope, $scope, $modal, $location, $http, $window, $resource, $routeParams) {
 	$scope.openCreateAccountDialog = function() {
 		var dialogController = [ "$scope", "$modalInstance", function($dialogScope, $modalInstance) {
