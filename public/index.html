@@ -1,6 +1,15 @@
 <html ng-app="app">
 <head>
 <base href="/">
+<script type="text/javascript">
+	try {
+		var nodeModule = module;
+		delete module;
+		var isElectron = true;
+	} catch (e) {
+		var isElectron = false;
+	}
+</script>
 <link rel="icon" type="image/png" href="{{messages.app.imageUrl}}">
 <meta name=viewport content="width=device-width, initial-scale=1">
 <script src="assets/jquery/jquery-1.11.2.min.js"></script>
@@ -30,7 +39,19 @@
 <link href="css/bootstrap_theme.css" rel="stylesheet" />
 <script src="js/util.js"></script>
 <script src="js/controller.js"></script>
+<script type="text/javascript">
+	try {
+		if (nodeModule) {
+			var module = nodeModule;
 
+			document.addEventListener('new-window', function(e){
+			    console.log('Guest window is openning new window: ' + e.url);
+			    require('shell').openExternal(e.url);
+			});
+		}
+	} catch (ignore) {
+	}
+</script>
 <title ng-bind="title ? title : messages.app.title"></title>
 
 </head>

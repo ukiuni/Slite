@@ -900,12 +900,19 @@ Renderer.prototype.link = function(href, title, text, classes) {
       return '';
     }
   }
-  var out = '<a href="' + href + '"';
+  if(isElectron){
+    var out = '<a href';
+  }else{
+	var out = '<a href="' + href + '"';
+  }
   if (title) {
     out += ' title="' + title + '"';
   }
   if(classes){
 	out += ' class="' + classes.join(" ") + '"';  
+  }
+  if (isElectron) {
+    out += ' onclick="openWithBrowser(\'' + href + '\', event)"';
   }
   out += '>' + text + '</a>';
   return out;
