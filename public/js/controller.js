@@ -10,6 +10,15 @@ if (!String.prototype.endsWith) {
 		}
 	});
 }
+function bounce() {
+	try {
+		if (isElectron) {
+			var app = require('remote').require("app");
+			app.dock.bounce("critical");
+		}
+	} catch (ignored) {
+	}
+}
 toastr.options = {
 	"positionClass" : "toast-top-center"
 }
@@ -1395,6 +1404,7 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 					n.onclick = function() {
 						$("#messageInput").focus();
 					};
+					bounce();
 				}
 			} else if ("join" == event.type || "hello" == event.type) {
 				var joinedAccount = event.account;
