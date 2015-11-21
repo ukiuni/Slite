@@ -441,20 +441,14 @@ router.put('/', function(req, res) {
 			}
 			account.save().then(function() {
 				res.status(200).send(account);
-			})["catch"](function() {
-				res.status(500).end();
 			});
 		}
 		if (req.files.imageFile && req.files.imageFile[0] && req.files.imageFile[0].buffer) {
-			ImageTrimmer.trim(req.files.imageFile[0].buffer, 100, 100).then(function() {
-				return Random.createRandomBase62();
-			}).then(function(imageFileKey) {
-				return Storage.store(imageFileKey, req.files.imageFile[0].mimetype, "dummy.img", req.files.imageFile[0]).then(function(url) {
-					saveAccount(url);
-				})
-			})["catch"](function(error) {
-				res.status(500).end();
-			})
+			return Random.createRandomBase62().then(function(imageFileKey) {
+				return Storage.store(imageFileKey, req.files.imageFile[0].mimetype, null, req.files.imageFile[0]);
+			}).then(function(url) {
+				saveAccount(url);
+			});
 		} else {
 			saveAccount();
 		}
@@ -462,7 +456,7 @@ router.put('/', function(req, res) {
 		if (error === ERROR_NOTACCESSIBLE) {
 			res.status(400).end();
 		} else {
-			console.trace(error);
+			console.log(error.stack);
 			res.status(500).end();
 			throw error;
 		}
