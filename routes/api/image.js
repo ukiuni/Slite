@@ -13,9 +13,13 @@ router.get('/:imageKey', function(req, res) {
 		res.status(404).send();
 		return;
 	}
-	Storage.load(req.params.imageKey).then(function(data) {
-		res.set('Content-Type', data.contentType);
-		res.status(200).send(data.buffer);
+	Storage.load(req.params.imageKey).then(function(file) {
+		if (file.redirectUrl) {
+			res.redirect(301, file.redirectUrl);
+		} else {
+			res.set('Content-Type', data.contentType);
+			res.status(200).send(file.buffer);
+		}
 	})["catch"](function(error) {
 		res.status(404).send();
 	});
@@ -51,7 +55,8 @@ function getImage(req, res, name) {
 			if (!accessKey) {
 				throw ERROR_NOTACCESSIBLE;
 			}
-			accessKey = accessKey.replace("\"", "").replace("\"", "");// for cookie;
+			accessKey = accessKey.replace("\"", "").replace("\"", "");// for
+			// cookie;
 			return AccessKey.findBySessionKey(accessKey).then(function(accessKey) {
 				if (!accessKey) {
 					throw ERROR_NOTACCESSIBLE;
@@ -77,14 +82,22 @@ function getImage(req, res, name) {
 			});
 		}
 	}).then(function() {
-		return Storage.load(req.params.contentKey + "/" + req.params.imageKey).then(function(data) {
-			if (name && data.name == name) {
-				res.set('Content-Type', "application/octet-stream");
-				res.set('Content-Disposition', 'attachment; filename="' + name + '"');
-				res.status(200).send(data.buffer);
+		Storage.load(req.params.contentKey + "/" + req.params.imageKey, name).then(function(file) {
+			if (name && file.name == name) {
+				if (file.redirectUrl) {
+					res.redirect(301, file.redirectUrl);
+				} else {
+					res.set('Content-Type', "application/octet-stream");
+					res.set('Content-Disposition', 'attachment; filename="' + name + '"');
+					res.status(200).send(file.buffer);
+				}
 			} else if (!name) {
-				res.set('Content-Type', data.contentType);
-				res.status(200).send(data.buffer);
+				if (file.redirectUrl) {
+					res.redirect(301, file.redirectUrl);
+				} else {
+					res.set('Content-Type', file.contentType);
+					res.status(200).send(file.buffer);
+				}
 			} else {
 				res.status(404).end();
 			}
@@ -123,14 +136,22 @@ router.post('/:contentKey', function(req, res) {
 		return Random.createRandomBase62();
 	}).then(function(random) {
 		imageFileKey = random;
-		return Storage.store(req.params.contentKey + "/" + imageFileKey, req.files.imageFile[0].mimetype, req.body.name, req.files.imageFile[0].buffer);
+		return Storage.store(req.params.contentKey + "/" + imageFileKey, req.files.imageFile[0].mimetype, req.body.name, req.files.imageFile[0]);
 	}).then(function(savedImageUrl) {
 		res.status(200).send({
 			url : savedImageUrl
 		});
 	})["catch"](function(error) {
-		console.trace(error);
-		res.status(500).send();
+		if (ERROR_NOTACCESSIBLE == error) {
+			res.status(403).send();
+		} else {
+			if (error.stack) {
+				console.log(error.stack);
+			} else {
+				console.log(error);
+			}
+			res.status(500).send();
+		}
 	});
 });
 module.exports = router;
