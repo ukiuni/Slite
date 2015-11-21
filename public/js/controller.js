@@ -1397,6 +1397,9 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 				if (!$rootScope.myAccount) {
 					return;
 				}
+				setTimeout(function(){
+					$('.messageBody').highlight($rootScope.myAccount.name);
+				},0)
 				if (0 <= message.body.indexOf($rootScope.myAccount.name) && !document.hasFocus()) {
 					var n = new Notification($rootScope.messages.message, {
 						body : message.body
