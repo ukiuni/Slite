@@ -11,14 +11,14 @@
 	"test":{
 		"hostURL":"http://192.168.11.11:3030",
 		"app":{
-		"name":"Slite"
+			"name":"Slite"
 		},
 		"admin":{
 			"mail":"no_replay@ukiuni.com"
 		},
 		"smtp":{
 			"transport" : "nodemailer-smtp-transport",
-			"host" : "192.168.11.13",
+			"host" : "localhost",
 			"port" : 25,
 			"auth" : {
 				"user" : "no_replay",
@@ -32,14 +32,14 @@
 	"production": {
 		"hostURL":"https://slite.ukiuni.com",
 		"app":{
-		"name":"Slite"
+			"name":"Slite"
 		},
 		"admin":{
 			"mail":"no_replay@ukiuni.com"
 		},
 		"smtp":{
 			"transport" : "nodemailer-smtp-transport",
-			"host" : "192.168.11.13",
+			"host" : "localhost",
 			"port" : 25,
 			"auth" : {
 				"user" : "no_replay",
@@ -48,6 +48,10 @@
     		"tls":{
         		"rejectUnauthorized": false
     		}
+		},
+		"s3":{
+			"bucket":"slite",
+			"region":"ap-northeast-1"
 		}
 	}
 }
