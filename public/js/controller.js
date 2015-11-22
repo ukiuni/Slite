@@ -724,18 +724,18 @@ var editContentController = [ "$rootScope", "$scope", "$resource", "$location", 
 		}
 	}
 	$scope.$watch('articleAppendsImage', function() {
-		if (!$scope.articleAppendsImage) {
+		if (!$scope.articleAppendsImage || !$scope.articleAppendsImage.length) {
 			return;
 		}
-		var uploadAsFile = function() {
-			var contentType = $scope.articleAppendsImage.type ? $scope.articleAppendsImage.type : "file/unknown";
+		var uploadAsFile = function(file) {
+			var contentType = file.type ? file.type : "file/unknown";
 			var iconCanvas = com.ukiuni.ImageUtil.createIconImage(500, 500, contentType);
 			var iconData = com.ukiuni.ImageUtil.canvasToPngBlob(iconCanvas);
-			var updloadFileName = $scope.articleAppendsImage.name;
+			var updloadFileName = file.name;
 			upload(iconData, updloadFileName, function(response) {
 				var tumbnailImageUrl = response.url;
-				upload($scope.articleAppendsImage, updloadFileName, function(response) {
-					insertImageToTextarea(tumbnailImageUrl, response.url + "/" + updloadFileName, $scope.articleAppendsImage.name, "targetBlank");
+				upload(file, updloadFileName, function(response) {
+					insertImageToTextarea(tumbnailImageUrl, response.url + "/" + updloadFileName, file.name, "targetBlank");
 				}, function(error) {
 					$rootScope.showError($rootScope.messages.error.withServer);
 				})
@@ -743,59 +743,61 @@ var editContentController = [ "$rootScope", "$scope", "$resource", "$location", 
 				$rootScope.showError($rootScope.messages.error.withServer);
 			})
 		}
-		if (0 == $scope.articleAppendsImage.type.lastIndexOf("video", 0)) {
-			var video = document.createElement("video");
-			video.addEventListener("loadeddata", function() {
-				var width = video.videoWidth;
-				var height = video.videoHeight;
-				var duration = video.duration;
-				var canvas = document.createElement("canvas");
-				canvas.width = width;
-				canvas.height = height;
-				var context = canvas.getContext("2d")
-				context.drawImage(video, 0, 0, width, height);
-				var tumbImage = new Image();
-				tumbImage.onload = function() {
-					var tumbnailImage = com.ukiuni.ImageUtil.trimAndAppendPlayIcon(tumbImage, 500, 500);
-					var updloadFileName = $scope.articleAppendsImage.name;
-					upload(tumbnailImage, updloadFileName, function(response) {
+		$scope.articleAppendsImage.forEach(function(srcFile) {
+			if (0 == srcFile.type.lastIndexOf("video", 0)) {
+				var video = document.createElement("video");
+				video.addEventListener("loadeddata", function() {
+					var width = video.videoWidth;
+					var height = video.videoHeight;
+					var duration = video.duration;
+					var canvas = document.createElement("canvas");
+					canvas.width = width;
+					canvas.height = height;
+					var context = canvas.getContext("2d")
+					context.drawImage(video, 0, 0, width, height);
+					var tumbImage = new Image();
+					tumbImage.onload = function() {
+						var tumbnailImage = com.ukiuni.ImageUtil.trimAndAppendPlayIcon(tumbImage, 500, 500);
+						var updloadFileName = srcFile.name;
+						upload(tumbnailImage, updloadFileName, function(response) {
+							var tumbnailImageUrl = response.url;
+							upload(srcFile, updloadFileName, function(response) {
+								insertImageToTextarea(tumbnailImageUrl, response.url, srcFile.name, "targetOverray");
+							}, function(error) {
+								$rootScope.showError($rootScope.messages.error.withServer);
+							})
+						}, function(error) {
+							$rootScope.showError($rootScope.messages.error.withServer);
+						});
+					};
+					tumbImage.src = canvas.toDataURL("image/png");
+				});
+				video.addEventListener("error", function(error) {
+					uploadAsFile(srcFile);
+				});
+				video.setAttribute("src", URL.createObjectURL(srcFile));
+				video.currentTime = 0;
+			} else if (0 == srcFile.type.lastIndexOf("image", 0)) {
+				var image = new Image();
+				image.onload = function() {
+					var trimmedImage = com.ukiuni.ImageUtil.trim(image, 500, 500);
+					var updloadFileName = srcFile.name;
+					upload(trimmedImage, updloadFileName, function(response) {
 						var tumbnailImageUrl = response.url;
-						upload($scope.articleAppendsImage, updloadFileName, function(response) {
-							insertImageToTextarea(tumbnailImageUrl, response.url, $scope.articleAppendsImage.name, "targetOverray");
+						upload(srcFile, updloadFileName, function(response) {
+							insertImageToTextarea(tumbnailImageUrl, response.url, srcFile.name, "targetOverray");
 						}, function(error) {
 							$rootScope.showError($rootScope.messages.error.withServer);
 						})
 					}, function(error) {
 						$rootScope.showError($rootScope.messages.error.withServer);
-					});
-				};
-				tumbImage.src = canvas.toDataURL("image/png");
-			});
-			video.addEventListener("error", function(error) {
-				uploadAsFile();
-			});
-			video.setAttribute("src", URL.createObjectURL($scope.articleAppendsImage));
-			video.currentTime = 0;
-		} else if (0 == $scope.articleAppendsImage.type.lastIndexOf("image", 0)) {
-			var image = new Image();
-			image.onload = function() {
-				var trimmedImage = com.ukiuni.ImageUtil.trim(image, 500, 500);
-				var updloadFileName = $scope.articleAppendsImage.name;
-				upload(trimmedImage, updloadFileName, function(response) {
-					var tumbnailImageUrl = response.url;
-					upload($scope.articleAppendsImage, updloadFileName, function(response) {
-						insertImageToTextarea(tumbnailImageUrl, response.url, $scope.articleAppendsImage.name, "targetOverray");
-					}, function(error) {
-						$rootScope.showError($rootScope.messages.error.withServer);
 					})
-				}, function(error) {
-					$rootScope.showError($rootScope.messages.error.withServer);
-				})
+				}
+				image.src = URL.createObjectURL(srcFile);
+			} else {
+				uploadAsFile(srcFile);
 			}
-			image.src = URL.createObjectURL($scope.articleAppendsImage);
-		} else {
-			uploadAsFile();
-		}
+		});
 	});
 	$scope.clearImagePaneSrc = function() {
 		$scope.imagePaneSrc = null;
@@ -899,8 +901,12 @@ var editContentController = [ "$rootScope", "$scope", "$resource", "$location", 
 	});
 	var pressingKeyMap = [];
 	$scope.keyDown = function(event) {
-		if (event.ctrlKey || pressingKeyMap[91] || pressingKeyMap[18]) {//ctrl or command or option
-			if (83 == event.which) {//s
+		if (event.ctrlKey || pressingKeyMap[91] || pressingKeyMap[18]) {// ctrl
+			// or
+			// command
+			// or
+			// option
+			if (83 == event.which) {// s
 				$scope.save(null, function() {
 					$rootScope.showToast($rootScope.messages.contents.saved);
 				}, function() {
@@ -908,7 +914,7 @@ var editContentController = [ "$rootScope", "$scope", "$resource", "$location", 
 				});
 				event.preventDefault();
 				return false;
-			} else if (69 == event.which) {//e
+			} else if (69 == event.which) {// e
 				alertOnLeave = false;
 				if ($scope.contentGroup && 0 != $scope.contentGroup.id) {
 					$location.path("/group/" + $scope.contentGroup.accessKey);

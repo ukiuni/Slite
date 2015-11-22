@@ -26,10 +26,10 @@
 				</div>
 			</div>
 			<div class="row">
-				<div class="col-xs-6" style="position: relative; height: 100%;" ondragenter="document.getElementById('fileDropArea').style.display='inline'" ondrop="event.preventDefault();">
+				<div class="col-xs-6" style="position: relative; height: 100%;" ondragenter="document.getElementById('fileDropArea').style.display='table-cell'" ondrop="event.preventDefault();">
 					<textarea id="article" ng-keydown="keyDown($event)" ng-keyup="keyUp($event)" rows="30" class="article" style="float: left; height: 100%;" ng-model="editingContent.article" placeholder="Article" dragenter="console.log('dragenter');" ondrop="event.preventDefault();"></textarea>
-					<div id="fileDropArea" class="col-xs-12" ng-model="articleAppendsImage" ngf-drop ngf-drag-over-class="'dragover'" ondragleave="document.getElementById('fileDropArea').style.display='none'" ondrop="document.getElementById('fileDropArea').style.display='none'" style="display: none; position: absolute; top: 0; left: 0; height: 100%; background-color: #000; opacity: 0.1;">
-						<div style="background-color: #F00"></div>
+					<div id="fileDropArea" class="col-xs-12" ng-model="articleAppendsImage" ngf-drop ngf-drag-over-class="'dragover'" ondragleave="document.getElementById('fileDropArea').style.display='none'" ondrop="document.getElementById('fileDropArea').style.display='none'" style="display: none; position: absolute; top: 0; left: 0; height: 100%; background-color: #666; opacity: 0.5; text-align: center; vertical-align: middle;" ngf-multiple="true">
+						<img style="width: 30%" src="images/upload.png" />
 					</div>
 				</div>
 				<div class="col-xs-6" style="float: left; height: 100%; overflow: scroll">
