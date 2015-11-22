@@ -5,7 +5,82 @@ var env = process.env.NODE_ENV || "development";
 var serverConfig = require(__dirname + "/../config/server.json")[env];
 var Promise = require("bluebird");
 var File = global.db.File;
-if (serverConfig.s3) {
+if (serverConfig.dropbox) {
+	var request = require("request");
+	var fs = require("fs");
+	var accessToken = fs.readFileSync((process.env.HOME || process.env.USERPROFILE) + "/.dropbox/accessToken");
+	module.exports = {
+		store : function(key, contentType, name, file) {
+			var serviceKey;
+			return new Promise(function(success, fail) {
+				serviceKey = key;
+				if (name) {
+					serviceKey = key + "/" + encodeURIComponent(name);
+				}
+				serviceKey = serviceKey.replace(/\//g, "_");
+				request.post({
+					url : 'https://content.dropboxapi.com/1/files_put/auto/SliteStore/' + serviceKey,
+					headers : {
+						'Authorization' : 'Bearer ' + accessToken
+					},
+					body : file.buffer
+				}, function(error, response, body) {
+					if (!error && response.statusCode == 200) {
+						success(body)
+					} else {
+						fail(response);
+					}
+				});
+			}).then(function() {
+				return File.create({
+					accessKey : key,
+					contentType : contentType,
+					name : name,
+					size : file.size,
+					service : File.SERVICE_S3,
+					serviceKey : serviceKey
+				});
+			}).then(function() {
+				return new Promise(function(success) {
+					var url = serverConfig.hostURL + "/api/image/" + key;
+					url = name ? url + "/" + name : url;
+					success(url);
+				})
+			});
+		},
+		load : function(key, name) {
+			return File.find({
+				where : {
+					accessKey : key
+				}
+			}).then(function(file) {
+				return new Promise(function(success, fail) {
+					if (!file) {
+						fail();
+						return;
+					}
+					try {
+						request.post({
+							url : 'https://api.dropboxapi.com/1/media/auto/SliteStore/' + file.serviceKey,
+							headers : {
+								'Authorization' : 'Bearer ' + accessToken
+							}
+						}, function(error, response, body) {
+							if (!error && response.statusCode == 200) {
+								file.redirectUrl = JSON.parse(body).url;
+								success(file);
+							} else {
+								fail(response);
+							}
+						});
+					} catch (e) {
+						fail(e);
+					}
+				});
+			});
+		}
+	}
+} else if (serverConfig.s3) {
 	var AWS = require('aws-sdk');
 	AWS.config.region = serverConfig.s3.region;
 	var s3 = new AWS.S3();

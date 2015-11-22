@@ -52,6 +52,8 @@
 		"s3":{
 			"bucket":"slite",
 			"region":"ap-northeast-1"
+		},
+		"dropbox":{
 		}
 	}
 }
