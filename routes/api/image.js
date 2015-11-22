@@ -16,8 +16,7 @@ router.get('/:imageKey', function(req, res) {
 	Storage.load(req.params.imageKey).then(function(file) {
 		if (file.redirectUrl) {
 			res.set("Pragma", "no-cache");
-			res.writeHead(302, {'Location': file.redirectUrl});
-			res.end();
+			res.redirect(302, file.redirectUrl);
 		} else {
 			res.set('Content-Type', data.contentType);
 			res.status(200).send(file.buffer);
@@ -88,8 +87,7 @@ function getImage(req, res, name) {
 			if (name && file.name == name) {
 				if (file.redirectUrl) {
 					res.set("Pragma", "no-cache");
-					res.writeHead(302, {'Location': file.redirectUrl});
-					res.end();
+					res.redirect(302, file.redirectUrl);
 				} else {
 					res.set('Content-Type', "application/octet-stream");
 					res.set('Content-Disposition', 'attachment; filename="' + name + '"');
@@ -98,8 +96,7 @@ function getImage(req, res, name) {
 			} else if (!name) {
 				if (file.redirectUrl) {
 					res.set("Pragma", "no-cache");
-					res.writeHead(302, {'Location': file.redirectUrl});
-					res.end();
+					res.redirect(302, file.redirectUrl);
 				} else {
 					res.set('Content-Type', file.contentType);
 					res.status(200).send(file.buffer);
