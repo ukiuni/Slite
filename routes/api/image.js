@@ -86,7 +86,7 @@ function getImage(req, res, name) {
 			if (name && file.name == name) {
 				if (file.redirectUrl) {
 					res.set("Pragma", "no-cache");
-					res.redirect(301, file.redirectUrl);
+					res.redirect(302, file.redirectUrl);
 				} else {
 					res.set('Content-Type', "application/octet-stream");
 					res.set('Content-Disposition', 'attachment; filename="' + name + '"');
@@ -95,7 +95,7 @@ function getImage(req, res, name) {
 			} else if (!name) {
 				if (file.redirectUrl) {
 					res.set("Pragma", "no-cache");
-					res.redirect(301, file.redirectUrl);
+					res.redirect(302, file.redirectUrl);
 				} else {
 					res.set('Content-Type', file.contentType);
 					res.status(200).send(file.buffer);
