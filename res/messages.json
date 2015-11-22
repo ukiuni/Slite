@@ -82,7 +82,11 @@
 			"accessibility" : "Accessibility",
 			"confirmDelete" : "Delete content ?",
 			"thisContentIsNotVisible" : "This content is not visible.\nIf you want to watch it, send invitation request.",
-			"joinGroup" : "Join to group to view this content."
+			"joinGroup" : "Join to group to view this content.",
+			"saved" : "Content has saved.",
+			"errors" : {
+				"failToSave" : "Fail to save content."
+			}
 		},
 		"error" : {
 			"withServer" : "Something happen with Server, please try again later.",
@@ -175,7 +179,11 @@
 			"accessibility" : "アクセス許可",
 			"confirmDelete" : "投稿を削除してもよいですか？",
 			"thisContentIsNotVisible" : "このコンテンツを見るためにはグループへ参加する必要があります。招待依頼をしますか？",
-			"joinGroup" : "このコンテンツを見るためにはグループへ参加してください。"
+			"joinGroup" : "このコンテンツを見るためにはグループへ参加してください。",
+			"saved" : "投稿が保存されました。",
+			"errors" : {
+				"failToSave" : "投稿の保存に失敗しました。"
+			}
 		},
 		"error" : {
 			"withServer" : "サーバーとの通信で問題が発生しました。後ほど再実行してください。",

@@ -677,7 +677,7 @@ var editContentController = [ "$rootScope", "$scope", "$resource", "$location", 
 		});
 	} else {
 		$scope.editingContent = {}
-		$scope.editingContent.status = $scope.targetGroupId ? $rootScope.statuses[3] : $rootScope.statuses[0]
+		$scope.editingContent.status = $scope.targetGroupId ? $rootScope.statuses[3] : $rootScope.statuses[1]
 		$scope.editingContent.tags = []
 		$scope.contentGroup = {
 			id : 0,
@@ -849,7 +849,7 @@ var editContentController = [ "$rootScope", "$scope", "$resource", "$location", 
 			if ($scope.editingContent.contentKey) {
 				uploadFunc();
 			} else {
-				$scope.save("POST", function(content) {
+				$scope.save(post, function(content) {
 					$scope.editingContent = parseContentToEdit(content);
 					$scope.editingContent.article = "";
 					initGroupSelect();
@@ -897,6 +897,35 @@ var editContentController = [ "$rootScope", "$scope", "$resource", "$location", 
 			event.preventDefault();
 		}
 	});
+	var pressingKeyMap = [];
+	$scope.keyDown = function(event) {
+		if (event.ctrlKey || pressingKeyMap[91] || pressingKeyMap[18]) {//ctrl or command or option
+			if (83 == event.which) {//s
+				$scope.save(null, function() {
+					$rootScope.showToast($rootScope.messages.contents.saved);
+				}, function() {
+					$rootScope.showError($rootScope.messages.contents.errors.failToSave);
+				});
+				event.preventDefault();
+				return false;
+			} else if (69 == event.which) {//e
+				alertOnLeave = false;
+				if ($scope.contentGroup && 0 != $scope.contentGroup.id) {
+					$location.path("/group/" + $scope.contentGroup.accessKey);
+				} else {
+					$location.path("/home");
+				}
+				event.preventDefault();
+				return false;
+			}
+		}
+		pressingKeyMap[event.which] = true;
+		console.log("------" + event.which);
+		return true;
+	}
+	$scope.keyUp = function(event) {
+		delete pressingKeyMap[event.which];
+	}
 } ];
 var contentController = [ "$rootScope", "$scope", "$resource", "$location", "$http", "$routeParams", function($rootScope, $scope, $resource, $location, $http, $routeParams) {
 	$resource('/api/content/:contentKey?sessionKey=:sessionKey').get({
@@ -1397,9 +1426,9 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 				if (!$rootScope.myAccount) {
 					return;
 				}
-				setTimeout(function(){
+				setTimeout(function() {
 					$('.messageBody').highlight($rootScope.myAccount.name);
-				},0)
+				}, 0)
 				if (0 <= message.body.indexOf($rootScope.myAccount.name) && !document.hasFocus()) {
 					var n = new Notification($rootScope.messages.message, {
 						body : message.body
