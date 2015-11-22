@@ -18,10 +18,11 @@ router.get('/:imageKey', function(req, res) {
 			res.set("Pragma", "no-cache");
 			res.redirect(302, file.redirectUrl);
 		} else {
-			res.set('Content-Type', data.contentType);
+			res.set('Content-Type', file.contentType);
 			res.status(200).send(file.buffer);
 		}
 	})["catch"](function(error) {
+		console.log(error.stack);
 		res.status(404).send();
 	});
 })
