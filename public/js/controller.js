@@ -920,7 +920,6 @@ var editContentController = [ "$rootScope", "$scope", "$resource", "$location", 
 			}
 		}
 		pressingKeyMap[event.which] = true;
-		console.log("------" + event.which);
 		return true;
 	}
 	$scope.keyUp = function(event) {
