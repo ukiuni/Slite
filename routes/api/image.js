@@ -85,6 +85,7 @@ function getImage(req, res, name) {
 		Storage.load(req.params.contentKey + "/" + req.params.imageKey, name).then(function(file) {
 			if (name && file.name == name) {
 				if (file.redirectUrl) {
+					res.set("Pragma", "no-cache");
 					res.redirect(301, file.redirectUrl);
 				} else {
 					res.set('Content-Type', "application/octet-stream");
@@ -93,6 +94,7 @@ function getImage(req, res, name) {
 				}
 			} else if (!name) {
 				if (file.redirectUrl) {
+					res.set("Pragma", "no-cache");
 					res.redirect(301, file.redirectUrl);
 				} else {
 					res.set('Content-Type', file.contentType);
