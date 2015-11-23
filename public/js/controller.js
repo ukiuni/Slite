@@ -1435,6 +1435,13 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 					$('.messageBody').highlight($rootScope.myAccount.name);
 				}, 0)
 				if (0 <= message.body.indexOf($rootScope.myAccount.name) && !document.hasFocus()) {
+					if (Notification && "granted" != Notification.permission) {
+						Notification.requestPermission(function(status) {
+							if (Notification.permission !== status) {
+								Notification.permission = status;
+							}
+						});
+					}
 					var n = new Notification($rootScope.messages.message, {
 						body : message.body
 					});
