@@ -140,7 +140,7 @@ router.post('/:contentKey', function(req, res) {
 		return Random.createRandomBase62();
 	}).then(function(random) {
 		imageFileKey = random;
-		return Storage.store(req.params.contentKey + "/" + imageFileKey, req.files.imageFile[0].mimetype, req.body.name, req.files.imageFile[0]);
+		return Storage.store(req.params.contentKey + "/" + imageFileKey, req.files.imageFile[0].mimetype, req.body.name, req.files.imageFile[0], accessAccount.id);
 	}).then(function(savedImageUrl) {
 		res.status(200).send({
 			url : savedImageUrl

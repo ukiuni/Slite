@@ -10,7 +10,7 @@ if (serverConfig.dropbox) {
 	var fs = require("fs");
 	var accessToken = fs.readFileSync((process.env.HOME || process.env.USERPROFILE) + "/.dropbox/accessToken");
 	module.exports = {
-		store : function(key, contentType, name, file) {
+		store : function(key, contentType, name, file, accountId) {
 			var serviceKey;
 			return new Promise(function(success, fail) {
 				serviceKey = key;
@@ -38,7 +38,8 @@ if (serverConfig.dropbox) {
 					name : name,
 					size : file.size,
 					service : File.SERVICE_S3,
-					serviceKey : serviceKey
+					serviceKey : serviceKey,
+					ownerId : ownerId,
 				});
 			}).then(function() {
 				return new Promise(function(success) {
@@ -85,7 +86,7 @@ if (serverConfig.dropbox) {
 	AWS.config.region = serverConfig.s3.region;
 	var s3 = new AWS.S3();
 	module.exports = {
-		store : function(key, contentType, name, file) {
+		store : function(key, contentType, name, file, ownerId) {
 			var serviceKey;
 			return new Promise(function(success, fail) {
 				serviceKey = key;
@@ -113,7 +114,8 @@ if (serverConfig.dropbox) {
 					name : name,
 					size : file.size,
 					service : File.SERVICE_S3,
-					serviceKey : serviceKey
+					serviceKey : serviceKey,
+					ownerId : ownerId
 				});
 			}).then(function() {
 				return new Promise(function(success) {
