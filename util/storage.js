@@ -10,7 +10,7 @@ if (serverConfig.dropbox) {
 	var fs = require("fs");
 	var accessToken = fs.readFileSync((process.env.HOME || process.env.USERPROFILE) + "/.dropbox/accessToken");
 	module.exports = {
-		store : function(key, contentType, name, file, accountId) {
+		store : function(key, contentType, name, file, ownerId) {
 			var serviceKey;
 			return new Promise(function(success, fail) {
 				serviceKey = key;
