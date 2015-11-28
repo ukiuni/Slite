@@ -37,13 +37,13 @@ var socket = function(io) {
 						if (accountInGroup) {
 							socket.join(contentKey);
 						} else {
-							socket.emit("error", ERROR_NOTACCESSIBLE);
+							socket.emit("exception", ERROR_NOTACCESSIBLE);
 						}
 					});
 				} else if (content.ownerId == socket.client.accountId) {
 					socket.join(contentKey);
 				} else {
-					socket.emit("error", ERROR_NOTACCESSIBLE);
+					socket.emit("exception", ERROR_NOTACCESSIBLE);
 				}
 			});
 		});
@@ -89,7 +89,7 @@ var socket = function(io) {
 				}
 			})["catch"](function(e) {
 				console.log(e);
-				socket.emit("error", e);
+				socket.emit("exception", e);
 			});
 		});
 		socket.on('requestMessage', function(requestParam) {
@@ -125,7 +125,7 @@ var socket = function(io) {
 				});
 			})["catch"](function(e) {
 				console.log(e.stack);
-				socket.emit("error", e);
+				socket.emit("exception", e);
 			});
 		});
 		socket.on('hello', function(requestParam) {
