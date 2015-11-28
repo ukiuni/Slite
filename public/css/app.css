@@ -145,6 +145,10 @@ button {
 .channelAccountName.ng-hide {
 	opacity: 0.5;
 }
+
+.messageBody img {
+	max-height: 200px;
+}
 /* Tag input */
 .bootstrap .tags {
 	background-color: #fff;
@@ -198,4 +202,6 @@ button {
 	background-color: #ffff00;
 }
 /* highlignt */
-.highlight { color: #F39 }
+.highlight {
+	color: #F39
+}
