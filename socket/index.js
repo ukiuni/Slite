@@ -37,13 +37,13 @@ var socket = function(io) {
 						if (accountInGroup) {
 							socket.join(contentKey);
 						} else {
-							// TODO send error
+							socket.emit("error", ERROR_NOTACCESSIBLE);
 						}
 					});
 				} else if (content.ownerId == socket.client.accountId) {
 					socket.join(contentKey);
 				} else {
-					// TODO send error
+					socket.emit("error", ERROR_NOTACCESSIBLE);
 				}
 			});
 		});
@@ -88,8 +88,8 @@ var socket = function(io) {
 					throw ERROR_NOTACCESSIBLE;
 				}
 			})["catch"](function(e) {
-				// TODO send error
 				console.log(e);
+				socket.emit("error", e);
 			});
 		});
 		socket.on('requestMessage', function(requestParam) {
@@ -125,7 +125,7 @@ var socket = function(io) {
 				});
 			})["catch"](function(e) {
 				console.log(e.stack);
-				// TODO send error
+				socket.emit("error", e);
 			});
 		});
 		socket.on('hello', function(requestParam) {
