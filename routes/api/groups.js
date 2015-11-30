@@ -127,6 +127,7 @@ router.post('/:accessKey/channels/:channelAccessKey/messages', function(req, res
 	}
 	var loadedAccount;
 	var loadedChannel;
+	var createdMessage;
 	AccessKey.findBySessionKey(sessionKey).then(function(accessKey) {
 		if (!accessKey) {
 			throw ERROR_NOTACCESSIBLE;
@@ -174,6 +175,8 @@ router.post('/:accessKey/channels/:channelAccessKey/messages', function(req, res
 		message.dataValues.owner = loadedAccount;
 		res.status(201).json(message);
 		socket.sendToChannel(loadedChannel.accessKey, message);
+		createdMessage = message;
+		NotificationTarget.notifyToChannel(loadedChannel, message);
 	})["catch"](function(error) {
 		if (ERROR_NOTACCESSIBLE == error) {
 			res.status(403).end();

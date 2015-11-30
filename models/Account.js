@@ -139,6 +139,9 @@ module.exports = function(sequelize, DataTypes) {
 		Account.belongsToMany(sequelize.Group, {
 			through : sequelize.AccountInGroup
 		});
+		Account.hasMany(sequelize.NotificationTarget, {
+			foreignKey : "ownerId"
+		});
 	};
 	Account.AUTHORIZATION_VIEWER = 1;
 	Account.AUTHORIZATION_EDITOR = 2;

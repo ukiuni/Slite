@@ -3,6 +3,7 @@ var AccessKey = global.db.AccessKey;
 var Group = global.db.Group;
 var Content = global.db.Content;
 var ContentBody = global.db.ContentBody;
+var NotificationTarget = global.db.NotificationTarget;
 var express = require('express');
 var router = express.Router();
 var env = process.env.NODE_ENV || "development";
@@ -411,12 +412,7 @@ router.put('/', function(req, res) {
 		res.status(400).end();
 		return;
 	}
-	AccessKey.find({
-		where : {
-			secret : req.body.key,
-			type : AccessKey.TYPE_SESSION
-		}
-	}).then(function(accessKey) {
+	AccessKey.findBySessionKey(req.body.key).then(function(accessKey) {
 		if (!accessKey) {
 			throw ERROR_NOTACCESSIBLE;
 		}
@@ -566,5 +562,31 @@ router.get("/:id", function(req, res) {
 			res.status(500).end();
 		}
 	})
-})
+});
+router.post("/devices", function(req, res) {
+	if (!(req.body.sessionKey && req.body.platform && req.body.deviceId)) {
+		res.status(400).json({
+			sessionKey : req.body.sessionKey,
+			platform : req.body.platform,
+			deviceId : req.body.deviceId
+		});
+		return;
+	}
+	AccessKey.findBySessionKey(req.body.key).then(function(accessKey) {
+		if (!accessKey) {
+			throw ERROR_NOTACCESSIBLE;
+		}
+		return Random.createRandomBase62();
+	}).then(function(random) {
+		return NotificationTarget.create({
+			status : NotificationTarget.STATUS_CREATED,
+			endpoint : req.body.deviceId,
+			key : random,
+			platformParameter : DataTypes.TEXT,
+			platform : req.body.platform
+		});
+	}).then(function(notificationTarget) {
+		res.status(201).json(notificationTarget);
+	});
+});
 module.exports = router;
