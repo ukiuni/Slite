@@ -3,6 +3,7 @@ var router = express.Router();
 var AccessKey = global.db.AccessKey;
 var Content = global.db.Content;
 var ContentBody = global.db.ContentBody;
+var Group = global.db.Group;
 var AccountInGroup = global.db.AccountInGroup;
 var Promise = require("bluebird");
 var Random = require(__dirname + "/../../util/random");
@@ -67,12 +68,12 @@ function getImage(req, res, name) {
 					return new Promise(function(success) {
 						success("authorized")
 					});
-				} else if (ContentBody.STATUS_AUTHENTICATEDONLY != content.ContentBodies[0].status) {
+				} else if (ContentBody.STATUS_AUTHENTICATEDONLY != contentBody.status) {
 					throw ERROR_NOTACCESSIBLE;
 				}
 				return AccountInGroup.find({
 					where : {
-						GroupId : content.GroupId,
+						GroupId : loadedContent.GroupId,
 						AccountId : accessKey.AccountId,
 						inviting : Group.INVITING_DONE
 					}
