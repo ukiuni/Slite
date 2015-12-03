@@ -10,6 +10,7 @@
 		"menu" : {
 			"home" : "Home",
 			"newContent" : "New Content",
+			"newCalendarAlbum" : "New Calendar Album",
 			"setting" : "Setting",
 			"profile" : "Profile",
 			"changePassword" : "Change Password",
@@ -106,6 +107,7 @@
 		"menu" : {
 			"home" : "Home",
 			"newContent" : "新規投稿",
+			"newCalendarAlbum" : "カレンダーアルバム",
 			"setting" : "設定",
 			"profile" : "Profile",
 			"changePassword" : "パスワード変更",

@@ -91,6 +91,14 @@ myapp.config([ "$locationProvider", "$httpProvider", "$routeProvider", "markedPr
 		templateUrl : "template/contentView.html",
 		controller : "contentController"
 	});
+	$routeProvider.when("/editCalendarAlbum", {
+		templateUrl : "template/editCalendarAlbum.html",
+		controller : "editCalendarAlbumController"
+	});
+	$routeProvider.when("/editCalendarAlbum/:contentKey/:date", {
+		templateUrl : "template/editCalendarAlbum.html",
+		controller : "editCalendarAlbumController"
+	});
 	$routeProvider.when("/tags", {
 		templateUrl : "template/tags.html",
 		controller : "tagsController"
@@ -589,6 +597,50 @@ var editProfileController = [ "$rootScope", "$scope", "$resource", "$location", 
 		});
 	}
 } ];
+var upload = function($uploader, contentKey, sessionKey, data, name, success, fail) {
+	$uploader.upload({
+		url : '/api/image/' + contentKey,
+		fields : {
+			sessionKey : sessionKey,
+			name : name
+		},
+		file : data,
+		fileFormDataName : "imageFile",
+		sendFieldsAs : "form",
+		method : "POST"
+	}).success(function(response) {
+		if (success) {
+			success(response);
+		}
+	}).error(function(error) {
+		if (fail) {
+			fail(error);
+		}
+	});
+};
+var uploadAsFile = function($uploader, contentKey, sessionKey, file, onSuccess, onError) {
+	var contentType = file.type ? file.type : "file/unknown";
+	var iconCanvas = com.ukiuni.ImageUtil.createIconImage(500, 500, contentType);
+	var iconData = com.ukiuni.ImageUtil.canvasToPngBlob(iconCanvas);
+	var updloadFileName = file.name;
+	upload($uploader, contentKey, sessionKey, iconData, updloadFileName, function(response) {
+		var tumbnailImageUrl = response.url;
+		upload($uploader, contentKey, sessionKey, file, updloadFileName, function(response) {
+			var contentUrl = response.url;
+			if (onSuccess) {
+				onSuccess(tumbnailImageUrl, contentUrl, file);
+			}
+		}, function(error) {
+			if (onError) {
+				onError(error);
+			}
+		})
+	}, function(error) {
+		if (onError) {
+			onError(error);
+		}
+	})
+}
 var editContentController = [ "$rootScope", "$scope", "$resource", "$location", "$http", "Upload", "$routeParams", function($rootScope, $scope, $resource, $location, $http, $uploader, $routeParams) {
 	if (!$rootScope.getSessionKey()) {
 		$location.path("/home");
@@ -694,27 +746,6 @@ var editContentController = [ "$rootScope", "$scope", "$resource", "$location", 
 			$rootScope.showError($rootScope.messages.error.withServer);
 		})
 	}
-	var upload = function(data, name, success, fail) {
-		$uploader.upload({
-			url : '/api/image/' + $scope.editingContent.contentKey,
-			fields : {
-				sessionKey : $rootScope.getSessionKey(),
-				name : name
-			},
-			file : data,
-			fileFormDataName : "imageFile",
-			sendFieldsAs : "form",
-			method : "POST"
-		}).success(function(response) {
-			if (success) {
-				success(response);
-			}
-		}).error(function(error) {
-			if (fail) {
-				fail(error);
-			}
-		});
-	};
 	var articleTextArea = document.getElementById("article");
 	var insertImageToTextarea = function(tumbUrl, fileUrl, name, clazz) {
 		var text = "[![" + name + "](" + tumbUrl + " \"" + name + "\"){col-xs-12}](" + fileUrl + ")" + (clazz ? "{" + clazz + " col-xs-12 col-sm-3}" : "");
@@ -727,23 +758,18 @@ var editContentController = [ "$rootScope", "$scope", "$resource", "$location", 
 		if (!$scope.articleAppendsImage || !$scope.articleAppendsImage.length) {
 			return;
 		}
-		var uploadAsFile = function(file) {
-			var contentType = file.type ? file.type : "file/unknown";
-			var iconCanvas = com.ukiuni.ImageUtil.createIconImage(500, 500, contentType);
-			var iconData = com.ukiuni.ImageUtil.canvasToPngBlob(iconCanvas);
-			var updloadFileName = file.name;
-			upload(iconData, updloadFileName, function(response) {
-				var tumbnailImageUrl = response.url;
-				upload(file, updloadFileName, function(response) {
-					insertImageToTextarea(tumbnailImageUrl, response.url + "/" + updloadFileName, file.name, "targetBlank");
-				}, function(error) {
-					$rootScope.showError($rootScope.messages.error.withServer);
-				})
-			}, function(error) {
-				$rootScope.showError($rootScope.messages.error.withServer);
-			})
-		}
 		$scope.articleAppendsImage.forEach(function(srcFile) {
+			var contentKey = $scope.editingContent.contentKey;
+			var sessionKey = $rootScope.getSessionKey();
+			var onError = function(error) {
+				$rootScope.showError($rootScope.messages.error.withServer);
+			}
+			var onSuccess = function(tumbnailImageUrl, fileImageUrl, srcFile) {
+				insertImageToTextarea(tumbnailImageUrl, fileImageUrl, srcFile.name, "targetOverray");
+			}
+			var onSuccessAsFile = function(tumbnailImageUrl, fileImageUrl, srcFile) {
+				insertImageToTextarea(tumbnailImageUrl, fileImageUrl + "/" + srcFile.name, srcFile.name, "targetBlank");
+			}
 			if (0 == srcFile.type.lastIndexOf("video", 0)) {
 				var video = document.createElement("video");
 				video.addEventListener("loadeddata", function() {
@@ -759,21 +785,34 @@ var editContentController = [ "$rootScope", "$scope", "$resource", "$location", 
 					tumbImage.onload = function() {
 						var tumbnailImage = com.ukiuni.ImageUtil.trimAndAppendPlayIcon(tumbImage, 500, 500);
 						var updloadFileName = srcFile.name;
-						upload(tumbnailImage, updloadFileName, function(response) {
+						upload($uploader, contentKey, sessionKey, tumbnailImage, updloadFileName, function(response) {
 							var tumbnailImageUrl = response.url;
-							upload(srcFile, updloadFileName, function(response) {
-								insertImageToTextarea(tumbnailImageUrl, response.url, srcFile.name, "targetOverray");
+							upload($uploader, contentKey, sessionKey, srcFile, updloadFileName, function(response) {
+								var fileImageUrl = response.url;
+								if (onSuccess) {
+									onSuccess(tumbnailImageUrl, fileImageUrl, srcFile);
+								}
 							}, function(error) {
-								$rootScope.showError($rootScope.messages.error.withServer);
+								if (onError) {
+									onError(error);
+								}
 							})
 						}, function(error) {
-							$rootScope.showError($rootScope.messages.error.withServer);
+							if (onError) {
+								onError(error);
+							}
 						});
 					};
 					tumbImage.src = canvas.toDataURL("image/png");
 				});
 				video.addEventListener("error", function(error) {
-					uploadAsFile(srcFile);
+					uploadAsFile($uploader, contentKey, sessionKey, srcFile, function(tumbnailImageUrl, fileImageUrl, srcFile) {
+						onSuccessAsFile(tumbnailImageUrl, fileImageUrl, srcFile);
+					}, function() {
+						if (onError) {
+							onError(error);
+						}
+					});
 				});
 				video.setAttribute("src", URL.createObjectURL(srcFile));
 				video.currentTime = 0;
@@ -782,20 +821,30 @@ var editContentController = [ "$rootScope", "$scope", "$resource", "$location", 
 				image.onload = function() {
 					var trimmedImage = com.ukiuni.ImageUtil.trim(image, 500, 500);
 					var updloadFileName = srcFile.name;
-					upload(trimmedImage, updloadFileName, function(response) {
+					upload($uploader, contentKey, sessionKey, trimmedImage, updloadFileName, function(response) {
 						var tumbnailImageUrl = response.url;
-						upload(srcFile, updloadFileName, function(response) {
-							insertImageToTextarea(tumbnailImageUrl, response.url, srcFile.name, "targetOverray");
+						upload($uploader, contentKey, sessionKey, srcFile, updloadFileName, function(response) {
+							onSuccess(tumbnailImageUrl, response.url, srcFile.name);
 						}, function(error) {
-							$rootScope.showError($rootScope.messages.error.withServer);
+							if (onError) {
+								onError(error);
+							}
 						})
 					}, function(error) {
-						$rootScope.showError($rootScope.messages.error.withServer);
+						if (onError) {
+							onError(error);
+						}
 					})
 				}
 				image.src = URL.createObjectURL(srcFile);
 			} else {
-				uploadAsFile(srcFile);
+				uploadAsFile($uploader, contentKey, sessionKey, srcFile, function(tumbnailImageUrl, fileImageUrl, srcFile) {
+					onSuccessAsFile(tumbnailImageUrl, fileImageUrl, srcFile);
+				}, function() {
+					if (onError) {
+						onError(error);
+					}
+				});
 			}
 		});
 	});
@@ -932,6 +981,145 @@ var editContentController = [ "$rootScope", "$scope", "$resource", "$location", 
 		delete pressingKeyMap[event.which];
 	}
 } ];
+var editCalendarAlbumController = [ "$rootScope", "$scope", "$resource", "$location", "$http", "$routeParams", function($rootScope, $scope, $resource, $location, $http, $routeParams) {
+	$scope.contentKey = $routeParams.contentKey
+	$scope.date = $routeParams.date
+	if (!$scope.date) {
+		$scope.firstDay = new Date();
+		$scope.firstDay.setDate(1);
+	} else {
+		try {
+			$scope.firstDay = new Date();
+			$scope.firstDay.setFullYear(parseInt($scope.date.substring(0, 4)));
+			$scope.firstDay.setMonth(parseInt($scope.date.substring(4, 6)) - 1);
+			$scope.firstDay.setDate(1);
+		} catch (e) {
+			$scope.firstDay = new Date();
+			$scope.firstDay.setDate(1);
+		}
+	}
+	var maxDay = new Date($scope.firstDay.getFullYear(), $scope.firstDay.getMonth(), 0).getDate();
+	var dayBoxCount = $scope.firstDay.getDay() + maxDay;
+	$scope.weekColumn = [ 0, 1, 2, 3 ];
+	for (var i = 4; dayBoxCount / (7 * i) > 1; i++) {
+		$scope.weekColumn.push(i);
+	}
+	var prevMonth = new Date($scope.firstDay.getFullYear(), $scope.firstDay.getMonth() - 1, 1);
+	var nextMonth = new Date($scope.firstDay.getFullYear(), $scope.firstDay.getMonth() + 1, 1);
+	$scope.gotoPrevMonth = function() {
+		$location.path("/editCalendarAlbum/" + $scope.editingContent.contentKey + "/" + prevMonth.getFullYear() + "" + (prevMonth.getMonth() + 1))
+	}
+	$scope.gotoNextMonth = function() {
+		$location.path("/editCalendarAlbum/" + $scope.editingContent.contentKey + "/" + nextMonth.getFullYear() + "" + (nextMonth.getMonth() + 1))
+	}
+	function initGroupSelect() {
+		if ($scope.myGroups && $scope.targetGroupId) {
+			$scope.myGroups.forEach(function(group) {
+				if ($scope.targetGroupId == group.id) {
+					$scope.contentGroup = group;
+				}
+			})
+		}
+	}
+	var parseContentToEdit = function(content) {
+		var editingContent = {}
+		if ($scope.editingContent) {
+			var contentImageFile = $scope.editingContent.contentImageFile;
+		}
+		editingContent.status = $rootScope.statuses[content.ContentBodies[0].status - 1];
+		editingContent.contentKey = content.accessKey;
+		editingContent.title = content.ContentBodies[0].title;
+		editingContent.article = content.ContentBodies[0].article;
+		editingContent.topImageUrl = content.ContentBodies[0].topImageUrl;
+		if (content.Tags) {
+			editingContent.tags = content.Tags.map(function(val) {
+				return {
+					text : val.name
+				}
+			});
+		}
+		editingContent.contentImageFile = contentImageFile;
+		return editingContent;
+	}
+	$scope.save = function(func, successCallback, errorCallback) {
+		var url;
+		if (!func) {
+			func = put;
+			url = '/api/content/' + $scope.editingContent.contentKey
+		}
+		if (!$scope.editingContent.contentKey) {
+			func = post;
+			url = '/api/content';
+		}
+		var tags
+		if ($scope.editingContent.tags) {
+			tags = $scope.editingContent.tags.map(function(val) {
+				return val.text
+			}).filter(function(val) {
+				return "" != val && val.indexOf(",") < 0;
+			}).join(",");
+		}
+		func($http, url, {
+			title : $scope.editingContent.title,
+			article : $scope.editingContent.article,
+			contentKey : $scope.editingContent.contentKey,
+			sessionKey : $rootScope.getSessionKey(),
+			status : $scope.editingContent.status.keyNumber,
+			topImageUrl : $scope.editingContent.topImageUrl,
+			groupId : $scope.contentGroup && 0 != $scope.contentGroup.id ? $scope.contentGroup.id : null,
+			tags : tags
+		}).success(function(content) {
+			if (successCallback) {
+				successCallback(content);
+			} else {
+				alertOnLeave = false;
+				if ($scope.contentGroup && 0 != $scope.contentGroup.id) {
+					$location.path("/group/" + $scope.contentGroup.accessKey);
+				} else {
+					$location.path("/home");
+				}
+			}
+		}).error(function(error) {
+			if (errorCallback) {
+				errorCallback();
+			} else {
+				$rootScope.showError($rootScope.messages.error.withServer);
+			}
+		});
+	}
+	if ($scope.contentKey) {
+		$resource('/api/content/:contentKey?sessionKey=:sessionKey').get({
+			contentKey : $routeParams.contentKey,
+			sessionKey : $rootScope.getSessionKey()
+		}, function(content) {
+			$scope.editingContent = parseContentToEdit(content);
+			if (content.Group) {
+				$scope.targetGroupId = content.Group.id;
+			}
+			initGroupSelect();
+		}, function(error) {
+			$rootScope.showError($rootScope.messages.error.withServer);
+		});
+	} else {
+		$scope.editingContent = {}
+		$scope.editingContent.status = $scope.targetGroupId ? $rootScope.statuses[3] : $rootScope.statuses[1]
+		$scope.editingContent.tags = []
+		$scope.contentGroup = {
+			id : 0,
+			name : ""
+		}
+		$scope.editingContent.article = "";
+		$scope.save(post, function(content) {
+			$scope.editingContent = parseContentToEdit(content);
+			if (content.Group) {
+				$scope.targetGroupId = content.Group.id;
+			}
+			initGroupSelect();
+		}, function(error) {
+			$rootScope.showError($rootScope.messages.error.withServer);
+		})
+	}
+} ]
 var contentController = [ "$rootScope", "$scope", "$resource", "$location", "$http", "$routeParams", function($rootScope, $scope, $resource, $location, $http, $routeParams) {
 	$resource('/api/content/:contentKey?sessionKey=:sessionKey').get({
 		contentKey : $routeParams.contentKey,
@@ -1597,6 +1785,7 @@ myapp.controller('resetPasswordController', resetPasswordController);
 myapp.controller('editProfileController', editProfileController);
 myapp.controller('changePasswordController', changePasswordController);
 myapp.controller('editContentController', editContentController);
+myapp.controller('editCalendarAlbumController', editCalendarAlbumController);
 myapp.controller('contentController', contentController);
 myapp.controller('tagsController', tagsController);
 myapp.controller('editTagController', editTagController);

@@ -361,7 +361,8 @@ router.post('/', function(req, res) {
 			ownerId : accessAccount.id,
 			accessKey : createdContentAccessKey,
 			language : req.headers["accept-language"],
-			currentVersion : 1
+			currentVersion : 1,
+			type : req.body.type || "markdown"
 		});
 	}).then(function(content) {
 		createdContent = content;
