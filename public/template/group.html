@@ -46,7 +46,7 @@
 								</div>
 								<div class="col-sm-3 col-sm-offset-1 col-xs-12">
 									<div class="row">
-										<button ng-show="isEditable()" class="editButton col-xs-6 btn btn-primary" type="submit" ng-click="goto('/editContent/'+content.accessKey)" ng-bind="messages.edit"></button>
+										<button ng-show="isEditable()" class="editButton col-xs-6 btn btn-primary" type="submit" ng-click="gotoEditContent(content)" ng-bind="messages.edit"></button>
 										<button ng-show="isEditable()" class="deleteButton col-xs-6 btn btn-default" type="submit" ng-click="deleteContent($index, content.ContentBodies[0].title, content.accessKey)" ng-bind="messages.delete"></button>
 									</div>
 								</div>
