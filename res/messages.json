@@ -85,8 +85,12 @@
 			"thisContentIsNotVisible" : "This content is not visible.\nIf you want to watch it, send invitation request.",
 			"joinGroup" : "Join to group to view this content.",
 			"saved" : "Content has saved.",
+			"calendarDescription" : "Description",
+			"fileUploadArea" : "Drop JPEG file here. Or drop to a day.",
 			"errors" : {
-				"failToSave" : "Fail to save content."
+				"failToSave" : "Fail to save content.",
+				"upload" : "Fail to upload file",
+				"alertLocationChangeOnSaving" : "Now saving. Really leave away?"
 			}
 		},
 		"error" : {
@@ -183,8 +187,12 @@
 			"thisContentIsNotVisible" : "このコンテンツを見るためにはグループへ参加する必要があります。招待依頼をしますか？",
 			"joinGroup" : "このコンテンツを見るためにはグループへ参加してください。",
 			"saved" : "投稿が保存されました。",
+			"calendarDescription" : "出来事",
+			"fileUploadArea" : "JPEGをここにドロップすると日付を自動判別します。もしくは日付欄に直接入れてください。",
 			"errors" : {
-				"failToSave" : "投稿の保存に失敗しました。"
+				"failToSave" : "投稿の保存に失敗しました。",
+				"upload" : "ファイルのアップロードに失敗しました。",
+				"alertLocationChangeOnSaving" : "保存できていませんが、本当に移動しますか？"
 			}
 		},
 		"error" : {

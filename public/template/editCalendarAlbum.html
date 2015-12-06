@@ -1,26 +1,76 @@
 <div class="col-xs-12" style="height: 100%;">
 	<div class="row">
 		<div class="col-xs-12">
-			<div>
+			<input id="calendarContentTitle" type="text" ng-blur="save(null,emptyFunction(),emptyFunction())" style="width: 100%" ng-model="editingContent.title" placeholder="title"></input>
+		</div>
+	</div>
+	<div class="row" style="margin-top: 10px">
+		<div class="col-xs-12">
+			<div style="width: 20%; float: left;">
 				<button class="btn btn-default glyphicon glyphicon-chevron-left" ng-click="gotoPrevMonth()"></button>
 				<span style="margin: 10px">{{firstDay.getTime() | date:'yyyy/MM'}}</span>
 				<button class="btn btn-default glyphicon glyphicon-chevron-right" ng-click="gotoNextMonth()"></button>
 			</div>
+			<div style="width: 69%; float: left; background-color: #999; border: solid 3px #999; padding: 10px; border-radius: 5px; text-align: center; color: white" ng-model="autoDateSetImages" ngf-multiple="true" ngf-drop ngf-drag-over-class="'calenderDragover'" ng-bind="messages.contents.fileUploadArea"></div>
+			<br style="clear: both" />
 			<div style="margin-top: 10px; border-top: solid 1px #DDD; border-left: solid 1px #DDD;">
 				<div ng-repeat="day in ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'] track by $index" style="width: 14%; float: left; position: relative; border-right: solid 1px #DDD; border-bottom: solid 1px #DDD; text-align: center; color: #999">{{day}}</div>
 				<br style="clear: both" />
 				<div ng-repeat="week in weekColumn track by $index">
-					<div ng-repeat="date in [1,2,3,4,5,6,7] track by $index" style="width: 14%; height: 120px; float: left; position: relative; border-right: solid 1px #DDD; border-bottom: solid 1px #DDD;">{{(date+week*7-firstDay.getDay() > 0 &&date+week*7-firstDay.getDay() <= 31) ? date+week*7-firstDay.getDay() : "" }}</div>
-					<br style="clear: both" />
+					<div ng-repeat="date in [1,2,3,4,5,6,7] track by $index" style="width: 14%; height: 120px; float: left; position: relative; border-right: solid 1px #DDD; border-bottom: solid 1px #DDD; overflow: hidden" ngf-multiple="true" ngf-drop ngf-change="uploadFiles(firstDay.getFullYear()+'/'+(firstDay.getMonth()+1)+'/'+(date+week*7-firstDay.getDay()), $files)">
+						<img ng-show="editingContent.article[firstDay.getFullYear()+'/'+(firstDay.getMonth()+1)+'/'+(date+week*7-firstDay.getDay())].images[0].thumbnail" ng-src="{{editingContent.article[firstDay.getFullYear()+'/'+(firstDay.getMonth()+1)+'/'+(date+week*7-firstDay.getDay())].images[0].thumbnail}}" style="position: absolute; top: 0; left: 0; width: 100%;" ng-click="showImagesAt(firstDay.getFullYear()+'/'+(firstDay.getMonth()+1)+'/'+(date+week*7-firstDay.getDay()))" /> <br style="clear: both" />
+						<div ng-bind="(date+week*7-firstDay.getDay() > 0 &&date+week*7-firstDay.getDay() <= 31) ? date+week*7-firstDay.getDay() : ''" style="position: absolute; top: 5px; left: 5px" class="calenderDate"></div>
+						<div ng-bind="editingContent.article[firstDay.getFullYear()+'/'+(firstDay.getMonth()+1)+'/'+(date+week*7-firstDay.getDay())].description" style="position: absolute; bottom: 3px; left: 1%; width: 98%; overflow: hidden;" class="calenderDescription" ng-hide="editingDescription[firstDay.getFullYear()+'/'+(firstDay.getMonth()+1)+'/'+(date+week*7-firstDay.getDay())]"
+							ng-click="editingDescription[firstDay.getFullYear()+'/'+(firstDay.getMonth()+1)+'/'+(date+week*7-firstDay.getDay())] = {};editingDescription[firstDay.getFullYear()+'/'+(firstDay.getMonth()+1)+'/'+(date+week*7-firstDay.getDay())].description = editingContent.article[firstDay.getFullYear()+'/'+(firstDay.getMonth()+1)+'/'+(date+week*7-firstDay.getDay())].description;document.getElementById('descriptionInputAt'+(date+week*7-firstDay.getDay())).focus()"></div>
+						<form ng-show="editingDescription[firstDay.getFullYear()+'/'+(firstDay.getMonth()+1)+'/'+(date+week*7-firstDay.getDay())]" ng-submit="saveDescription(firstDay.getFullYear()+'/'+(firstDay.getMonth()+1)+'/'+(date+week*7-firstDay.getDay()))" style="position: absolute; bottom: 3px; left: 1%; width: 98%; overflow: hidden; margin: 0; padding: 0">
+							<input id="descriptionInputAt{{date+week*7-firstDay.getDay()}}" type="text" ng-model="editingDescription[firstDay.getFullYear()+'/'+(firstDay.getMonth()+1)+'/'+(date+week*7-firstDay.getDay())].description" placeholder="{{messages.contents.calendarDescription}}" ng-blur="saveDescription(firstDay.getFullYear()+'/'+(firstDay.getMonth()+1)+'/'+(date+week*7-firstDay.getDay()))" />
+						</form>
+					</div>
+				</div>
+				<br style="clear: both" />
+			</div>
+		</div>
+		<div class="col-xs-12" style="height: 10px"></div>
+		<div class="form-group col-sm-6 col-xs-12">
+			<label for="status" class="col-sm-4 control-label" ng-bind="messages.contents.accessibility"></label>
+			<div>
+				<select id="selectStatus" ng-model="editingContent.status" ng-options="status as status.message for status in statuses"></select>
+			</div>
+		</div>
+		<div class="form-group col-sm-6 col-xs-12" ng-show="myGroups[1]">
+			<label for="contentGroup" class="col-sm-4 control-label" ng-bind="messages.group"></label>
+			<div>
+				<select id="selectGroup" ng-model="contentGroup" ng-options="group as group.name for group in myGroups"></select>
+			</div>
+		</div>
+		<button class="btn btn-primary col-xs-12" ng-bind="messages.save" ng-click="save()"></button>
+	</div>
+</div>
+<div id="imagePane" ng-show="datePaneSrc" align="center"></div>
+<div id="calendarImagePaneImgBase" ng-show="datePaneSrc" align="center" ng-click="hideImages()" class="col-xs-12">
+	<div class="row">
+		<div ng-bind="datePaneSrc.keyDate" class="col-sm-4 col-xs-12" style="text-align: left; color: white"></div>
+		<div ng-bind="datePaneSrc.description" class="col-sm-8 col-xs-12" style="text-align: left; color: white;"></div>
+	</div>
+	<div class="row">
+		<div class="col-sm-9 col-xs-12">
+			<div class="row">
+				<div class="col-xs-12">
+					<img id="overlayImage" ng-show="!isMovie(datePaneSrc.images[imagesIndex].file)" ng-src="{{datePaneSrc.images[imagesIndex].file}}">
+				</div>
+				<video id="overlayVideo" ng-show="isMovie(datePaneSrc.images[imagesIndex].file)" ng-src="{{datePaneSrc.images[imagesIndex].file}}" onclick="return false;" controls autoplay loop></video>
+			</div>
+		</div>
+		<div class="col-sm-3 col-xs-12" style="max-height: 100%" style="overflow: scroll;">
+			<div class="row">
+				<div ng-repeat="image in datePaneSrc.images track by $index" class="col-sm-6 col-xs-2">
+					<div class="row">
+						<div class="col-xs-12">
+							<img ng-src="{{image.thumbnail}}" style="width: 100%" ng-click="changeDataPaneImage($index, $event);" />
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>
 	</div>
-</div>
-<div id="imagePane" ng-show="imagePaneSrc || videoPaneSrc" align="center"></div>
-<div id="imagePaneImgBase" ng-show="imagePaneSrc" align="center" ng-click="clearImagePaneSrc()">
-	<img ng-src="{{imagePaneSrc}}">
-</div>
-<div id="imagePaneImgBase" ng-show="videoPaneSrc" align="center" ng-click="clearImagePaneSrc()">
-	<video id="overlayVideo" ng-src="{{videoPaneSrc}}" onclick="return false;" controls autoplay loop></video>
 </div>
