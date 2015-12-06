@@ -19,6 +19,8 @@
 <script src="assets/bootstrap/js/bootstrap.min.js"></script>
 <!-- <script src="assets/marked.min.js"></script>-->
 <script src="js/marked.js"></script>
+<script src="assets/exif.js"></script>
+<script src="assets/mp4.min.js"></script>
 
 <script src="assets/angular.js"></script>
 <script src="assets/angular-route.min.js"></script>
@@ -71,6 +73,8 @@
 						<ul class="dropdown-menu">
 							<li><a href="/home" ng-bind="messages.menu.home"></a></li>
 							<li><a id="toEditContentLink" href="/editContent" ng-bind="messages.menu.newContent"></a></li>
+							<li><a id="toEditCalendarAlbum" href="/editCalendarAlbum"" ng-bind="messages.menu.newCalendarAlbum"></a></li>
+							
 							<li role="separator" class="divider"></li>
 							<li class="dropdown-header" ng-bind="messages.menu.setting"></li>
 							<li><a href="/editProfile" ng-bind="messages.menu.profile"></a></li>
