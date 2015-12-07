@@ -117,11 +117,13 @@
 </div>
 <div id="calendarImagePaneImgBase" ng-show="datePaneSrc" align="center" ng-click="hideImages()" class="col-xs-12">
 	<div class="row">
-		<div ng-bind="datePaneSrc.keyDate" class="col-sm-4 col-xs-12" style="text-align: left; color: white"></div>
-		<div ng-bind="datePaneSrc.description" class="col-sm-8 col-xs-12" style="text-align: left; color: white;"></div>
-	</div>
-	<div class="row">
-		<div class="col-sm-9 col-xs-12">
+		<div class="col-sm-2 col-xs-12" style="max-height: 100%" style="overflow: scroll;">
+			<div class="row">
+				<h2 ng-bind="datePaneSrc.keyDate" class="col-xs-12" style="text-align: left; color: white"></h2>
+				<div ng-bind="datePaneSrc.description" class="col-xs-12" style="margin-top: 10px; text-align: left; color: white; white-space: pre-wrap;"></div>
+			</div>
+		</div>
+		<div class="col-sm-7 col-xs-12">
 			<div class="row">
 				<div class="col-xs-12">
 					<img id="overlayImage" ng-show="!isMovie(datePaneSrc.images[imagesIndex].file)" ng-src="{{datePaneSrc.images[imagesIndex].file}}">
