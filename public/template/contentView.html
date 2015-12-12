@@ -110,28 +110,36 @@
 </div>
 <div id="imagePane" ng-show="imagePaneSrc || videoPaneSrc || datePaneSrc" align="center"></div>
 <div id="imagePaneImgBase" ng-show="imagePaneSrc" align="center" ng-click="clearImagePaneSrc()">
-	<img ng-src="{{imagePaneSrc}}">
+	<div id="overlayImage" class="center-cropped" style="background-image: url('{{imagePaneSrc}}'); max-height: 100%;">
+		<img ng-src="{{imagePaneSrc}}" />
+	</div>
 </div>
 <div id="imagePaneImgBase" ng-show="videoPaneSrc" align="center" ng-click="clearImagePaneSrc()">
-	<video id="overlayVideo" ng-src="{{videoPaneSrc}}" onclick="return false;" controls autoplay loop></video>
+	<div class="col-xs-12">
+		<video id="overlayVideo" class="center-cropped" onclick="return false;" ng-src="{{videoPaneSrc}}" controls autoplay loop></video>
+	</div>
 </div>
 <div id="calendarImagePaneImgBase" ng-show="datePaneSrc" align="center" ng-click="hideImages()" class="col-xs-12">
-	<div class="row">
-		<div class="col-sm-2 col-xs-12" style="max-height: 100%" style="overflow: scroll;">
+	<div class="row" style="opacity: 1.0">
+		<div class="col-sm-2 col-xs-12" style="max-height: 100%; overflow: scroll;">
 			<div class="row">
 				<h2 ng-bind="datePaneSrc.keyDate" class="col-xs-12" style="text-align: left; color: white"></h2>
 				<div ng-bind="datePaneSrc.description" class="col-xs-12" style="margin-top: 10px; text-align: left; color: white; white-space: pre-wrap;"></div>
 			</div>
 		</div>
-		<div class="col-sm-7 col-xs-12">
+		<div class="col-sm-7 col-xs-12" style="margin-bottom: 10px">
 			<div class="row">
-				<div class="col-xs-12">
-					<img id="overlayImage" ng-show="!isMovie(datePaneSrc.images[imagesIndex].file)" ng-src="{{datePaneSrc.images[imagesIndex].file}}">
+				<div class="col-xs-12" ng-show="!isMovie(datePaneSrc.images[imagesIndex].file)">
+					<div id="overlayImage" class="center-cropped" style="background-image: url('{{datePaneSrc.images[imagesIndex].file}}')">
+						<img ng-src="{{datePaneSrc.images[imagesIndex].file}}" />
+					</div>
 				</div>
-				<video id="overlayVideo" ng-show="isMovie(datePaneSrc.images[imagesIndex].file)" ng-src="{{datePaneSrc.images[imagesIndex].file}}" onclick="return false;" controls autoplay loop></video>
+				<div class="col-xs-12" ng-show="isMovie(datePaneSrc.images[imagesIndex].file)">
+					<video id="overlayVideo" class="center-cropped" onclick="return false;" style="max-height: 10%" ng-src="{{datePaneSrc.images[imagesIndex].file}}" controls autoplay loop></video>
+				</div>
 			</div>
 		</div>
-		<div class="col-sm-3 col-xs-12" style="max-height: 100%" style="overflow: scroll;">
+		<div class="col-sm-3 col-xs-12" style="max-height: 100%; overflow: scroll;">
 			<div class="row">
 				<div ng-repeat="image in datePaneSrc.images track by $index" class="col-sm-6 col-xs-2">
 					<div class="row">
