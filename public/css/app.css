@@ -128,23 +128,24 @@ button {
 	top: 0;
 	left: 0;
 	width: 100%;
-	align: center;
+	height: 100%;
 	vertical-align: middle;
 	padding: 20px;
-}
-
-#imagePaneImgBase img {
-	height: 100%;
-	opacity: 1.0;
+	align: center;
+	overflow: scroll;
 }
 
 #calendarImagePaneImgBase {
 	position: fixed;
 	top: 0;
 	left: 0;
-	align: center;
 	vertical-align: middle;
 	padding: 20px;
+	align: center;
+	height: 100%;
+	width: 100%;
+	height: 100%;
+	overflow: scroll;
 }
 
 /* Message */
@@ -242,4 +243,20 @@ button {
 	height: 20px;
 	border: solid 1px #999;
 	cursor: pointer;
+}
+
+.center-cropped {
+	width: 100%;
+	height: 100%;
+	background-position: center;
+	background-size: contain;
+	background-repeat: no-repeat;
+}
+
+.center-cropped img {
+	height: 100%;
+	width: 100%;
+	-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
+	filter: alpha(opacity = 0);
+	opacity: 0;
 }
