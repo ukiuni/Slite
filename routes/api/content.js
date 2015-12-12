@@ -12,6 +12,7 @@ var socket = global.socket;
 var Promise = require("bluebird");
 var express = require('express');
 var router = express.Router();
+var ERROR_WRONGACCESS = "ERROR_WRONGACCESS";
 var ERROR_NOTACCESSIBLE = "ERROR_NOTACCESSIBLE";
 var ERROR_NOTFOUND = "ERROR_NOTFOUND";
 var Random = require(__dirname + "/../../util/random");
@@ -440,6 +441,9 @@ router.put('/:contentKey', function(req, res) {
 		if (!content || loadedAccessKey.AccountId != content.ownerId) {
 			throw ERROR_NOTACCESSIBLE;
 		}
+		if (req.body.appends && content.type == "calendar") {
+			throw ERROR_WRONGACCESS;
+		}
 		loadedContent = content;
 		return content.getContentBodies({
 			where : {
@@ -522,6 +526,8 @@ router.put('/:contentKey', function(req, res) {
 		console.log(error.stack);
 		if (ERROR_NOTACCESSIBLE == error) {
 			res.status(403).end();
+		} else if (ERROR_WRONGACCESS == error) {
+			res.status(400).end();
 		} else {
 			res.status(500).end();
 		}
