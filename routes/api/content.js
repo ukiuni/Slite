@@ -435,11 +435,26 @@ router.put('/:contentKey', function(req, res) {
 				model : Account,
 				as : "owner",
 				attributes : [ "id", "name", "iconUrl" ]
+			}, {
+				model : Group,
+				include : [ {
+					model : Account
+				} ]
 			} ]
 		})
 	}).then(function(content) {
 		if (!content || loadedAccessKey.AccountId != content.ownerId) {
-			throw ERROR_NOTACCESSIBLE;
+			var inGroup = false;
+			if (content.Group) {
+				content.Group.Accounts.forEach(function(account) {
+					if (account.id == loadedAccessKey.AccountId || account.AccountInGroup.authorization > Account.AUTHORIZATION_EDITOR) {
+						inGroup = true;
+					}
+				})
+			}
+			if (!inGroup) {
+				throw ERROR_NOTACCESSIBLE;
+			}
 		}
 		if (req.body.appends && content.type == "calendar") {
 			throw ERROR_WRONGACCESS;
@@ -523,12 +538,12 @@ router.put('/:contentKey', function(req, res) {
 		loadedContent.dataValues.Tag = updatedTags;
 		res.status(201).json(loadedContent);
 	})["catch"](function(error) {
-		console.log(error.stack);
 		if (ERROR_NOTACCESSIBLE == error) {
 			res.status(403).end();
 		} else if (ERROR_WRONGACCESS == error) {
 			res.status(400).end();
 		} else {
+			console.log(error.stack);
 			res.status(500).end();
 		}
 	});
