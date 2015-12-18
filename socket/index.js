@@ -117,12 +117,10 @@ var socket = function(io) {
 				}
 				return Message.findAll(criteria);
 			}).then(function(messages) {
-				messages.reverse().forEach(function(message) {
-					socket.emit(channelAccessKey, JSON.stringify({
-						type : "historicalMessage",
-						message : message
-					}));
-				});
+				socket.emit(channelAccessKey, JSON.stringify({
+					type : "historicalMessage",
+					messages : messages
+				}));
 			})["catch"](function(e) {
 				console.log(e.stack);
 				socket.emit("exception", e);
