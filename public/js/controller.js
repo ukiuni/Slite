@@ -1884,39 +1884,43 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 		var jqScrollPane = $("#messageScrollPane");
 		var jqScrollInner = $("#messageScrollInner");
 		var listenComment = function(event) {
-			event = JSON.parse(event);
+			var event = JSON.parse(event);
 			if ("message" == event.type || "historicalMessage" == event.type) {
-				var message = event.message;
-				$scope["$apply"](function() {
-					$scope.channel.messages.push(message);
-					if (jqScrollPane.scrollTop() > jqScrollInner.height() - jqScrollPane.height() - 30) {
-						jqScrollPane.animate({
-							scrollTop : jqScrollInner.height()
-						}, 50);
+				var messages = "message" == event.type ? [ event.message ] : event.messages.reverse();
+				messages.forEach(function(message) {
+					$scope["$apply"](function() {
+						$scope.channel.messages.push(message);
+						if (jqScrollPane.scrollTop() > jqScrollInner.height() - jqScrollPane.height() - 30) {
+							setTimeout(function() {
+								jqScrollPane.animate({
+									scrollTop : jqScrollInner.height()
+								}, 50);
+							}, 0);
+						}
+					});
+					if (!$rootScope.myAccount) {
+						return;
+					}
+					setTimeout(function() {
+						$('.messageBody').highlight($rootScope.myAccount.name);
+					}, 0)
+					if (0 <= message.body.indexOf($rootScope.myAccount.name) && !document.hasFocus()) {
+						if (Notification && "granted" != Notification.permission) {
+							Notification.requestPermission(function(status) {
+								if (Notification.permission !== status) {
+									Notification.permission = status;
+								}
+							});
+						}
+						var n = new Notification($rootScope.messages.message, {
+							body : message.body
+						});
+						n.onclick = function() {
+							$("#messageInput").focus();
+						};
+						bounce();
 					}
 				});
-				if (!$rootScope.myAccount) {
-					return;
-				}
-				setTimeout(function() {
-					$('.messageBody').highlight($rootScope.myAccount.name);
-				}, 0)
-				if (0 <= message.body.indexOf($rootScope.myAccount.name) && !document.hasFocus()) {
-					if (Notification && "granted" != Notification.permission) {
-						Notification.requestPermission(function(status) {
-							if (Notification.permission !== status) {
-								Notification.permission = status;
-							}
-						});
-					}
-					var n = new Notification($rootScope.messages.message, {
-						body : message.body
-					});
-					n.onclick = function() {
-						$("#messageInput").focus();
-					};
-					bounce();
-				}
 			} else if ("join" == event.type || "hello" == event.type) {
 				var joinedAccount = event.account;
 				if (channel.Group.Accounts) {
