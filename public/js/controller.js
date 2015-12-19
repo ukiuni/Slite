@@ -1886,10 +1886,17 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 		var listenComment = function(event) {
 			var event = JSON.parse(event);
 			if ("message" == event.type || "historicalMessage" == event.type) {
-				var messages = "message" == event.type ? [ event.message ] : event.messages.reverse();
+				var messages = "message" == event.type ? [ event.message ] : event.messages;
+				if ("historicalMessage" == event.type) {
+					loadingHistory = false;
+				}
 				messages.forEach(function(message) {
 					$scope["$apply"](function() {
-						$scope.channel.messages.push(message);
+						if ("message" == event.type) {
+							$scope.channel.messages.push(message);
+						} else {
+							$scope.channel.messages.unshift(message);
+						}
 						if (jqScrollPane.scrollTop() > jqScrollInner.height() - jqScrollPane.height() - 30) {
 							setTimeout(function() {
 								jqScrollPane.animate({
@@ -1954,6 +1961,18 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 					})
 				}
 			}
+		}
+		var loadingHistory = false;
+		$scope.loadHistory = function() {
+			if ((!$scope.channel.messages[0]) || loadingHistory) {
+				return;
+			}
+			loadingHistory = true;
+			var lastLoadId = $scope.channel.messages[0].id;
+			$rootScope.requestMessage({
+				channelAccessKey : $routeParams.channelAccessKey,
+				idBefore : lastLoadId
+			});
 		}
 		$rootScope.listenChannel($routeParams.channelAccessKey, listenComment);
 		$rootScope.requestMessage({

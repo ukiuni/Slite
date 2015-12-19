@@ -60,6 +60,9 @@
 			"name" : "Name"
 		},
 		"message" : "message",
+		"messages" : {
+			"loadHistory" : "Load message"
+		},
 		"sendWithEnter" : "Send on enter",
 		"send" : "send",
 		"edit" : "edit",
@@ -162,6 +165,9 @@
 			"name" : "チャネル名"
 		},
 		"message" : "メッセージ",
+		"messages" : {
+			"loadHistory" : "メッセージを読み込む"
+		},
 		"sendWithEnter" : "Enterで送信",
 		"send" : "送信",
 		"edit" : "編集",

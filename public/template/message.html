@@ -29,6 +29,7 @@
 				<div id="messageScrollPane" class="row" style="height: 100%; width: 100%; overflow: scroll; padding-bottom: 80px;">
 					<div class="col-xs-12">
 						<div id="messageScrollInner" class="row">
+							<div ng-bind="messages.messages.loadHistory" style="width: 100%; margin-bottom: 3px; border: 1px solid white" class="btn btn-default" ng-click="loadHistory()"></div>
 							<div class="col-xs-12 messageRow" ng-repeat="message in channel.messages track by message.id" ng-class-odd="'repeatOdd'">
 								<div class="row">
 									<div class="col-xs-1">
