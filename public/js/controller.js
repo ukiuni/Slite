@@ -339,12 +339,16 @@ myapp.run([ "$rootScope", "$location", "$resource", "$cookies", "Upload", functi
 				return;
 			}
 			$rootScope.disconnected = false;
-			contentSocketListeners.forEach(function(value, key) {
-				$rootScope.socket.emit('listenComment', key);
-			});
-			channelSocketListeners.forEach(function(value, key) {
-				$rootScope.socket.emit('listenChannel', key);
-			})
+			var reconnectFunction = function() {
+				$rootScope.socket.removeListener('authorized', reconnectFunction);
+				contentSocketListeners.forEach(function(value, key) {
+					$rootScope.socket.emit('listenComment', key);
+				});
+				channelSocketListeners.forEach(function(value, key) {
+					$rootScope.socket.emit('listenChannel', key);
+				})
+			};
+			$rootScope.socket.on('authorized', reconnectFunction);
 		});
 		$rootScope.socket.on('disconnect', function(data) {
 			$rootScope.disconnected = true;

@@ -1,3 +1,4 @@
+var request = require('request');
 module.exports = function(sequelize, DataTypes) {
 	var NotificationTarget = sequelize.define("NotificationTarget", {
 		secret : DataTypes.TEXT,
@@ -20,21 +21,29 @@ module.exports = function(sequelize, DataTypes) {
 			as : "owner"
 		});
 	};
-	var notifyToAndroid = function(notificationTarget) {
-		
+	var notifyToAndroid = function(notificationTarget, message) {
+	}
+	var webhook = function(notificationTarget, message) {
+		request(notificationTarget.endpoint, function(error, response, body) {
+			if (!error && response.statusCode == 200) {
+				console.log("webhooked to " + notificationTarget.endpoint);
+			} else {
+				console.log("webhook failed to " + notificationTarget.endpoint + ", error = " + error + ", " + response.statusCode);
+			}
+		});
 	}
 	NotificationTarget.notifyToChannel = function(channel, message) {
-		return AccountInGroup.findAll({
+		return global.db.AccountInGroup.findAll({
 			where : {
 				GroupId : channel.GroupId,
-				inviting : Group.INVITING_DONE
+				inviting : global.db.Group.INVITING_DONE
 			},
 			attributes : [ "AccountId" ]
 		}).then(function(accountInGroups) {
 			var ids = accountInGroups.map(function(accountInGroup) {
 				return accountInGroup.AccountId;
 			});
-			return NotificationTarget.findAll({
+			return global.db.NotificationTarget.findAll({
 				where : {
 					ownerId : {
 						$in : ids
@@ -44,7 +53,9 @@ module.exports = function(sequelize, DataTypes) {
 		}).then(function(notificationTargets) {
 			notificationTargets.forEach(function(notificationTarget) {
 				if (NotificationTarget.PLATFORM_ANDROID == notificationTarget.platform) {
-					notifyToAndroid(notificationTarget);
+					notifyToAndroid(notificationTarget, message);
+				} else if (NotificationTarget.PLATFORM_WEBHOOK == notificationTarget.platform) {
+					webhook(notificationTarget, message);
 				}
 			});
 		});
@@ -52,7 +63,7 @@ module.exports = function(sequelize, DataTypes) {
 	NotificationTarget.PLATFORM_ANDROID = 1;
 	NotificationTarget.PLATFORM_IOS = 2;
 	NotificationTarget.PLATFORM_PUSHBULLET = 3;
-	NotificationTarget.PLATFORM_POST = 4;
+	NotificationTarget.PLATFORM_WEBHOOK = 4;
 	NotificationTarget.STATUS_CREATED = 1;
 	NotificationTarget.STATUS_DISABLED = 2;
 	return NotificationTarget;

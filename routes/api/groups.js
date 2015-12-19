@@ -6,6 +6,7 @@ var Account = global.db.Account;
 var Content = global.db.Content;
 var Channel = global.db.Channel;
 var Message = global.db.Message;
+var NotificationTarget = global.db.NotificationTarget;
 var ContentBody = global.db.ContentBody;
 var Group = global.db.Group;
 var env = process.env.NODE_ENV || "development";
