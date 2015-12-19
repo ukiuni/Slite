@@ -1,6 +1,6 @@
 <div class="col-xs-12" style="height: 100%;">
 	<div class="row">
-		<div class="col-xs-12" ng-show="content">
+		<div class="col-xs-12" ng-show="content && 'calendar' != content.type">
 			<div class="row" style="height: 200px; overflow: hidden">
 				<div class="col-xs-12" style="margin-top: -100px; margin: 0; padding: 0;">
 					<img ng-src="{{content.ContentBodies[0].topImageUrl ? content.ContentBodies[0].topImageUrl + '?sessionKey=' + sessionKey : createTitleImage(content.ContentBodies[0].title)}}" style="width: 100%" />
@@ -51,6 +51,37 @@
 				</div>
 			</div>
 		</div>
+		<div class="col-xs-12" ng-show="content && 'calendar' == content.type">
+			<div class="row">
+				<div class="col-xs-12" id="calendarContentTitle" ng-bind="content.ContentBodies[0].title"></div>
+			</div>
+			<div class="row" style="margin-top: 10px">
+				<div class="col-xs-12">
+					<div style="width: 20%; float: left;">
+						<button class="btn btn-default glyphicon glyphicon-chevron-left" ng-click="gotoPrevMonth()"></button>
+						<span style="margin: 10px">{{firstDay.getTime() | date:'yyyy/MM'}}</span>
+						<button class="btn btn-default glyphicon glyphicon-chevron-right" ng-click="gotoNextMonth()"></button>
+					</div>
+					<br style="clear: both" />
+					<div style="margin-top: 10px; border-top: solid 1px #DDD; border-left: solid 1px #DDD;">
+						<div ng-repeat="day in ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'] track by $index" style="width: 14%; float: left; position: relative; border-right: solid 1px #DDD; border-bottom: solid 1px #DDD; text-align: center; color: #999">{{day}}</div>
+						<br style="clear: both" />
+						<div ng-repeat="week in weekColumn track by $index">
+							<div ng-repeat="date in [1,2,3,4,5,6,7] track by $index" style="width: 14%; height: 120px; float: left; position: relative; border-right: solid 1px #DDD; border-bottom: solid 1px #DDD; overflow: hidden">
+								<img ng-show="content.article[firstDay.getFullYear()+'/'+(firstDay.getMonth()+1)+'/'+(date+week*7-firstDay.getDay())].images[0].thumbnail" ng-src="{{content.article[firstDay.getFullYear()+'/'+(firstDay.getMonth()+1)+'/'+(date+week*7-firstDay.getDay())].images[0].thumbnail}}" style="position: absolute; top: 0; left: 0; width: 100%;" ng-click="showImagesAt(firstDay.getFullYear()+'/'+(firstDay.getMonth()+1)+'/'+(date+week*7-firstDay.getDay()))" /> <br style="clear: both" />
+								<div ng-bind="(date+week*7-firstDay.getDay() > 0 &&date+week*7-firstDay.getDay() <= 31) ? date+week*7-firstDay.getDay() : ''" style="position: absolute; top: 5px; left: 5px" class="calenderDate"></div>
+								<div ng-bind="content.article[firstDay.getFullYear()+'/'+(firstDay.getMonth()+1)+'/'+(date+week*7-firstDay.getDay())].description" style="position: absolute; bottom: 3px; left: 1%; width: 98%; overflow: hidden;" class="calenderDescription"></div>
+							</div>
+						</div>
+						<br style="clear: both" />
+					</div>
+				</div>
+				<div class="col-xs-12" style="height: 10px"></div>
+				<div class="form-group col-sm-6 col-xs-12" ng-show="myGroups[1]">
+					<div ng-bind="content.Group.name"></div>
+				</div>
+			</div>
+		</div>
 		<div class="col-xs-12">
 			<div class="row" ng-show="groupAccessKey && !accountInGroup">
 				<div class="col-sm-8 col-sm-offset-2 col-xs-12">
@@ -77,10 +108,47 @@
 		</div>
 	</div>
 </div>
-<div id="imagePane" ng-show="imagePaneSrc || videoPaneSrc" align="center"></div>
+<div id="imagePane" ng-show="imagePaneSrc || videoPaneSrc || datePaneSrc" align="center"></div>
 <div id="imagePaneImgBase" ng-show="imagePaneSrc" align="center" ng-click="clearImagePaneSrc()">
-	<img ng-src="{{imagePaneSrc}}">
+	<div id="overlayImage" class="center-cropped" style="background-image: url('{{imagePaneSrc}}'); max-height: 100%;">
+		<img ng-src="{{imagePaneSrc}}" />
+	</div>
 </div>
 <div id="imagePaneImgBase" ng-show="videoPaneSrc" align="center" ng-click="clearImagePaneSrc()">
-	<video id="overlayVideo" ng-src="{{videoPaneSrc}}" onclick="return false;" controls autoplay loop></video>
+	<div class="col-xs-12">
+		<video id="overlayVideo" class="center-cropped" onclick="return false;" ng-src="{{videoPaneSrc}}" controls autoplay loop></video>
+	</div>
+</div>
+<div id="calendarImagePaneImgBase" ng-show="datePaneSrc" align="center" ng-click="hideImages()" class="col-xs-12">
+	<div class="row" style="opacity: 1.0">
+		<div class="col-sm-2 col-xs-12" style="max-height: 100%; overflow: scroll;">
+			<div class="row">
+				<h2 ng-bind="datePaneSrc.keyDate" class="col-xs-12" style="text-align: left; color: white"></h2>
+				<div ng-bind="datePaneSrc.description" class="col-xs-12" style="margin-top: 10px; text-align: left; color: white; white-space: pre-wrap;"></div>
+			</div>
+		</div>
+		<div class="col-sm-7 col-xs-12" style="margin-bottom: 10px">
+			<div class="row">
+				<div class="col-xs-12" ng-show="!isMovie(datePaneSrc.images[imagesIndex].file)">
+					<div id="overlayImage" class="center-cropped" style="background-image: url('{{datePaneSrc.images[imagesIndex].file}}')">
+						<img ng-src="{{datePaneSrc.images[imagesIndex].file}}" />
+					</div>
+				</div>
+				<div class="col-xs-12" ng-show="isMovie(datePaneSrc.images[imagesIndex].file)">
+					<video id="overlayVideo" class="center-cropped" onclick="return false;" style="max-height: 10%" ng-src="{{datePaneSrc.images[imagesIndex].file}}" controls autoplay loop></video>
+				</div>
+			</div>
+		</div>
+		<div class="col-sm-3 col-xs-12" style="max-height: 100%; overflow: scroll;">
+			<div class="row">
+				<div ng-repeat="image in datePaneSrc.images track by $index" class="col-sm-6 col-xs-2">
+					<div class="row">
+						<div class="col-xs-12">
+							<img ng-src="{{image.thumbnail}}" style="width: 100%" ng-click="changeDataPaneImage($index, $event);" />
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 </div>

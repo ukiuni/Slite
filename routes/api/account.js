@@ -535,9 +535,7 @@ router.get("/:id", function(req, res) {
 			model : Content,
 			include : [ {
 				model : ContentBody,
-				where : [ "\"ContentBodies\".\"version\" = \"Content\".\"currentVersion\"", [ {
-					status : ContentBody.STATUS_OPEN
-				} ] ]
+				where : [ "\"ContentBodies\".\"version\" = \"Content\".\"currentVersion\" and \"ContentBodies\".\"status\" = " + ContentBody.STATUS_OPEN ]
 			} ],
 			limit : 5
 		} ]

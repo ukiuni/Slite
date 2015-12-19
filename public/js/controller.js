@@ -91,6 +91,22 @@ myapp.config([ "$locationProvider", "$httpProvider", "$routeProvider", "markedPr
 		templateUrl : "template/contentView.html",
 		controller : "contentController"
 	});
+	$routeProvider.when("/content/:contentKey/:date", {
+		templateUrl : "template/contentView.html",
+		controller : "contentController"
+	});
+	$routeProvider.when("/editCalendarAlbum", {
+		templateUrl : "template/editCalendarAlbum.html",
+		controller : "editCalendarAlbumController"
+	});
+	$routeProvider.when("/editCalendarAlbum/:contentKey", {
+		templateUrl : "template/editCalendarAlbum.html",
+		controller : "editCalendarAlbumController"
+	});
+	$routeProvider.when("/editCalendarAlbum/:contentKey/:date", {
+		templateUrl : "template/editCalendarAlbum.html",
+		controller : "editCalendarAlbumController"
+	});
 	$routeProvider.when("/tags", {
 		templateUrl : "template/tags.html",
 		controller : "tagsController"
@@ -139,7 +155,7 @@ myapp.config([ "$locationProvider", "$httpProvider", "$routeProvider", "markedPr
 		controller : "indexController"
 	});
 } ]);
-myapp.run([ "$rootScope", "$location", "$resource", "$cookies", function($rootScope, $location, $resource, $cookies) {
+myapp.run([ "$rootScope", "$location", "$resource", "$cookies", "Upload", function($rootScope, $location, $resource, $cookies, $uploader) {
 	$resource('/api/resource/messages').get({
 		lang : ((navigator.languages && navigator.languages[0]) || navigator.browserLanguage || navigator.language || navigator.userLanguage).substr(0, 2)
 	}, function(messages) {
@@ -206,6 +222,13 @@ myapp.run([ "$rootScope", "$location", "$resource", "$cookies", function($rootSc
 	$rootScope["goto"] = function(url) {
 		$location.path(url);
 	};
+	$rootScope.gotoEditContent = function(content) {
+		if ("calendar" == content.type) {
+			$rootScope["goto"]("/editCalendarAlbum/" + content.accessKey);
+		} else {
+			$rootScope["goto"]('/editContent/' + content.accessKey);
+		}
+	}
 	var SESSION_KEY = "session_key"
 	$rootScope.setSessionKey = function(sessionKey, expires) {
 		if (expires) {
@@ -341,6 +364,128 @@ myapp.run([ "$rootScope", "$location", "$resource", "$cookies", function($rootSc
 	$rootScope.createTitleImage = function(text) {
 		var canvas = com.ukiuni.ImageUtil.createTextImage(100, 50, 40, 30, 5, text);
 		return canvas.toDataURL('image/png');
+	}
+	var upload = function(contentKey, data, name, success, fail) {
+		$uploader.upload({
+			url : '/api/image/' + contentKey,
+			fields : {
+				sessionKey : $rootScope.getSessionKey(),
+				name : name
+			},
+			file : data,
+			fileFormDataName : "imageFile",
+			sendFieldsAs : "form",
+			method : "POST"
+		}).success(function(response) {
+			if (success) {
+				success(response);
+			}
+		}).error(function(error) {
+			if (fail) {
+				fail(error);
+			}
+		});
+	};
+	var uploadAsFile = function(contentKey, file, onSuccess, onError) {
+		var contentType = file.type ? file.type : "file/unknown";
+		var iconCanvas = com.ukiuni.ImageUtil.createIconImage(500, 500, contentType);
+		var iconData = com.ukiuni.ImageUtil.canvasToPngBlob(iconCanvas);
+		var updloadFileName = file.name;
+		upload(contentKey, iconData, updloadFileName, function(response) {
+			var thumbnailImageUrl = response.url;
+			upload(contentKey, file, updloadFileName, function(response) {
+				var contentUrl = response.url;
+				if (onSuccess) {
+					onSuccess(thumbnailImageUrl, contentUrl, file);
+				}
+			}, function(error) {
+				if (onError) {
+					onError(error);
+				}
+			})
+		}, function(error) {
+			if (onError) {
+				onError(error);
+			}
+		})
+	}
+	$rootScope.uploadFile = function(contentKey, srcFile, onSuccess, onSuccessAsFile, onError) {
+		if (0 == srcFile.type.lastIndexOf("video", 0)) {
+			var video = document.createElement("video");
+			video.addEventListener("loadeddata", function() {
+				var width = video.videoWidth;
+				var height = video.videoHeight;
+				var duration = video.duration;
+				var canvas = document.createElement("canvas");
+				canvas.width = width;
+				canvas.height = height;
+				var context = canvas.getContext("2d")
+				context.drawImage(video, 0, 0, width, height);
+				var tumbImage = new Image();
+				tumbImage.onload = function() {
+					var thumbnailImage = com.ukiuni.ImageUtil.trimAndAppendPlayIcon(tumbImage, 500, 500);
+					var updloadFileName = srcFile.name;
+					upload(contentKey, thumbnailImage, updloadFileName, function(response) {
+						var thumbnailImageUrl = response.url;
+						upload(contentKey, srcFile, updloadFileName, function(response) {
+							var fileImageUrl = response.url;
+							if (onSuccess) {
+								onSuccess(thumbnailImageUrl, fileImageUrl, srcFile);
+							}
+						}, function(error) {
+							if (onError) {
+								onError(error);
+							}
+						})
+					}, function(error) {
+						if (onError) {
+							onError(error);
+						}
+					});
+				};
+				tumbImage.src = canvas.toDataURL("image/png");
+			});
+			video.addEventListener("error", function(error) {
+				uploadAsFile(contentKey, srcFile, function(thumbnailImageUrl, fileImageUrl, srcFile) {
+					onSuccessAsFile(thumbnailImageUrl, fileImageUrl, srcFile);
+				}, function() {
+					if (onError) {
+						onError(error);
+					}
+				});
+			});
+			video.setAttribute("src", URL.createObjectURL(srcFile));
+			video.currentTime = 0;
+		} else if (0 == srcFile.type.lastIndexOf("image", 0)) {
+			var image = new Image();
+			image.onload = function() {
+				var trimmedImage = com.ukiuni.ImageUtil.trim(image, 500, 500);
+				var updloadFileName = srcFile.name;
+				upload(contentKey, trimmedImage, updloadFileName, function(response) {
+					var thumbnailImageUrl = response.url;
+					upload(contentKey, srcFile, updloadFileName, function(response) {
+						onSuccess(thumbnailImageUrl, response.url, srcFile);
+					}, function(error) {
+						if (onError) {
+							onError(error);
+						}
+					})
+				}, function(error) {
+					if (onError) {
+						onError(error);
+					}
+				})
+			}
+			image.src = URL.createObjectURL(srcFile);
+		} else {
+			uploadAsFile(contentKey, srcFile, function(thumbnailImageUrl, fileImageUrl, srcFile) {
+				onSuccessAsFile(thumbnailImageUrl, fileImageUrl, srcFile);
+			}, function() {
+				if (onError) {
+					onError(error);
+				}
+			});
+		}
 	}
 } ]);
 var openWithBrowser = function(url, event) {
@@ -694,27 +839,6 @@ var editContentController = [ "$rootScope", "$scope", "$resource", "$location", 
 			$rootScope.showError($rootScope.messages.error.withServer);
 		})
 	}
-	var upload = function(data, name, success, fail) {
-		$uploader.upload({
-			url : '/api/image/' + $scope.editingContent.contentKey,
-			fields : {
-				sessionKey : $rootScope.getSessionKey(),
-				name : name
-			},
-			file : data,
-			fileFormDataName : "imageFile",
-			sendFieldsAs : "form",
-			method : "POST"
-		}).success(function(response) {
-			if (success) {
-				success(response);
-			}
-		}).error(function(error) {
-			if (fail) {
-				fail(error);
-			}
-		});
-	};
 	var articleTextArea = document.getElementById("article");
 	var insertImageToTextarea = function(tumbUrl, fileUrl, name, clazz) {
 		var text = "[![" + name + "](" + tumbUrl + " \"" + name + "\"){col-xs-12}](" + fileUrl + ")" + (clazz ? "{" + clazz + " col-xs-12 col-sm-3}" : "");
@@ -727,76 +851,18 @@ var editContentController = [ "$rootScope", "$scope", "$resource", "$location", 
 		if (!$scope.articleAppendsImage || !$scope.articleAppendsImage.length) {
 			return;
 		}
-		var uploadAsFile = function(file) {
-			var contentType = file.type ? file.type : "file/unknown";
-			var iconCanvas = com.ukiuni.ImageUtil.createIconImage(500, 500, contentType);
-			var iconData = com.ukiuni.ImageUtil.canvasToPngBlob(iconCanvas);
-			var updloadFileName = file.name;
-			upload(iconData, updloadFileName, function(response) {
-				var tumbnailImageUrl = response.url;
-				upload(file, updloadFileName, function(response) {
-					insertImageToTextarea(tumbnailImageUrl, response.url + "/" + updloadFileName, file.name, "targetBlank");
-				}, function(error) {
-					$rootScope.showError($rootScope.messages.error.withServer);
-				})
-			}, function(error) {
-				$rootScope.showError($rootScope.messages.error.withServer);
-			})
-		}
 		$scope.articleAppendsImage.forEach(function(srcFile) {
-			if (0 == srcFile.type.lastIndexOf("video", 0)) {
-				var video = document.createElement("video");
-				video.addEventListener("loadeddata", function() {
-					var width = video.videoWidth;
-					var height = video.videoHeight;
-					var duration = video.duration;
-					var canvas = document.createElement("canvas");
-					canvas.width = width;
-					canvas.height = height;
-					var context = canvas.getContext("2d")
-					context.drawImage(video, 0, 0, width, height);
-					var tumbImage = new Image();
-					tumbImage.onload = function() {
-						var tumbnailImage = com.ukiuni.ImageUtil.trimAndAppendPlayIcon(tumbImage, 500, 500);
-						var updloadFileName = srcFile.name;
-						upload(tumbnailImage, updloadFileName, function(response) {
-							var tumbnailImageUrl = response.url;
-							upload(srcFile, updloadFileName, function(response) {
-								insertImageToTextarea(tumbnailImageUrl, response.url, srcFile.name, "targetOverray");
-							}, function(error) {
-								$rootScope.showError($rootScope.messages.error.withServer);
-							})
-						}, function(error) {
-							$rootScope.showError($rootScope.messages.error.withServer);
-						});
-					};
-					tumbImage.src = canvas.toDataURL("image/png");
-				});
-				video.addEventListener("error", function(error) {
-					uploadAsFile(srcFile);
-				});
-				video.setAttribute("src", URL.createObjectURL(srcFile));
-				video.currentTime = 0;
-			} else if (0 == srcFile.type.lastIndexOf("image", 0)) {
-				var image = new Image();
-				image.onload = function() {
-					var trimmedImage = com.ukiuni.ImageUtil.trim(image, 500, 500);
-					var updloadFileName = srcFile.name;
-					upload(trimmedImage, updloadFileName, function(response) {
-						var tumbnailImageUrl = response.url;
-						upload(srcFile, updloadFileName, function(response) {
-							insertImageToTextarea(tumbnailImageUrl, response.url, srcFile.name, "targetOverray");
-						}, function(error) {
-							$rootScope.showError($rootScope.messages.error.withServer);
-						})
-					}, function(error) {
-						$rootScope.showError($rootScope.messages.error.withServer);
-					})
-				}
-				image.src = URL.createObjectURL(srcFile);
-			} else {
-				uploadAsFile(srcFile);
+			var contentKey = $scope.editingContent.contentKey;
+			var onError = function(error) {
+				$rootScope.showError($rootScope.messages.error.withServer);
 			}
+			var onSuccess = function(thumbnailImageUrl, fileImageUrl, srcFile) {
+				insertImageToTextarea(thumbnailImageUrl, fileImageUrl, srcFile.name, "targetOverray");
+			}
+			var onSuccessAsFile = function(thumbnailImageUrl, fileImageUrl, srcFile) {
+				insertImageToTextarea(thumbnailImageUrl, fileImageUrl + "/" + srcFile.name, srcFile.name, "targetBlank");
+			}
+			$rootScope.uploadFile(contentKey, srcFile, onSuccess, onSuccessAsFile, onError);
 		});
 	});
 	$scope.clearImagePaneSrc = function() {
@@ -932,6 +998,348 @@ var editContentController = [ "$rootScope", "$scope", "$resource", "$location", 
 		delete pressingKeyMap[event.which];
 	}
 } ];
+var editCalendarAlbumController = [ "$rootScope", "$scope", "$resource", "$location", "$http", "$routeParams", function($rootScope, $scope, $resource, $location, $http, $routeParams) {
+	$scope.contentKey = $routeParams.contentKey
+	$scope.targetGroupId = $rootScope.pullTargetGroupId();
+	$scope.date = $routeParams.date
+	if (!$scope.date) {
+		$scope.firstDay = new Date();
+		$scope.firstDay.setDate(1);
+	} else {
+		try {
+			$scope.firstDay = new Date();
+			$scope.firstDay.setFullYear(parseInt($scope.date.substring(0, 4)));
+			$scope.firstDay.setMonth(parseInt($scope.date.substring(4, 6)) - 1);
+			$scope.firstDay.setDate(1);
+		} catch (e) {
+			$scope.firstDay = new Date();
+			$scope.firstDay.setDate(1);
+		}
+	}
+	var maxDay = new Date($scope.firstDay.getFullYear(), $scope.firstDay.getMonth(), 0).getDate();
+	var dayBoxCount = $scope.firstDay.getDay() + maxDay;
+	$scope.weekColumn = [ 0, 1, 2, 3 ];
+	for (var i = 4; dayBoxCount / (7 * i) > 1; i++) {
+		$scope.weekColumn.push(i);
+	}
+	var prevMonth = new Date($scope.firstDay.getFullYear(), $scope.firstDay.getMonth() - 1, 1);
+	var nextMonth = new Date($scope.firstDay.getFullYear(), $scope.firstDay.getMonth() + 1, 1);
+	$scope.gotoPrevMonth = function() {
+		$location.path("/editCalendarAlbum/" + $scope.editingContent.contentKey + "/" + prevMonth.getFullYear() + "" + (prevMonth.getMonth() + 1))
+	}
+	$scope.gotoNextMonth = function() {
+		$location.path("/editCalendarAlbum/" + $scope.editingContent.contentKey + "/" + nextMonth.getFullYear() + "" + (nextMonth.getMonth() + 1))
+	}
+	function initGroupSelect() {
+		if ($scope.myGroups && $scope.targetGroupId) {
+			$scope.myGroups.forEach(function(group) {
+				if ($scope.targetGroupId == group.id) {
+					$scope.contentGroup = group;
+				}
+			})
+		}
+	}
+	$scope.emptyFunction = function() {
+		return function() {
+		}
+	}
+	$resource('/api/groups/self').query({
+		sessionKey : $rootScope.getSessionKey()
+	}, function(groups) {
+		groups = groups.filter(function(group) {
+			return group.AccountInGroup.authorization >= 2;
+		});
+		groups.unshift({
+			id : 0,
+			name : ""
+		})
+		$scope.myGroups = groups;
+		initGroupSelect();
+	}, function(error) {
+		$rootScope.showErrorWithStatus(error.status);
+	});
+	var parseContentToEdit = function(content) {
+		var editingContent = {}
+		if ($scope.editingContent) {
+			var contentImageFile = $scope.editingContent.contentImageFile;
+		}
+		editingContent.status = $rootScope.statuses[content.ContentBodies[0].status - 1];
+		editingContent.contentKey = content.accessKey;
+		editingContent.title = content.ContentBodies[0].title;
+		editingContent.article = JSON.parse(content.ContentBodies[0].article);
+		editingContent.topImageUrl = content.ContentBodies[0].topImageUrl;
+		if (content.Tags) {
+			editingContent.tags = content.Tags.map(function(val) {
+				return {
+					text : val.name
+				}
+			});
+		}
+		editingContent.contentImageFile = contentImageFile;
+		return editingContent;
+	}
+	$scope.save = function(func, successCallback, errorCallback) {
+		var url;
+		if (!func) {
+			func = put;
+			url = '/api/content/' + $scope.editingContent.contentKey
+		}
+		if (!$scope.editingContent.contentKey) {
+			func = post;
+			url = '/api/content';
+		}
+		var tags
+		if ($scope.editingContent.tags) {
+			tags = $scope.editingContent.tags.map(function(val) {
+				return val.text
+			}).filter(function(val) {
+				return "" != val && val.indexOf(",") < 0;
+			}).join(",");
+		}
+		func($http, url, {
+			title : $scope.editingContent.title,
+			article : JSON.stringify($scope.editingContent.article),
+			contentKey : $scope.editingContent.contentKey,
+			sessionKey : $rootScope.getSessionKey(),
+			status : $scope.editingContent.status.keyNumber,
+			topImageUrl : $scope.editingContent.topImageUrl,
+			groupId : $scope.contentGroup && 0 != $scope.contentGroup.id ? $scope.contentGroup.id : null,
+			tags : tags,
+			type : "calendar"
+		}).success(function(content) {
+			if (successCallback) {
+				successCallback(content);
+			} else {
+				alertOnLeave = false;
+				if ($scope.contentGroup && 0 != $scope.contentGroup.id) {
+					$location.path("/group/" + $scope.contentGroup.accessKey);
+				} else {
+					$location.path("/home");
+				}
+			}
+		}).error(function(error) {
+			if (errorCallback) {
+				errorCallback();
+			} else {
+				$rootScope.showError($rootScope.messages.error.withServer);
+			}
+		});
+	}
+	if ($scope.contentKey) {
+		$resource('/api/content/:contentKey?sessionKey=:sessionKey').get({
+			contentKey : $routeParams.contentKey,
+			sessionKey : $rootScope.getSessionKey()
+		}, function(content) {
+			$scope.editingContent = parseContentToEdit(content);
+			if (content.Group) {
+				$scope.targetGroupId = content.Group.id;
+			}
+			initGroupSelect();
+		}, function(error) {
+			$rootScope.showError($rootScope.messages.error.withServer);
+		});
+	} else {
+		$scope.editingContent = {}
+		$scope.editingContent.status = $scope.targetGroupId ? $rootScope.statuses[3] : $rootScope.statuses[1]
+		$scope.editingContent.tags = []
+		$scope.contentGroup = {
+			id : 0,
+			name : ""
+		}
+		$scope.editingContent.article = {};
+		$scope.save(post, function(content) {
+			$scope.editingContent = parseContentToEdit(content);
+			if (content.Group) {
+				$scope.targetGroupId = content.Group.id;
+			}
+			initGroupSelect();
+		}, function(error) {
+			$rootScope.showError($rootScope.messages.error.withServer);
+		})
+	}
+	$scope.editingDescription = [];
+	$scope.saveDescription = function(keyDate) {
+		if (!$scope.editingDescription[keyDate]) {
+			return;
+		}
+		if (!$scope.editingContent.article[keyDate]) {
+			$scope.editingContent.article[keyDate] = {};
+			$scope.editingContent.article[keyDate].images = [];
+		}
+		$scope.editingContent.article[keyDate].description = $scope.editingDescription[keyDate].description;
+		delete $scope.editingDescription[keyDate];
+		changing = true;
+		$scope.save(null, function() {
+			$rootScope.showToast($rootScope.messages.contents.saved);
+			changing = false;
+		}, function() {
+			$rootScope.showError($rootScope.messages.contents.errors.failToSave);
+		});
+	}
+	$scope.$on('$locationChangeStart', function(event) {
+		if (!changing) {
+			return;
+		}
+		var answer = confirm($rootScope.messages.contents.alertLocationChangeOnSaving);
+		if (!answer) {
+			event.preventDefault();
+		}
+	});
+	var changing = false;
+	$scope.uploadFiles = function(keyDate, files) {
+		var changing = true;
+		var fileLength = 0;
+		files.forEach(function(srcFile) {
+			var onSuccessAsFile = function(thumbnailImageUrl, fileImageUrl, srcFile) {
+				putToArticle(new Date(), thumbnailImageUrl, fileImageUrl);
+			}
+			var incrementComplete = function() {
+				fileLength++;
+				if (fileLength) {
+					if (files.length <= fileLength) {
+						$scope.save(null, function() {
+							$rootScope.showToast($rootScope.messages.contents.saved);
+							changing = false;
+						}, function() {
+							$rootScope.showError($rootScope.messages.contents.errors.failToSave);
+						});
+					}
+				}
+			}
+			var onSuccess = function(thumbnailUrl, fileUrl, srcFile) {
+				if (!$scope.editingContent.article[keyDate]) {
+					$scope.editingContent.article[keyDate] = {};
+					$scope.editingContent.article[keyDate].images = [];
+				}
+				$scope.editingContent.article[keyDate].images.unshift({
+					thumbnail : thumbnailUrl,
+					file : fileUrl
+				});
+				incrementComplete();
+			}
+			var onError = function() {
+				incrementComplete();
+			}
+			$rootScope.uploadFile($scope.editingContent.contentKey, srcFile, onSuccess, onSuccess, onError);
+		})
+	}
+	$scope.showImagesAt = function(keyDate) {
+		$scope.datePaneSrc = $scope.editingContent.article[keyDate];
+		$scope.datePaneSrc.keyDate = keyDate;
+		$scope.imagesIndex = 0
+		document.getElementById("overlayImage").style.height = "100%";
+		document.getElementById("overlayVideo").style.height = "100%";
+	};
+	$scope.isMovie = function(imageSource) {
+		if (!imageSource) {
+			return false;
+		}
+		return (imageSource.endsWith(".mp4") || imageSource.endsWith(".mov") || imageSource.endsWith(".mpeg4") || imageSource.endsWith(".webm"))
+	}
+	$scope.changeDataPaneImage = function(index, event) {
+		$scope.imagesIndex = index;
+		event.preventDefault();
+		event.stopPropagation()
+	}
+	$scope.hideImages = function() {
+		delete $scope.datePaneSrc;
+	}
+	$scope.$watch('autoDateSetImages', function() {
+		if (!$scope.autoDateSetImages || !$scope.autoDateSetImages.length) {
+			return;
+		}
+		var changing = true;
+		var fileLength = 0;
+		var putToArticle = function(date, thumbnailUrl, fileUrl) {
+			var keyDate = date.getFullYear() + "/" + (date.getMonth() + 1) + "/" + date.getDate();
+			$scope.$apply(function() {
+				if (!$scope.editingContent.article[keyDate]) {
+					$scope.editingContent.article[keyDate] = {};
+					$scope.editingContent.article[keyDate].images = [];
+				}
+				$scope.editingContent.article[keyDate].images.push({
+					thumbnail : thumbnailUrl,
+					file : fileUrl
+				});
+			});
+			fileLength++;
+			if (fileLength) {
+				if ($scope.autoDateSetImages.length <= fileLength) {
+					$scope.save(null, function() {
+						$rootScope.showToast($rootScope.messages.contents.saved);
+						changing = false;
+					}, function() {
+						$rootScope.showError($rootScope.messages.contents.errors.failToSave);
+					});
+				}
+			}
+		}
+		$scope.autoDateSetImages.forEach(function(srcFile) {
+			var contentKey = $scope.editingContent.contentKey;
+			var onError = function(error) {
+				$rootScope.showError($rootScope.messages.contents.errors.upload + ":" + srcFile.name);
+				fileLength++;
+				if ($scope.autoDateSetImages.length <= fileLength) {
+					$scope.save(null, function() {
+						$rootScope.showToast($rootScope.messages.contents.saved);
+						changing = false;
+					}, function() {
+						$rootScope.showError($rootScope.messages.contents.errors.failToSave);
+					});
+				}
+			}
+			var onSuccess = function(thumbnailImageUrl, fileImageUrl, srcFile) {
+				if (0 == srcFile.type.lastIndexOf("video", 0)) {
+					try {
+						mp4(srcFile, function(err, tags) {
+							if (err) {
+								var date = new Date();
+							} else {
+								var dateSrc = tags.date;
+								if (dateSrc) {
+									try {
+										var dateValues = dateSrc.split(/[-T:Z\s]/)
+										var date = new Date(dateValues[0], dateValues[1] - 1, dateValues[2], dateValues[3], dateValues[4]);
+									} catch (ignored) {
+									}
+								}
+							}
+							if (!date) {
+								date = new Date();
+							}
+							putToArticle(date, thumbnailImageUrl, fileImageUrl);
+						});
+					} catch (ignored) {
+						putToArticle(new Date(), thumbnailImageUrl, fileImageUrl);
+					}
+				} else if (0 == srcFile.type.lastIndexOf("image", 0)) {
+					try {
+						EXIF.getData(srcFile, function() {
+							var dateSrc = EXIF.getTag(srcFile, "DateTimeOriginal") || EXIF.getTag(srcFile, "DateTime");
+							if (dateSrc) {
+								try {
+									var dateValues = dateSrc.split(/[:\s]/)
+									var date = new Date(dateValues[0], dateValues[1] - 1, dateValues[2], dateValues[3], dateValues[4]);
+								} catch (ignored) {
+								}
+							}
+							if (!date) {
+								date = new Date();
+							}
+							putToArticle(date, thumbnailImageUrl, fileImageUrl);
+						});
+					} catch (ignored) {
+						putToArticle(new Date(), thumbnailImageUrl, fileImageUrl);
+					}
+				}
+			}
+			var onSuccessAsFile = function(thumbnailImageUrl, fileImageUrl, srcFile) {
+				putToArticle(new Date(), thumbnailImageUrl, fileImageUrl);
+			}
+			$rootScope.uploadFile(contentKey, srcFile, onSuccess, onSuccessAsFile, onError);
+		});
+	});
+} ]
 var contentController = [ "$rootScope", "$scope", "$resource", "$location", "$http", "$routeParams", function($rootScope, $scope, $resource, $location, $http, $routeParams) {
 	$resource('/api/content/:contentKey?sessionKey=:sessionKey').get({
 		contentKey : $routeParams.contentKey,
@@ -939,6 +1347,9 @@ var contentController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 	}, function(content) {
 		$scope.content = content;
 		$rootScope.title = content.ContentBodies[0].title;
+		if ("calendar" == content.type) {
+			initCalendar();
+		}
 	}, function(error) {
 		if (error.data.groupAccessKey) {
 			$scope.groupAccessKey = error.data.groupAccessKey;
@@ -1027,6 +1438,59 @@ var contentController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 			});
 		}
 	});
+	var initCalendar = function() {
+		$scope.content.article = JSON.parse($scope.content.ContentBodies[0].article);
+		$scope.date = $routeParams.date
+		if (!$scope.date) {
+			$scope.firstDay = new Date();
+			$scope.firstDay.setDate(1);
+		} else {
+			try {
+				$scope.firstDay = new Date();
+				$scope.firstDay.setFullYear(parseInt($scope.date.substring(0, 4)));
+				$scope.firstDay.setMonth(parseInt($scope.date.substring(4, 6)) - 1);
+				$scope.firstDay.setDate(1);
+			} catch (e) {
+				$scope.firstDay = new Date();
+				$scope.firstDay.setDate(1);
+			}
+		}
+		var maxDay = new Date($scope.firstDay.getFullYear(), $scope.firstDay.getMonth(), 0).getDate();
+		var dayBoxCount = $scope.firstDay.getDay() + maxDay;
+		$scope.weekColumn = [ 0, 1, 2, 3 ];
+		for (var i = 4; dayBoxCount / (7 * i) > 1; i++) {
+			$scope.weekColumn.push(i);
+		}
+		var prevMonth = new Date($scope.firstDay.getFullYear(), $scope.firstDay.getMonth() - 1, 1);
+		var nextMonth = new Date($scope.firstDay.getFullYear(), $scope.firstDay.getMonth() + 1, 1);
+		$scope.gotoPrevMonth = function() {
+			$location.path("/content/" + $scope.content.accessKey + "/" + prevMonth.getFullYear() + "" + (prevMonth.getMonth() + 1))
+		}
+		$scope.gotoNextMonth = function() {
+			$location.path("/content/" + $scope.content.accessKey + "/" + nextMonth.getFullYear() + "" + (nextMonth.getMonth() + 1))
+		}
+		$scope.showImagesAt = function(keyDate) {
+			$scope.datePaneSrc = $scope.content.article[keyDate];
+			$scope.datePaneSrc.keyDate = keyDate;
+			$scope.imagesIndex = 0
+			document.getElementById("overlayImage").style.height = "100%";
+			document.getElementById("overlayVideo").style.height = "100%";
+		};
+		$scope.isMovie = function(imageSource) {
+			if (!imageSource) {
+				return false;
+			}
+			return (imageSource.endsWith(".mp4") || imageSource.endsWith(".mov") || imageSource.endsWith(".mpeg4") || imageSource.endsWith(".webm"))
+		}
+		$scope.changeDataPaneImage = function(index, event) {
+			$scope.imagesIndex = index;
+			event.preventDefault();
+			event.stopPropagation()
+		}
+		$scope.hideImages = function() {
+			delete $scope.datePaneSrc;
+		}
+	}
 	$scope.newComment = {};
 	$scope.comment = function() {
 		if (!$scope.newComment || null == $scope.newComment.message || "" == $scope.newComment.message) {
@@ -1055,6 +1519,9 @@ var contentController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 	});
 	$scope.clearImagePaneSrc = function() {
 		$scope.imagePaneSrc = null;
+		if ($scope.videoPaneSrc) {
+			document.getElementById("overlayVideo").pause();
+		}
 		$scope.videoPaneSrc = null;
 	}
 } ];
@@ -1417,39 +1884,50 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 		var jqScrollPane = $("#messageScrollPane");
 		var jqScrollInner = $("#messageScrollInner");
 		var listenComment = function(event) {
-			event = JSON.parse(event);
+			var event = JSON.parse(event);
 			if ("message" == event.type || "historicalMessage" == event.type) {
-				var message = event.message;
-				$scope["$apply"](function() {
-					$scope.channel.messages.push(message);
-					if (jqScrollPane.scrollTop() > jqScrollInner.height() - jqScrollPane.height() - 30) {
-						jqScrollPane.animate({
-							scrollTop : jqScrollInner.height()
-						}, 50);
+				var messages = "message" == event.type ? [ event.message ] : event.messages;
+				if ("historicalMessage" == event.type) {
+					loadingHistory = false;
+				}
+				messages.forEach(function(message) {
+					$scope["$apply"](function() {
+						if ("message" == event.type) {
+							$scope.channel.messages.push(message);
+						} else {
+							$scope.channel.messages.unshift(message);
+						}
+						if (jqScrollPane.scrollTop() > jqScrollInner.height() - jqScrollPane.height() - 30) {
+							setTimeout(function() {
+								jqScrollPane.animate({
+									scrollTop : jqScrollInner.height()
+								}, 50);
+							}, 0);
+						}
+					});
+					if (!$rootScope.myAccount) {
+						return;
+					}
+					setTimeout(function() {
+						$('.messageBody').highlight($rootScope.myAccount.name);
+					}, 0)
+					if (0 <= message.body.indexOf($rootScope.myAccount.name) && !document.hasFocus()) {
+						if (Notification && "granted" != Notification.permission) {
+							Notification.requestPermission(function(status) {
+								if (Notification.permission !== status) {
+									Notification.permission = status;
+								}
+							});
+						}
+						var n = new Notification($rootScope.messages.message, {
+							body : message.body
+						});
+						n.onclick = function() {
+							$("#messageInput").focus();
+						};
+						bounce();
 					}
 				});
-				if (!$rootScope.myAccount) {
-					return;
-				}
-				setTimeout(function() {
-					$('.messageBody').highlight($rootScope.myAccount.name);
-				}, 0)
-				if (0 <= message.body.indexOf($rootScope.myAccount.name) && !document.hasFocus()) {
-					if (Notification && "granted" != Notification.permission) {
-						Notification.requestPermission(function(status) {
-							if (Notification.permission !== status) {
-								Notification.permission = status;
-							}
-						});
-					}
-					var n = new Notification($rootScope.messages.message, {
-						body : message.body
-					});
-					n.onclick = function() {
-						$("#messageInput").focus();
-					};
-					bounce();
-				}
 			} else if ("join" == event.type || "hello" == event.type) {
 				var joinedAccount = event.account;
 				if (channel.Group.Accounts) {
@@ -1483,6 +1961,18 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 					})
 				}
 			}
+		}
+		var loadingHistory = false;
+		$scope.loadHistory = function() {
+			if ((!$scope.channel.messages[0]) || loadingHistory) {
+				return;
+			}
+			loadingHistory = true;
+			var lastLoadId = $scope.channel.messages[0].id;
+			$rootScope.requestMessage({
+				channelAccessKey : $routeParams.channelAccessKey,
+				idBefore : lastLoadId
+			});
 		}
 		$rootScope.listenChannel($routeParams.channelAccessKey, listenComment);
 		$rootScope.requestMessage({
@@ -1597,6 +2087,7 @@ myapp.controller('resetPasswordController', resetPasswordController);
 myapp.controller('editProfileController', editProfileController);
 myapp.controller('changePasswordController', changePasswordController);
 myapp.controller('editContentController', editContentController);
+myapp.controller('editCalendarAlbumController', editCalendarAlbumController);
 myapp.controller('contentController', contentController);
 myapp.controller('tagsController', tagsController);
 myapp.controller('editTagController', editTagController);
