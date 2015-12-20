@@ -1,4 +1,5 @@
 var request = require('request');
+var gcm = require(__dirname + "/../util/gcm");
 module.exports = function(sequelize, DataTypes) {
 	var NotificationTarget = sequelize.define("NotificationTarget", {
 		secret : DataTypes.TEXT,
