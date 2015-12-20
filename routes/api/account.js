@@ -3,6 +3,7 @@ var AccessKey = global.db.AccessKey;
 var Group = global.db.Group;
 var Content = global.db.Content;
 var ContentBody = global.db.ContentBody;
+var NotificationTarget = global.db.NotificationTarget;
 var express = require('express');
 var router = express.Router();
 var env = process.env.NODE_ENV || "development";
@@ -411,12 +412,7 @@ router.put('/', function(req, res) {
 		res.status(400).end();
 		return;
 	}
-	AccessKey.find({
-		where : {
-			secret : req.body.key,
-			type : AccessKey.TYPE_SESSION
-		}
-	}).then(function(accessKey) {
+	AccessKey.findBySessionKey(req.body.key).then(function(accessKey) {
 		if (!accessKey) {
 			throw ERROR_NOTACCESSIBLE;
 		}
@@ -564,5 +560,54 @@ router.get("/:id", function(req, res) {
 			res.status(500).end();
 		}
 	})
-})
+});
+router.post("/devices", function(req, res) {
+	if (!(req.body.sessionKey && req.body.platform && req.body.endpoint)) {
+		res.status(400).json({
+			sessionKey : req.body.sessionKey,
+			platform : req.body.platform,
+			deviceId : req.body.endpoint
+		});
+		return;
+	}
+	var DUPLICATE_ERROR = "DUPLICATE_ERROR";
+	var loadedAccessKey;
+	AccessKey.findBySessionKey(req.body.sessionKey).then(function(accessKey) {
+		if (!accessKey) {
+			throw ERROR_NOTACCESSIBLE;
+		}
+		loadedAccessKey = accessKey;
+		return NotificationTarget.find({
+			where : {
+				ownerId : accessKey.AccountId,
+				endpoint : req.body.endpoint
+			}
+		});
+	}).then(function(notificationTarget) {
+		if (notificationTarget) {
+			throw DUPLICATE_ERROR;
+		}
+		return Random.createRandomBase62();
+	}).then(function(random) {
+		return NotificationTarget.create({
+			status : NotificationTarget.STATUS_CREATED,
+			endpoint : req.body.endpoint,
+			key : random,
+			platformParameter : req.body.platformParameter,
+			platform : req.body.platform,
+			ownerId : loadedAccessKey.AccountId
+		});
+	}).then(function(notificationTarget) {
+		res.status(201).json(notificationTarget);
+	})["catch"](function(error) {
+		if (ERROR_NOTACCESSIBLE == error) {
+			res.status(403).end();
+		} else if (DUPLICATE_ERROR == error) {
+			res.status(409).end();
+		} else {
+			console.log(error.stack);
+			res.status(500).end();
+		}
+	});
+});
 module.exports = router;
