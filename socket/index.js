@@ -7,7 +7,7 @@ var Message = global.db.Message;
 var AccountInGroup = global.db.AccountInGroup;
 var Channel = global.db.Channel;
 var ERROR_NOTACCESSIBLE = "ERROR_NOTACCESSIBLE";
-var socket = function(io) {
+var socketIO = function(io) {
 	var connected;
 	var self = this;
 	self.context = io.sockets.on('connection', function(socket) {
@@ -148,6 +148,7 @@ var socket = function(io) {
 				}
 				socket.client.accountId = account.id;
 				socket.client.account = account;
+				socket.emit("authorized", account);
 			})["catch"](function(e) {
 				if (e.stack) {
 					console.log(e.stack);
@@ -193,4 +194,4 @@ var socket = function(io) {
 	}
 	return self;
 }
-module.exports = socket;
+module.exports = socketIO;

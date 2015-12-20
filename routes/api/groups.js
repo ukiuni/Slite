@@ -6,6 +6,7 @@ var Account = global.db.Account;
 var Content = global.db.Content;
 var Channel = global.db.Channel;
 var Message = global.db.Message;
+var NotificationTarget = global.db.NotificationTarget;
 var ContentBody = global.db.ContentBody;
 var Group = global.db.Group;
 var env = process.env.NODE_ENV || "development";
@@ -127,6 +128,7 @@ router.post('/:accessKey/channels/:channelAccessKey/messages', function(req, res
 	}
 	var loadedAccount;
 	var loadedChannel;
+	var createdMessage;
 	AccessKey.findBySessionKey(sessionKey).then(function(accessKey) {
 		if (!accessKey) {
 			throw ERROR_NOTACCESSIBLE;
@@ -174,6 +176,8 @@ router.post('/:accessKey/channels/:channelAccessKey/messages', function(req, res
 		message.dataValues.owner = loadedAccount;
 		res.status(201).json(message);
 		socket.sendToChannel(loadedChannel.accessKey, message);
+		createdMessage = message;
+		NotificationTarget.notifyToChannel(loadedChannel, message);
 	})["catch"](function(error) {
 		if (ERROR_NOTACCESSIBLE == error) {
 			res.status(403).end();
