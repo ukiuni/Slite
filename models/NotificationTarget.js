@@ -22,6 +22,9 @@ module.exports = function(sequelize, DataTypes) {
 		});
 	};
 	var notifyToAndroid = function(notificationTarget, message) {
+		gcm.push(notificationTarget.endpoint, message)["catch"](function(error) {
+			console.log("#### GCM failed " + error);
+		});
 	}
 	var webhook = function(notificationTarget, message) {
 		request(notificationTarget.endpoint, function(error, response, body) {
