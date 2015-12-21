@@ -32,7 +32,7 @@ module.exports = function(sequelize, DataTypes) {
 			if (!error && response.statusCode == 200) {
 				console.log("webhooked to " + notificationTarget.endpoint);
 			} else {
-				console.log("webhook failed to " + notificationTarget.endpoint + ", error = " + error + ", " + response.statusCode);
+				console.log("webhook failed to " + notificationTarget.endpoint + ", error = " + error + ", " + (response ? response.statusCode : null));
 			}
 		});
 	}
