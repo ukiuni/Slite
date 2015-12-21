@@ -55,6 +55,8 @@ module.exports = function(sequelize, DataTypes) {
 				}
 			})
 		}).then(function(notificationTargets) {
+			message.dataValues.channel = channel;
+			message.dataValues.type = "message";
 			notificationTargets.forEach(function(notificationTarget) {
 				if (NotificationTarget.PLATFORM_ANDROID == notificationTarget.platform) {
 					notifyToAndroid(notificationTarget, message);
