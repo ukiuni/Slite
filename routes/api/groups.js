@@ -133,7 +133,12 @@ router.post('/:accessKey/channels/:channelAccessKey/messages', function(req, res
 		if (!accessKey) {
 			throw ERROR_NOTACCESSIBLE;
 		}
-		return Account.findById(accessKey.AccountId);
+		return Account.find({
+			where : {
+				id : accessKey.AccountId
+			},
+			attributes : [ "id", "name", "iconUrl" ]
+		});
 	}).then(function(account) {
 		if (!account) {
 			throw ERROR_NOTACCESSIBLE;
