@@ -585,7 +585,7 @@ router.post("/devices", function(req, res) {
 		});
 	}).then(function(notificationTarget) {
 		if (notificationTarget) {
-			throw DUPLICATE_ERROR;
+			notificationTarget.destroy();
 		}
 		return Random.createRandomBase62();
 	}).then(function(random) {
