@@ -22,12 +22,26 @@ module.exports = function(sequelize, DataTypes) {
 			as : "owner"
 		});
 	};
-	var notifyToAndroid = function(notificationTarget, message) {
-		gcm.push(notificationTarget.endpoint, message)["catch"](function(error) {
+	var notifyMessageToAndroid = function(notificationTarget, channel, message) {
+		var pushValue = {
+			type : "message",
+			message : {
+				body : message.body,
+				fromAccount : {
+					id : message.owner.id,
+					name : message.owner.name,
+					iconUrl : message.owner.iconUrl
+				},
+				toAccountId : notificationTarget.ownerId,
+				createdAt : message.createdAt,
+				channel : channel,
+			}
+		}
+		gcm.push(notificationTarget.endpoint, pushValue)["catch"](function(error) {
 			console.log("#### GCM failed " + error);
 		});
 	}
-	var webhook = function(notificationTarget, message) {
+	var webhookMessage = function(notificationTarget, channel, message) {
 		request(notificationTarget.endpoint, function(error, response, body) {
 			if (!error && response.statusCode == 200) {
 				console.log("webhooked to " + notificationTarget.endpoint);
@@ -55,13 +69,11 @@ module.exports = function(sequelize, DataTypes) {
 				}
 			})
 		}).then(function(notificationTargets) {
-			message.dataValues.channel = channel;
-			message.dataValues.type = "message";
 			notificationTargets.forEach(function(notificationTarget) {
 				if (NotificationTarget.PLATFORM_ANDROID == notificationTarget.platform) {
-					notifyToAndroid(notificationTarget, message);
+					notifyMessageToAndroid(notificationTarget, channel, message);
 				} else if (NotificationTarget.PLATFORM_WEBHOOK == notificationTarget.platform) {
-					webhook(notificationTarget, message);
+					webhookMessage(notificationTarget, channel, message);
 				}
 			});
 		});
