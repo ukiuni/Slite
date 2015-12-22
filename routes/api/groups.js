@@ -179,6 +179,7 @@ router.post('/:accessKey/channels/:channelAccessKey/messages', function(req, res
 		});
 	}).then(function(message) {
 		message.dataValues.owner = loadedAccount;
+		message.owner = loadedAccount;
 		res.status(201).json(message);
 		socket.sendToChannel(loadedChannel.accessKey, message);
 		createdMessage = message;
