@@ -561,6 +561,33 @@ router.get("/:id", function(req, res) {
 		}
 	})
 });
+router["delete"]('/devices', function(req, res) {
+	if (!req.query.sessionKey || !req.query.key) {
+		res.status(400).end();
+		return;
+	}
+	AccessKey.findBySessionKey(req.query.sessionKey).then(function(accessKey) {
+		if (!accessKey) {
+			throw ERROR_NOTACCESSIBLE;
+		}
+		loadedAccessKey = accessKey;
+		return NotificationTarget.find({
+			where : {
+				key : req.query.key
+			}
+		});
+	}).then(function(notificationTarget) {
+		if (notificationTarget) {
+			notificationTarget.destroy();
+			res.status(200).end();
+		} else {
+			res.status(404).end();
+		}
+	})["catch"](function(error) {
+		console.log(error.stack);
+		res.status(500).end();
+	});
+});
 router.post("/devices", function(req, res) {
 	if (!(req.body.sessionKey && req.body.platform && req.body.endpoint)) {
 		res.status(400).json({
