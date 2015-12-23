@@ -46,10 +46,8 @@
 	try {
 		if (nodeModule) {
 			var module = nodeModule;
-
-			document.addEventListener('new-window', function(e){
-			    console.log('Guest window is openning new window: ' + e.url);
-			    require('shell').openExternal(e.url);
+			document.addEventListener('new-window', function(e) {
+				require('shell').openExternal(e.url);
 			});
 		}
 	} catch (ignore) {
@@ -59,10 +57,10 @@
 
 </head>
 <body style="height: 100%">
-	<nav class="navbar navbar-custom navbar-static-top">
+	<nav class="navbar navbar-custom navbar-static-top" style="margin: 0">
 		<div class="container">
 			<div class="navbar-header">
-				<button ng-show="myAccount" type="button" class="navbar-toggle collapsed glyphicon glyphicon-th-list" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar" >
+				<button ng-show="myAccount" type="button" class="navbar-toggle collapsed glyphicon glyphicon-th-list" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
 					<span class="sr-only"></span> <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span>
 				</button>
 				<a class="navbar-brand" href="/" ng-bind="messages.app.title"></a>
@@ -73,8 +71,8 @@
 						<ul class="dropdown-menu">
 							<li><a href="/home" ng-bind="messages.menu.home"></a></li>
 							<li><a id="toEditContentLink" href="/editContent" ng-bind="messages.menu.newContent"></a></li>
-							<li><a id="toEditCalendarAlbum" href="/editCalendarAlbum"" ng-bind="messages.menu.newCalendarAlbum"></a></li>
-							
+							<li><a id="toEditCalendarAlbum" href="/editCalendarAlbum" ng-bind="messages.menu.newCalendarAlbum"></a></li>
+
 							<li role="separator" class="divider"></li>
 							<li class="dropdown-header" ng-bind="messages.menu.setting"></li>
 							<li><a href="/editProfile" ng-bind="messages.menu.profile"></a></li>
@@ -89,7 +87,7 @@
 			<!--/.nav-collapse -->
 		</div>
 	</nav>
-	<div ng-view></div>
+	<div ng-view style="margin-top: 10px"></div>
 </body>
 </html>
 
