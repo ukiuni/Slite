@@ -30,7 +30,7 @@ var self = {
 		client.setValue('#inputMail', account.mail);
 		client.setValue('#inputPassword', account.password);
 		client.click('#saveButton');
-		client.waitForElementVisible('button[type=submit]', testWaitTime);
+		client.waitForElementVisible('#signinButton', testWaitTime);
 		client.assert.visible('#inputMail').assert.visible("#inputMail");
 		client.setValue('#inputMail', account.mail);
 		client.setValue('#inputPassword', account.password);

@@ -2035,6 +2035,7 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 		if (!$rootScope.searchWord || "" == $rootScope.searchWord) {
 			return;
 		}
+		$rootScope.searchingWord = $rootScope.searchWord;
 		$resource("/api/groups/:groupAccessKey/channels/:channelAccessKey/messages/query").query({
 			groupAccessKey : $routeParams.groupAccessKey,
 			channelAccessKey : $routeParams.channelAccessKey,

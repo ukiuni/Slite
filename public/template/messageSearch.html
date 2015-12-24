@@ -1,7 +1,10 @@
-<div style="height: 100%;">
-	<div class="row"  style="height: 100%;">
+<div>
+	<div class="row" style="height: 100%;">
 		<div class="col-xs-12" style="height: 100%;">
-			<div class="row" style="overflow: scroll; max-height: 90%">
+			<div class="row" ng-if="0 == searchedMessages.length">
+				<div class="col-xs-12" ng-bind="messages.noResult"></div>
+			</div>
+			<div class="row" style="overflow: scroll; max-height: 80%">
 				<div class="col-xs-12 messageRow" ng-repeat="message in searchedMessages track by message.id" ng-class-odd="'repeatOdd'">
 					<div class="row">
 						<div class="col-xs-1">
