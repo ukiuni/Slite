@@ -182,7 +182,7 @@ var self = {
 		client.waitForElementVisible('#createNewGroupButton', testWaitTime);
 		client.click('#createNewGroupButton');
 		client.waitForElementVisible("#saveButton", testWaitTime);
-		client.setValue('input', groupName);
+		client.setValue('#groupName', groupName);
 		client.setValue('textarea', groupDescription);
 		client.click('select');
 		client.waitForElementVisible('option:first-child', testWaitTime);
