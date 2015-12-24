@@ -71,6 +71,7 @@
 		"cancel" : "cancel",
 		"next" : "next",
 		"prev" : "prev",
+		"search" : "search",
 		"content" : "content",
 		"contents" : {
 			"self" : "content",
@@ -177,6 +178,7 @@
 		"next" : "次へ",
 		"prev" : "前へ",
 		"content" : "投稿",
+		"search" : "検索",
 		"contents" : {
 			"self" : "自分の投稿",
 			"open" : "公開",

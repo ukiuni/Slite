@@ -28,7 +28,7 @@
 <script src="assets/angular-cookies.min.js"></script>
 <script src="assets/angular-marked.min.js"></script>
 <script src="assets/ng-file-upload.min.js"></script>
-<script src="assets/ui-bootstrap-tpls-0.13.0.min.js"></script>
+<script src="assets/ui-bootstrap-tpls-0.14.3.min.js"></script>
 
 <link href="assets/toastr/toastr.min.css" rel="stylesheet" />
 <script src="assets/toastr/toastr.min.js"></script>
@@ -83,10 +83,18 @@
 							<li><a id="signoutButton" href="#" ng-click="signout()" ng-bind="messages.menu.signOut"></a></li>
 						</ul></li>
 				</ul>
+				<form class="nav navbar-nav navbar-right navbar-form" ng-show="myAccount">
+					<div class="form-group">
+						<input type="text" class="form-control" style="border-radius: 20px; padding-top: 10px;" placeholder="{{messages.search}}" ng-model="searchWord">
+					</div>
+					<button type="submit" class="btn btn-default" ng-bind="messages.search" style="margin-top: 1px; padding-top: 10px" ng-click="search()" uib-popover-template="'template/messageSearch.html'" popover-placement="bottom" popover-title="{{searchWord}}" popover-append-to-body="true"></button>
+				</form>
+
 			</div>
 			<!--/.nav-collapse -->
 		</div>
 	</nav>
+	{{isSearchable}}
 	<div ng-view style="margin-top: 10px"></div>
 </body>
 </html>

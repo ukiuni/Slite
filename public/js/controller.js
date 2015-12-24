@@ -1895,7 +1895,7 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 					loadingHistory = false;
 				}
 				messages.forEach(function(message) {
-					$scope["$apply"](function() {
+					$scope.$apply(function() {
 						if ("message" == event.type) {
 							$scope.channel.messages.push(message);
 						} else {
@@ -1985,6 +1985,8 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 		var channelAccessKey = $routeParams.channelAccessKey;
 		$scope.$on('$destroy', function() {
 			$rootScope.unListenChannel(channelAccessKey, listenComment);
+			$rootScope.isSearchable = false;
+			$rootScope.search = null;
 		});
 	}, function(error) {
 		$rootScope.showErrorWithStatus(error.status, function(status) {
@@ -2027,6 +2029,23 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 	}
 	$scope.text = "";
 	$scope.sendWithEnter = true;
+	$rootScope.isSearchable = false;
+	$rootScope.searchWord = "";
+	$rootScope.search = function() {
+		if (!$rootScope.searchWord || "" == $rootScope.searchWord) {
+			return;
+		}
+		$resource("/api/groups/:groupAccessKey/channels/:channelAccessKey/messages/query").query({
+			groupAccessKey : $routeParams.groupAccessKey,
+			channelAccessKey : $routeParams.channelAccessKey,
+			searchWord : $rootScope.searchWord,
+			sessionKey : $rootScope.getSessionKey()
+		}, function(messages) {
+			$rootScope.searchedMessages = messages;
+		}, function(error) {
+			$rootScope.showErrorWithStatus(error.status);
+		});
+	}
 } ];
 var accountController = [ "$rootScope", "$scope", "$resource", "$location", "$http", "$modal", "$routeParams", function($rootScope, $scope, $resource, $location, $http, $modal, $routeParams) {
 	var id = $routeParams.id;
