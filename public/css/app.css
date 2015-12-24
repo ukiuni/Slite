@@ -153,6 +153,19 @@ button {
 	opacity: 0.5;
 }
 
+@media ( min-width : 750px) {
+	#accuntArea {
+		height: 100%;
+		position: relative;
+	}
+	#messageControllArea {
+		position: absolute;
+		bottom: 7px;
+		width: 100%;
+		margin: 0;
+	}
+}
+
 .messageAccountAreaNow {
 	opacity: 1.0;
 }
@@ -164,6 +177,7 @@ button {
 .messageBody img {
 	max-height: 200px;
 }
+
 /* Tag input */
 .bootstrap .tags {
 	background-color: #fff;
