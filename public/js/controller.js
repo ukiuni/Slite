@@ -1987,6 +1987,7 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 			$rootScope.unListenChannel(channelAccessKey, listenComment);
 			$rootScope.isSearchable = false;
 			$rootScope.search = null;
+			$rootScope.searchWord = null;
 		});
 	}, function(error) {
 		$rootScope.showErrorWithStatus(error.status, function(status) {
@@ -2029,7 +2030,7 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 	}
 	$scope.text = "";
 	$scope.sendWithEnter = true;
-	$rootScope.isSearchable = false;
+	$rootScope.isSearchable = true;
 	$rootScope.searchWord = "";
 	$rootScope.search = function() {
 		if (!$rootScope.searchWord || "" == $rootScope.searchWord) {
