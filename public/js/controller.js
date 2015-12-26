@@ -2051,16 +2051,17 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 			$rootScope.showErrorWithStatus(error.status);
 		});
 	}
-	$rootScope.timeBefore = 60;
-	$rootScope.timeAfter = 60;
+	$rootScope.time = {}
+	$rootScope.time.before = 60;
+	$rootScope.time.after = 60;
 	$rootScope.searchTimeline = function(message) {
 		if (!message) {
 			message = $rootScope.currentSearchMessage;
 		}
 		$rootScope.currentSearchMessage = message;
 		var targetTime = new Date(message.createdAt).getTime();
-		var startTime = new Date(targetTime - (parseInt($rootScope.timeBefore) * 1000)).getTime();
-		var endTime = new Date(targetTime + (parseInt($rootScope.timeAfter) * 1000)).getTime();
+		var startTime = new Date(targetTime - (parseInt($rootScope.time.before) * 1000)).getTime();
+		var endTime = new Date(targetTime + (parseInt($rootScope.time.after) * 1000)).getTime();
 		$rootScope.timelinedMessages = [];
 		$rootScope.timelinedMessages.push({
 			body : $rootScope.messages.searching
