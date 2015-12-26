@@ -20,7 +20,7 @@ function bounce() {
 	}
 }
 toastr.options = {
-	"positionClass" : "toast-top-center"
+	"positionClass" : "toast-bottom-right"
 }
 var myapp = angular.module("app", [ "ui.bootstrap", "ngRoute", "ngResource", "ngCookies", "ngFileUpload", "ngTagsInput", "hc.marked" ]);
 myapp.config([ "$locationProvider", "$httpProvider", "$routeProvider", "markedProvider", function($locationProvider, $httpProvider, $routeProvider, $markedProvider) {
