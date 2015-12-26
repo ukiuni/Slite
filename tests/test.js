@@ -308,7 +308,7 @@ var tests = {
 };
 var testModule = {};
 var appended = false;
-["Request Invitation from Exists Account To Group(secret)"].forEach(function(arg) {
+[].forEach(function(arg) {
 	if (tests[arg]) {
 		testModule[arg] = tests[arg];
 		appended = true;

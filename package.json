@@ -4,9 +4,9 @@
   "main": "index.js",
   "scripts": {
     "testInit": "./node_modules/selenium-standalone/bin/selenium-standalone install",
-    "testReady": "./node_modules/selenium-standalone/bin/selenium-standalone start &",
+    "testReady": "./node_modules/selenium-standalone/bin/selenium-standalone start",
     "test": "./node_modules/nightwatch/bin/nightwatch -t tests/test*.js",
-    "main": "node index.js",
+    "start": "node index.js",
     "devMain": "./node_modules/node-dev/bin/node-dev index.js"
   },
   "author": "ukiuni",
