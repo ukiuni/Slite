@@ -28,7 +28,7 @@
 					<div class="row">
 						<form class="nav navbar-nav navbar-right navbar-form" ng-show="myAccount && isSearchable">
 							<div class="form-group">
-								<input type="number" class="form-control" ng-model="timeBefore" style="width: 60px;">sec -<input type="number" class="form-control" ng-model="timeAfter" style="width: 60px;">sec
+								<input type="number" class="form-control" ng-model="time.before" style="width: 60px;">sec -<input type="number" class="form-control" ng-model="time.after" style="width: 60px;">sec
 							</div>
 							<button type="submit" class="btn btn-default" ng-bind="messages.search" style="margin-top: 1px; padding-top: 10px" ng-click="searchTimeline()"></button>
 						</form>
