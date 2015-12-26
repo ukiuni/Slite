@@ -146,6 +146,9 @@ myapp.config([ "$locationProvider", "$httpProvider", "$routeProvider", "markedPr
 	$routeProvider.when("/signout", {
 		templateUrl : "template/signouted.html"
 	});
+	$routeProvider.when("/license", {
+		templateUrl : "template/license.html"
+	});
 	$routeProvider.when("/:page", {
 		templateUrl : "template/indexView.html",
 		controller : "indexController"
