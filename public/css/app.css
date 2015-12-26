@@ -178,6 +178,12 @@ button {
 	max-height: 200px;
 }
 
+.timeLineSearchHandle:HOVER {
+	cursor: pointer;
+	background-color: #eee;
+	border-radius: 20px;
+}
+
 /* Tag input */
 .bootstrap .tags {
 	background-color: #fff;

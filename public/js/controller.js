@@ -1988,6 +1988,8 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 			$rootScope.isSearchable = false;
 			$rootScope.search = null;
 			$rootScope.searchWord = null;
+			$rootScope.searchTimeline = null;
+			$rootScope.timelinedMessages = null;
 		});
 	}, function(error) {
 		$rootScope.showErrorWithStatus(error.status, function(status) {
@@ -2044,6 +2046,33 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 			sessionKey : $rootScope.getSessionKey()
 		}, function(messages) {
 			$rootScope.searchedMessages = messages;
+			$rootScope.timelinedMessages = null;
+		}, function(error) {
+			$rootScope.showErrorWithStatus(error.status);
+		});
+	}
+	$rootScope.timeBefore = 60;
+	$rootScope.timeAfter = 60;
+	$rootScope.searchTimeline = function(message) {
+		if (!message) {
+			message = $rootScope.currentSearchMessage;
+		}
+		$rootScope.currentSearchMessage = message;
+		var targetTime = new Date(message.createdAt).getTime();
+		var startTime = new Date(targetTime - (parseInt($rootScope.timeBefore) * 1000)).getTime();
+		var endTime = new Date(targetTime + (parseInt($rootScope.timeAfter) * 1000)).getTime();
+		$rootScope.timelinedMessages = [];
+		$rootScope.timelinedMessages.push({
+			body : $rootScope.messages.searching
+		});
+		$resource("/api/groups/:groupAccessKey/channels/:channelAccessKey/messages/queryTimeline").query({
+			groupAccessKey : $routeParams.groupAccessKey,
+			channelAccessKey : $routeParams.channelAccessKey,
+			startTime : startTime,
+			endTime : endTime,
+			sessionKey : $rootScope.getSessionKey()
+		}, function(messages) {
+			$rootScope.timelinedMessages = messages;
 		}, function(error) {
 			$rootScope.showErrorWithStatus(error.status);
 		});
