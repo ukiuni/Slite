@@ -1,9 +1,16 @@
 var request = require('request');
 var Promise = require("bluebird");
 var fs = require("fs");
-var key = ("" + fs.readFileSync((process.env.HOME || process.env.USERPROFILE) + "/.gcm/key")).replace("\r", "").replace("\n", "");
+var key;
+try {
+	key = ("" + fs.readFileSync((process.env.HOME || process.env.USERPROFILE) + "/.gcm/key")).replace("\r", "").replace("\n", "");
+} catch (ignored) {
+}
 module.exports = {
 	push : function(deviceId, data) {
+		if (!key) {
+			throw "No GCM key specified in ~/.gcm/key";
+		}
 		return new Promise(function(success, fail) {
 			request({
 				url : "https://android.googleapis.com/gcm/send",

@@ -7,8 +7,6 @@ before_install:
   - sleep 3 # give xvfb some time to start
   - "npm install"
   - "npm run testInit"
-  - "mkdir ~/.gcm"
-  - "touch ~/.gcm/key"
 script:
   - "npm run testReady &"
   - sleep 10
