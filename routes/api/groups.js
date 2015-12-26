@@ -229,7 +229,53 @@ router.get('/:accessKey/channels/:channelAccessKey/messages/query', function(req
 			},
 			include : [ {
 				model : Account,
-				as : "owner"
+				as : "owner",
+				attributes : [ "id", "name", "iconUrl" ]
+			} ]
+		});
+	}).then(function(messages) {
+		res.status(201).json(messages);
+	})["catch"](function(error) {
+		if (ERROR_NOTACCESSIBLE == error) {
+			res.status(403).end();
+		} else {
+			console.log(error.stack);
+			res.status(500).end();
+		}
+	});
+});
+router.get('/:accessKey/channels/:channelAccessKey/messages/queryTimeline', function(req, res) {
+	var sessionKey = req.query.sessionKey || req.body.access_token;
+	if (!sessionKey) {
+		res.status(400).end();
+		return;
+	}
+	var startDate = new Date();
+	startDate.setTime(req.query.startTime);
+	var endDate = new Date();
+	endDate.setTime(req.query.endTime);
+	if (!startDate || !endDate) {
+		res.status(400).end();
+		return;
+	}
+	var channelAccessKey = req.params.channelAccessKey;
+	var loadedAccount;
+	var loadedChannel;
+	resolveChannel(sessionKey, channelAccessKey).then(function(resolved) {
+		loadedAccount = resolved.loadedAccount;
+		loadedChannel = resolved.loadedChannel;
+		return Message.findAll({
+			where : {
+				createdAt : {
+					$lt : endDate,
+					$gt : startDate
+				},
+				channelId : loadedChannel.id
+			},
+			include : [ {
+				model : Account,
+				as : "owner",
+				attributes : [ "id", "name", "iconUrl" ]
 			} ]
 		});
 	}).then(function(messages) {

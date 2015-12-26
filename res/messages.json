@@ -72,6 +72,7 @@
 		"next" : "next",
 		"prev" : "prev",
 		"search" : "search",
+		"searching" : "searching...",
 		"noResult" : "No result",
 		"content" : "content",
 		"contents" : {
@@ -180,6 +181,7 @@
 		"prev" : "前へ",
 		"content" : "投稿",
 		"search" : "検索",
+		"searching" : "検索中...",
 		"noResult" : "結果なし",
 		"contents" : {
 			"self" : "自分の投稿",
