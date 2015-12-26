@@ -7,7 +7,7 @@ before_install:
   - sleep 3 # give xvfb some time to start
   - "npm install"
   - "npm run testInit"
-  - "npm run testReadyi &"
+  - "npm run testReady &"
   - sleep 10
   - "node index.js &"
   - sleep 10
