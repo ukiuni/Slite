@@ -1,6 +1,8 @@
 var Account = global.db.Account;
 var AccessKey = global.db.AccessKey;
 var Group = global.db.Group;
+var AccountInGroup = global.db.AccountInGroup;
+var Channel = global.db.Channel;
 var Content = global.db.Content;
 var ContentBody = global.db.ContentBody;
 var NotificationTarget = global.db.NotificationTarget;
@@ -573,6 +575,49 @@ router.get("/keys", function(req, res) {
 		});
 	}).then(function(accessKeys) {
 		res.status(200).json(accessKeys);
+	})["catch"](function(error) {
+		console.log(error.stack);
+		res.status(500).end();
+	});
+});
+router.get("/channels/accessible", function(req, res) {
+	if (!req.query.sessionKey) {
+		res.status(400).end();
+		return;
+	}
+	AccessKey.findBySessionKey(req.query.sessionKey).then(function(accessKey) {
+		if (!accessKey) {
+			throw ERROR_NOTACCESSIBLE;
+		}
+		return Account.findById(accessKey.AccountId);
+	}).then(function(account) {
+		if (!account) {
+			throw ERROR_NOTACCESSIBLE;
+		}
+		return account.getGroups();
+	}).then(function(groups) {
+		if (!groups) {
+			res.status(200).json([]);
+		} else {
+			var groupIds = groups.map(function(group) {
+				return group.id
+			});
+			Channel.findAll({
+				where : {
+					GroupId : {
+						$in : groupIds
+					}
+				},
+				include : [ {
+					model : Group,
+					include : [ {
+						model : Account
+					} ]
+				} ]
+			}).then(function(Channels) {
+				res.status(200).json(Channels);
+			});
+		}
 	})["catch"](function(error) {
 		console.log(error.stack);
 		res.status(500).end();

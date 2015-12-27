@@ -1931,115 +1931,6 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 		channelAccessKey : $routeParams.channelAccessKey,
 		sessionKey : $rootScope.getSessionKey()
 	}, function(channel) {
-		$scope.channel = channel;
-		$scope.channel.Group.visibility = $rootScope.groupVisibilities[channel.Group.visibility - 1];
-		$scope.channel.messages = [];
-		var jqScrollPane = $("#messageScrollPane");
-		var jqScrollInner = $("#messageScrollInner");
-		var listenComment = function(event) {
-			var event = JSON.parse(event);
-			if ("message" == event.type || "historicalMessage" == event.type) {
-				var messages = "message" == event.type ? [ event.message ] : event.messages;
-				if ("historicalMessage" == event.type) {
-					loadingHistory = false;
-				}
-				messages.forEach(function(message) {
-					$scope.$apply(function() {
-						if ("message" == event.type) {
-							$scope.channel.messages.push(message);
-						} else {
-							$scope.channel.messages.unshift(message);
-						}
-						if (jqScrollPane.scrollTop() > jqScrollInner.height() - jqScrollPane.height() - 30) {
-							setTimeout(function() {
-								jqScrollPane.animate({
-									scrollTop : jqScrollInner.height()
-								}, 50);
-							}, 0);
-						}
-					});
-					if (!$rootScope.myAccount) {
-						return;
-					}
-					setTimeout(function() {
-						$('.messageBody').highlight($rootScope.myAccount.name);
-					}, 0)
-					if (0 <= message.body.indexOf($rootScope.myAccount.name) && !document.hasFocus()) {
-						if (Notification && "granted" != Notification.permission) {
-							Notification.requestPermission(function(status) {
-								if (Notification.permission !== status) {
-									Notification.permission = status;
-								}
-							});
-						}
-						var n = new Notification($rootScope.messages.message, {
-							body : message.body
-						});
-						n.onclick = function() {
-							$("#messageInput").focus();
-						};
-						bounce();
-					}
-				});
-			} else if ("join" == event.type || "hello" == event.type) {
-				var joinedAccount = event.account;
-				if (channel.Group.Accounts) {
-					channel.Group.Accounts.forEach(function(account) {
-						if (account.id == joinedAccount.id) {
-							$scope["$apply"](function() {
-								account.now = true;
-							});
-						}
-					});
-				}
-				if ("join" == event.type) {
-					$rootScope.sendHello({
-						channelAccessKey : $routeParams.channelAccessKey
-					})
-				}
-			} else if ("reave" == event.type) {
-				var reaveAccount = event.account;
-				if (channel.Group.Accounts) {
-					channel.Group.Accounts.forEach(function(account) {
-						if (account.id == reaveAccount.id) {
-							$scope["$apply"](function() {
-								account.now = false;
-							});
-						}
-					});
-				}
-				if ($rootScope.myAccount.id == reaveAccount.id) {
-					$rootScope.sendHello({
-						channelAccessKey : $routeParams.channelAccessKey
-					})
-				}
-			}
-		}
-		var loadingHistory = false;
-		$scope.loadHistory = function() {
-			if ((!$scope.channel.messages[0]) || loadingHistory) {
-				return;
-			}
-			loadingHistory = true;
-			var lastLoadId = $scope.channel.messages[0].id;
-			$rootScope.requestMessage({
-				channelAccessKey : $routeParams.channelAccessKey,
-				idBefore : lastLoadId
-			});
-		}
-		$rootScope.listenChannel($routeParams.channelAccessKey, listenComment);
-		$rootScope.requestMessage({
-			channelAccessKey : $routeParams.channelAccessKey
-		})
-		var channelAccessKey = $routeParams.channelAccessKey;
-		$scope.$on('$destroy', function() {
-			$rootScope.unListenChannel(channelAccessKey, listenComment);
-			$rootScope.isSearchable = false;
-			$rootScope.search = null;
-			$rootScope.searchWord = null;
-			$rootScope.searchTimeline = null;
-			$rootScope.timelinedMessages = null;
-		});
 	}, function(error) {
 		$rootScope.showErrorWithStatus(error.status, function(status) {
 			if (403 == status) {
@@ -2050,6 +1941,148 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 			return false;
 		});
 	});
+	var loadingHistory = false;
+	$scope.loadHistory = function() {
+		if ((!$scope.channel.messages[0]) || loadingHistory) {
+			return;
+		}
+		loadingHistory = true;
+		var lastLoadId = $scope.channel.messages[0].id;
+		$rootScope.requestMessage({
+			channelAccessKey : $scope.channel.accessKey,
+			idBefore : lastLoadId
+		});
+	}
+	var channelMap = [];
+	$resource('/api/account/channels/accessible').query({
+		sessionKey : $rootScope.getSessionKey()
+	}, function(channels) {
+		$scope.joiningChannels = channels;
+		$scope.joiningChannels.forEach(function(channel) {
+			channel.messages = [];
+			channel.unreadCount = 0;
+			$rootScope.listenChannel(channel.accessKey, listenComment);
+			channelMap[channel.accessKey] = channel;
+		});
+		$scope.$on('$destroy', function() {
+			$scope.joiningChannels.forEach(function(channel) {
+				$rootScope.unListenChannel(channel.accessKey, listenComment);
+			});
+			$rootScope.isSearchable = false;
+			$rootScope.search = null;
+			$rootScope.searchWord = null;
+			$rootScope.searchTimeline = null;
+			$rootScope.timelinedMessages = null;
+		});
+		selectChannel($routeParams.channelAccessKey);
+	}, function(error) {
+		$rootScope.showErrorWithStatus(error.status);
+	});
+	var selectChannel = function(channelAccessKey) {
+		for ( var i in $scope.joiningChannels) {
+			if ($scope.joiningChannels[i].accessKey == channelAccessKey) {
+				$scope.channel = $scope.joiningChannels[i];
+				$scope.unreadCount = 0;
+				break;
+			}
+		}
+		$scope.channel.Group.visibility = $rootScope.groupVisibilities[$scope.channel.Group.visibility - 1];
+		if (0 == $scope.channel.messages.length) {
+			$rootScope.requestMessage({
+				channelAccessKey : channelAccessKey
+			});
+		}
+	}
+	$scope.changeChannel = function(channel) {
+		selectChannel(channel.accessKey);
+	}
+	var jqScrollPane = $("#messageScrollPane");
+	var jqScrollInner = $("#messageScrollInner");
+	var listenComment = function(event) {
+		var event = JSON.parse(event);
+		var channelAccessKey = event.channelAccessKey;
+		var eventTargetChannel = channelMap[channelAccessKey];
+		if ("message" == event.type || "historicalMessage" == event.type) {
+			var messages = "message" == event.type ? [ event.message ] : event.messages;
+			if ("historicalMessage" == event.type) {
+				loadingHistory = false;
+			}
+			messages.forEach(function(message) {
+				$scope.$apply(function() {
+					if ("message" == event.type) {
+						eventTargetChannel.messages.push(message);
+					} else {
+						eventTargetChannel.messages.unshift(message);
+					}
+					if (eventTargetChannel.accessKey == $scope.channel.accessKey) {
+						if (jqScrollPane.scrollTop() > jqScrollInner.height() - jqScrollPane.height() - 30) {
+							setTimeout(function() {
+								jqScrollPane.animate({
+									scrollTop : jqScrollInner.height()
+								}, 50);
+							}, 0);
+						}
+					} else {
+						eventTargetChannel.unreadCount++;
+					}
+				});
+				if (!$rootScope.myAccount) {
+					return;
+				}
+				setTimeout(function() {
+					$('.messageBody').highlight($rootScope.myAccount.name);
+				}, 0)
+				if (0 <= message.body.indexOf($rootScope.myAccount.name) && !document.hasFocus()) {
+					if (Notification && "granted" != Notification.permission) {
+						Notification.requestPermission(function(status) {
+							if (Notification.permission !== status) {
+								Notification.permission = status;
+							}
+						});
+					}
+					var n = new Notification($rootScope.messages.message, {
+						body : message.body
+					});
+					n.onclick = function() {
+						$("#messageInput").focus();
+					};
+					bounce();
+				}
+			});
+		} else if ("join" == event.type || "hello" == event.type) {
+			var joinedAccount = event.account;
+			if (eventTargetChannel.Group.Accounts) {
+				eventTargetChannel.Group.Accounts.forEach(function(account) {
+					if (account.id == joinedAccount.id) {
+						$scope["$apply"](function() {
+							account.now = true;
+						});
+					}
+				});
+			}
+			if ("join" == event.type) {
+				$rootScope.sendHello({
+					channelAccessKey : $routeParams.channelAccessKey
+				})
+			}
+		} else if ("reave" == event.type) {
+			var reaveAccount = event.account;
+			if (eventTargetChannel.Group.Accounts) {
+				eventTargetChannel.Group.Accounts.forEach(function(account) {
+					if (account.id == reaveAccount.id) {
+						$scope["$apply"](function() {
+							account.now = false;
+						});
+					}
+				});
+			}
+			if ($rootScope.myAccount.id == reaveAccount.id) {
+				$rootScope.sendHello({
+					channelAccessKey : $routeParams.channelAccessKey
+				})
+			}
+		}
+	}
 	var sendingMessage;
 	$scope.sendMessage = function() {
 		if (sendingMessage != $scope.text) {
@@ -2057,7 +2090,7 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 				return;
 			}
 			sendingMessage = $scope.text;
-			post($http, '/api/groups/' + $routeParams.groupAccessKey + "/channels/" + $routeParams.channelAccessKey + "/messages", {
+			post($http, '/api/groups/' + $scope.channel.Group.accessKey + "/channels/" + $scope.channel.accessKey + "/messages", {
 				sessionKey : $rootScope.getSessionKey(),
 				body : $scope.text
 			}).then(function(response) {
@@ -2089,8 +2122,8 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 		}
 		$rootScope.searchingWord = $rootScope.searchWord;
 		$resource("/api/groups/:groupAccessKey/channels/:channelAccessKey/messages/query").query({
-			groupAccessKey : $routeParams.groupAccessKey,
-			channelAccessKey : $routeParams.channelAccessKey,
+			groupAccessKey : $scope.channel.Group.accessKey,
+			channelAccessKey : $scope.channel.accessKey,
 			searchWord : $rootScope.searchWord,
 			sessionKey : $rootScope.getSessionKey()
 		}, function(messages) {
@@ -2116,8 +2149,8 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 			body : $rootScope.messages.searching
 		});
 		$resource("/api/groups/:groupAccessKey/channels/:channelAccessKey/messages/queryTimeline").query({
-			groupAccessKey : $routeParams.groupAccessKey,
-			channelAccessKey : $routeParams.channelAccessKey,
+			groupAccessKey : $scope.channel.Group.accessKey,
+			channelAccessKey : $scope.channel.accessKey,
 			startTime : startTime,
 			endTime : endTime,
 			sessionKey : $rootScope.getSessionKey()
