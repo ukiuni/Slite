@@ -1979,12 +1979,19 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 		$rootScope.showErrorWithStatus(error.status);
 	});
 	var selectChannel = function(channelAccessKey) {
+		if ($scope.channel) {
+			$scope.channel.scrollTop = jqScrollPane.scrollTop();
+		}
 		for ( var i in $scope.joiningChannels) {
 			if ($scope.joiningChannels[i].accessKey == channelAccessKey) {
 				$scope.channel = $scope.joiningChannels[i];
 				$scope.channel.unreadCount = 0;
 				break;
 			}
+		}
+		if ($scope.channel.scrollTop) {
+			jqScrollPane.scrollTop($scope.channel.scrollTop);
+			delete $scope.channel.scrollTop;
 		}
 		$scope.channel.Group.visibility = $rootScope.groupVisibilities[$scope.channel.Group.visibility - 1];
 		if (0 == $scope.channel.messages.length) {
@@ -2098,7 +2105,7 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 			$scope.myMessage.body = sendingMessage;
 			$scope.text = "";
 			setTimeout(function() {
-				$("#messageScrollPane").animate({
+				jqScrollPane.animate({
 					scrollTop : jqScrollInner.height()
 				}, 50);
 			}, 0);
