@@ -1982,7 +1982,7 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 		for ( var i in $scope.joiningChannels) {
 			if ($scope.joiningChannels[i].accessKey == channelAccessKey) {
 				$scope.channel = $scope.joiningChannels[i];
-				$scope.unreadCount = 0;
+				$scope.channel.unreadCount = 0;
 				break;
 			}
 		}
