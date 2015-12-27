@@ -76,6 +76,10 @@ myapp.config([ "$locationProvider", "$httpProvider", "$routeProvider", "markedPr
 		templateUrl : "template/editProfileView.html",
 		controller : "editProfileController"
 	});
+	$routeProvider.when("/manageKey", {
+		templateUrl : "template/manageKey.html",
+		controller : "manageKeyController"
+	});
 	$routeProvider.when("/passwordChanged", {
 		templateUrl : "template/passwordChangedView.html"
 	});
@@ -736,6 +740,48 @@ var editProfileController = [ "$rootScope", "$scope", "$resource", "$location", 
 		}).success(function(account) {
 			$rootScope.myAccount = account;
 			$location.path("/home");
+		}).error(function(error) {
+			$rootScope.showError($rootScope.messages.error.withServer);
+		});
+	}
+} ];
+var manageKeyController = [ "$rootScope", "$scope", "$resource", "$location", "$http", "Upload", function($rootScope, $scope, $resource, $location, $http, $uploader) {
+	if (!$rootScope.myAccount) {
+		$location.path("/home");
+		return;
+	}
+	$resource('/api/account/keys').query({
+		sessionKey : $rootScope.getSessionKey()
+	}, function(keys) {
+		$scope.myKeys = keys;
+		$scope.typeMessages = [];
+		var initTypeMessage = function() {
+			$scope.typeMessages[3] = $rootScope.messages.keys.typeLogin;
+			$scope.typeMessages[6] = $rootScope.messages.keys.typeGenerated;
+		}
+		if ($rootScope.messages) {
+			initTypeMessage();
+		} else {
+			$rootScope.$watch("messages", initTypeMessage);
+		}
+	}, function(error) {
+		$rootScope.showError($rootScope.messages.error.withServer);
+	});
+	$scope.deleteKey = function(index, key) {
+		$resource('/api/account/keys')["delete"]({
+			sessionKey : $rootScope.getSessionKey(),
+			secret : key.secret
+		}, function(key) {
+			$scope.myKeys.splice(index, 1)
+		}, function(error) {
+			$rootScope.showError($rootScope.messages.error.withServer);
+		});
+	}
+	$scope.createKey = function() {
+		post($http, '/api/account/keys', {
+			sessionKey : $rootScope.getSessionKey(),
+		}).success(function(key) {
+			$scope.myKeys.unshift(key);
 		}).error(function(error) {
 			$rootScope.showError($rootScope.messages.error.withServer);
 		});
@@ -2143,6 +2189,7 @@ myapp.controller('invitationController', invitationController);
 myapp.controller('requestResetPasswordController', requestResetPasswordController);
 myapp.controller('resetPasswordController', resetPasswordController);
 myapp.controller('editProfileController', editProfileController);
+myapp.controller('manageKeyController', manageKeyController);
 myapp.controller('changePasswordController', changePasswordController);
 myapp.controller('editContentController', editContentController);
 myapp.controller('editCalendarAlbumController', editCalendarAlbumController);

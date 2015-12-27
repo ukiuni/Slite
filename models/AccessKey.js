@@ -19,7 +19,13 @@ module.exports = function(sequelize, DataTypes) {
 		return global.db.AccessKey.find({
 			where : {
 				secret : sessionKey,
-				type : AccessKey.TYPE_SESSION,
+				type : {
+					$or : [ {
+						$eq : AccessKey.TYPE_SESSION
+					}, {
+						$eq : AccessKey.TYPE_GENERATE_SESSION
+					} ]
+				},
 				status : AccessKey.STATUS_CREATED
 			}
 		});
@@ -29,6 +35,7 @@ module.exports = function(sequelize, DataTypes) {
 	AccessKey.TYPE_SESSION = 3;
 	AccessKey.TYPE_RESETMAIL = 4;
 	AccessKey.TYPE_INVITATION = 5;
+	AccessKey.TYPE_GENERATE_SESSION = 6;
 	AccessKey.STATUS_CREATED = 1;
 	AccessKey.STATUS_DISABLED = 2;
 	return AccessKey;

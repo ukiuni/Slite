@@ -524,6 +524,93 @@ router["delete"]('/accessKey', function(req, res) {
 		res.status(200).end();
 	});
 });
+router.post("/keys", function(req, res) {
+	if (!req.body.sessionKey) {
+		res.status(400).end();
+		return;
+	}
+	var loadedAccessKey;
+	AccessKey.findBySessionKey(req.body.sessionKey).then(function(accessKey) {
+		if (!accessKey) {
+			throw ERROR_NOTACCESSIBLE;
+		}
+		loadedAccessKey = accessKey;
+		return Random.createRandomBase62();
+	}).then(function(random) {
+		return AccessKey.create({
+			AccountId : loadedAccessKey.AccountId,
+			secret : random,
+			type : AccessKey.TYPE_GENERATE_SESSION
+		});
+	}).then(function(accessKey) {
+		res.status(200).json(accessKey);
+	})["catch"](function(error) {
+		console.log(error.stack);
+		res.status(500).end();
+	});
+});
+router.get("/keys", function(req, res) {
+	if (!req.query.sessionKey) {
+		res.status(400).end();
+		return;
+	}
+	AccessKey.findBySessionKey(req.query.sessionKey).then(function(accessKey) {
+		if (!accessKey) {
+			throw ERROR_NOTACCESSIBLE;
+		}
+		return AccessKey.findAll({
+			where : {
+				AccountId : accessKey.AccountId,
+				type : {
+					$or : [ {
+						$eq : AccessKey.TYPE_SESSION
+					}, {
+						$eq : AccessKey.TYPE_GENERATE_SESSION
+					} ]
+				}
+			},
+			order : [ [ "createdAt", "DESC" ] ]
+		});
+	}).then(function(accessKeys) {
+		res.status(200).json(accessKeys);
+	})["catch"](function(error) {
+		console.log(error.stack);
+		res.status(500).end();
+	});
+});
+router["delete"]("/keys", function(req, res) {
+	if (!req.query.sessionKey || !req.query.secret) {
+		res.status(400).end();
+		return;
+	}
+	AccessKey.findBySessionKey(req.query.sessionKey).then(function(accessKey) {
+		if (!accessKey) {
+			throw ERROR_NOTACCESSIBLE;
+		}
+		return AccessKey.find({
+			where : {
+				AccountId : accessKey.AccountId,
+				secret : req.query.secret
+			}
+		});
+	}).then(function(accessKey) {
+		if (!accessKey) {
+			throw ERROR_NOTFOUND;
+		}
+		accessKey.destroy();
+	}).then(function() {
+		res.status(200).end();
+	})["catch"](function(error) {
+		if (ERROR_NOTACCESSIBLE == error) {
+			res.status(403).end();
+		} else if (ERROR_NOTFOUND == error) {
+			res.status(404).end();
+		} else {
+			res.status(500).end();
+			console.log(error.stack);
+		}
+	});
+});
 router.get("/:id", function(req, res) {
 	var loadedAccount;
 	Account.find({
@@ -566,6 +653,7 @@ router["delete"]('/devices', function(req, res) {
 		res.status(400).end();
 		return;
 	}
+	var loadedAccessKey;
 	AccessKey.findBySessionKey(req.query.sessionKey).then(function(accessKey) {
 		if (!accessKey) {
 			throw ERROR_NOTACCESSIBLE;

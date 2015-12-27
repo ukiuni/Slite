@@ -13,9 +13,17 @@
 			"newCalendarAlbum" : "New Calendar Album",
 			"setting" : "Setting",
 			"profile" : "Profile",
+			"manageKey" : "Manage key",
 			"changePassword" : "Change Password",
 			"signOut" : "Sign out"
 		},
+		"passwordChanged" : "Password Changed",
+		"passwordReset" : "Reset Password",
+		"passwordResetRequested" : "Reset Password Requested",
+		"passwordResetRequestedInformation" : "Check your mail box. And put new password from URL in your mail.",
+		"passwordResetInformation": "For reset password, Put registed mail address, and receive URL to put new password.",
+		"passwordResetted" : "Password Resetted",
+		"showKey" : "Show key",
 		"accounts" : {
 			"mail" : "mail",
 			"error" : {
@@ -64,6 +72,7 @@
 			"loadHistory" : "Load message"
 		},
 		"sendWithEnter" : "Send on enter",
+		"create" : "Create",
 		"send" : "send",
 		"edit" : "edit",
 		"save" : "save",
@@ -74,6 +83,8 @@
 		"search" : "search",
 		"searching" : "searching...",
 		"noResult" : "No result",
+		"createdDate" : "Created date",
+		"hide" : "hide",
 		"content" : "content",
 		"contents" : {
 			"self" : "content",
@@ -104,7 +115,11 @@
 			"notAccessible" : "Can't access to this resource",
 			"notFound" : "This resource is not fouded."
 		},
-		"alertOnLeave" : "Are you sure you want to leave this page?"
+		"alertOnLeave" : "Are you sure you want to leave this page?",
+		"keys" : {
+			"typeLogin" : "With login",
+			"typeGenerated" : "Generated"
+		}
 	},
 	"ja" : {
 		"signin" : {
@@ -119,10 +134,18 @@
 			"newContent" : "新規投稿",
 			"newCalendarAlbum" : "カレンダーアルバム",
 			"setting" : "設定",
-			"profile" : "Profile",
+			"profile" : "プロフィール",
+			"manageKey" : "鍵管理",
 			"changePassword" : "パスワード変更",
-			"signOut" : "Sign out"
+			"signOut" : "サインアウト"
 		},
+		"passwordChanged" : "パスワードを変更しました。",
+		"passwordReset" : "パスワードリセット",
+		"passwordResetRequested" : "パスワードリセットを受け付けました。",
+		"passwordResetRequestedInformation" : "受信したメールのURLから新しいパスワードを設定してください。",
+		"passwordResetInformation": "パスワードをリセットするためにはメールアドレスを入力して送られてきたメールのURLから新しいパスワードを設定してください。",
+		"passwordResetted" : "パスワードをリセットしました。",
+		"showKey" : "鍵を表示",
 		"accounts" : {
 			"mail" : "mail",
 			"error" : {
@@ -172,6 +195,7 @@
 			"loadHistory" : "メッセージを読み込む"
 		},
 		"sendWithEnter" : "Enterで送信",
+		"create" : "作成",
 		"send" : "送信",
 		"edit" : "編集",
 		"save" : "保存",
@@ -179,10 +203,12 @@
 		"cancel" : "キャンセル",
 		"next" : "次へ",
 		"prev" : "前へ",
-		"content" : "投稿",
 		"search" : "検索",
 		"searching" : "検索中...",
 		"noResult" : "結果なし",
+		"createdDate" : "作成日",
+		"hide" : "非表示",
+		"content" : "投稿",
 		"contents" : {
 			"self" : "自分の投稿",
 			"open" : "公開",
@@ -212,6 +238,10 @@
 			"notAccessible" : "アクセスできませんでした。",
 			"notFound" : "ページがみつかりません。"
 		},
-		"alertOnLeave" : "本当にこのページから遷移してもいいですか？"
+		"alertOnLeave" : "本当にこのページから遷移してもいいですか？",
+		"keys" : {
+			"typeLogin" : "ログインで生成",
+			"typeGenerated" : "手動で生成"
+		}
 	}
 }

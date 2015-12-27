@@ -7,6 +7,10 @@ button {
 	overflow: hidden;
 }
 
+.pageTitle {
+	margin-bottom: 10px;
+}
+
 .article {
 	white-space: pre;
 	white-space: pre-wrap;
