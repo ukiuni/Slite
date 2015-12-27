@@ -1992,6 +1992,7 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 				channelAccessKey : channelAccessKey
 			});
 		}
+		delete $scope.myMessage;
 	}
 	$scope.changeChannel = function(channel) {
 		selectChannel(channel.accessKey);
