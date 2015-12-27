@@ -119,7 +119,8 @@ var socketIO = function(io) {
 			}).then(function(messages) {
 				socket.emit(channelAccessKey, JSON.stringify({
 					type : "historicalMessage",
-					messages : messages
+					messages : messages,
+					channelAccessKey : channelAccessKey
 				}));
 			})["catch"](function(e) {
 				console.log(e.stack);
@@ -170,7 +171,8 @@ var socketIO = function(io) {
 	self.sendToChannel = function(channelAccessKey, message) {
 		io.to(channelAccessKey).emit(channelAccessKey, JSON.stringify({
 			type : "message",
-			message : message
+			message : message,
+			channelAccessKey : channelAccessKey
 		}));
 	}
 	self.sendAccountEvent = function(channelAccessKey, account, type) {
@@ -180,7 +182,8 @@ var socketIO = function(io) {
 				id : account.id,
 				name : account.name,
 				iconUrl : account.iconUrl
-			}
+			},
+			channelAccessKey : channelAccessKey
 		}));
 	}
 	self.sendJoinToChannelEvent = function(channelAccessKey, account) {
