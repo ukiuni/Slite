@@ -1,0 +1,32 @@
+<div style="height: 100%;">
+	<div class="row">
+		<div class="col-sm-6 col-sm-offset-3 col-xs-10 col-xs-offset-1">
+			<div class="row">
+				<h2 class="pageTitle" ng-bind="messages.menu.manageKey"></h2>
+			</div>
+			<div class="row">
+				<div class="col-xs-12 col-sm-11 col-sm-offset-1">
+					<div class="row" style="margin-bottom: 20px">
+						<button class="col-xs-12 btn btn-default" ng-bind="messages.create" ng-click="createKey()"></button>
+					</div>
+					<div class="row" ng-repeat="key in myKeys track by key.id" style="border: 1px solid #CCC; border-radius: 5px; margin-bottom: 5px">
+						<div class="col-sm-9 col-xs-12">
+							<div class="row">
+								<div class="col-xs-6" style="color: gray; font-size: xx-small;" ng-bind="messages.createdDate + ' ' + (key.createdAt | date :'yyyy/MM/dd HH:mm:ss')"></div>
+								<div class="col-xs-6" style="color: gray; font-size: xx-small;" ng-bind="typeMessages[key.type]"></div>
+								<div class="col-xs-12" ng-show="!key.show" ng-click="key.show=true" ng-bind="messages.showKey"></div>
+								<input class="col-xs-10" type="text" ng-show="key.show" ng-model="key.secret" disabled />
+								<div class="col-xs-2" ng-show="key.show" ng-bind="messages.hide" ng-click="key.show=false"></div>
+							</div>
+						</div>
+						<div class="col-sm-3 col-xs-12">
+							<div class="row">
+								<button class="deleteButton col-xs-10 btn btn-default" style="height: 40px; margin: 5px" type="submit" ng-click="deleteKey($index, key)" ng-show="getSessionKey()!=key.secret" ng-bind="messages.delete"></button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
