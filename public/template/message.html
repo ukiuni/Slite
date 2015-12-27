@@ -55,6 +55,22 @@
 									</div>
 								</div>
 							</div>
+							<div class="col-xs-12 messageRow" ng-class-odd="'repeatOdd'" ng-show="myMessage">
+								<div class="row">
+									<div class="col-xs-1">
+										<img class="accountIcon img-circle" style="height: 40px" ng-src="{{myAccount.iconUrl}}" />
+									</div>
+									<div class="col-xs-10">
+										<div class="row" style="color: #999; font-size: 10px; height: 20px">
+											<div class="col-xs-3 ellipsis" title="{{myAccount.name}}" alt="{{myAccount.name}}" ng-bind="myAccount.name"></div>
+											<div class="col-xs-9 ellipsis" ng-bind="Date.new() | date :'yyyy/MM/dd HH:mm:ss'"></div>
+										</div>
+										<div class="row">
+											<div class="col-xs-12 messageBody" marked="myMessage.body"></div>
+										</div>
+									</div>
+								</div>
+							</div>
 						</div>
 					</div>
 				</div>

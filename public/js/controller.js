@@ -2011,6 +2011,9 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 				$scope.$apply(function() {
 					if ("message" == event.type) {
 						eventTargetChannel.messages.push(message);
+						if (message.owner.id == $rootScope.myAccount.id) {
+							delete $scope.myMessage;
+						}
 					} else {
 						eventTargetChannel.messages.unshift(message);
 					}
@@ -2090,14 +2093,22 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 				return;
 			}
 			sendingMessage = $scope.text;
+			$scope.myMessage = {};
+			$scope.myMessage.body = sendingMessage;
+			$scope.text = "";
+			setTimeout(function() {
+				$("#messageScrollPane").animate({
+					scrollTop : jqScrollInner.height()
+				}, 50);
+			}, 0);
 			post($http, '/api/groups/' + $scope.channel.Group.accessKey + "/channels/" + $scope.channel.accessKey + "/messages", {
 				sessionKey : $rootScope.getSessionKey(),
-				body : $scope.text
+				body : sendingMessage
 			}).then(function(response) {
-				$scope.text = "";
 				sendingMessage = null;
 			})["catch"](function(response) {
 				$rootScope.showErrorWithStatus(response.status);
+				$scope.text = sendingMessage;
 				sendingMessage = null;
 			});
 			return true;
