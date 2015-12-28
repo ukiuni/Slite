@@ -20,7 +20,11 @@
 					<div class="row" ng-repeat="content in myContents track by content.id">
 						<div class="col-xs-12 contentListColmun">
 							<div class="row">
-								<a class="contentListTitle col-sm-6 col-xs-12" href="/content/{{content.accessKey}}"><div ng-bind="content.ContentBodies[0].title" class="ellipsis"></div></a>
+								<a class="contentListTitle col-sm-6 col-xs-12" href="/content/{{content.accessKey}}">
+									<div class="ellipsis">
+										<img ng-src="{{contentIcon[content.type] || '/images/article_icon.png'}}" style="height: 40px; margin-right: 5px" /><span ng-bind="content.ContentBodies[0].title"></span>
+									</div>
+								</a>
 								<div class="col-sm-2 col-xs-12">
 									<span class="contentListStatus row" ng-bind="statuses[content.ContentBodies[0].status - 1].message"></span> <span class="contentListStatus row" ng-bind="content.updatedAt | date:'yyyy-MM-dd'"></span>
 								</div>
