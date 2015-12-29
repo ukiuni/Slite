@@ -2056,6 +2056,9 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 			var messages = "message" == event.type ? [ event.message ] : event.messages;
 			if ("historicalMessage" == event.type) {
 				loadingHistory = false;
+				if (0 == messages.length) {
+					eventTargetChannel.noMoreHistory = true;
+				}
 			}
 			messages.forEach(function(message) {
 				$scope.$apply(function() {
