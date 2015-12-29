@@ -4,7 +4,7 @@
 			<div class="form-group">
 				<label for="inputName" class="col-sm-2 control-label">Name</label>
 				<div class="col-sm-10">
-					<input type="text" class="form-control" id="inputName" placeholder="Name" name="name" ng-model="name" ng-pattern="/^[a-zA-Z0-9][a-zA-Z0-9][a-zA-Z0-9][a-zA-Z0-9]*$/" required>
+					<input type="text" class="form-control" id="inputName" placeholder="Name" name="name" ng-model="name" ng-pattern="/^[a-zA-Z0-9][a-zA-Z0-9][a-zA-Z0-9][a-zA-Z0-9]+$/" required>
 				</div>
 			</div>
 			<div ng-show="form.name.$error.pattern">
