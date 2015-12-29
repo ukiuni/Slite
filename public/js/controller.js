@@ -2046,7 +2046,7 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 				}
 				setTimeout(function() {
 					var hightLightArray
-					if ($rootScope.myAccount && $rootScope.myAccount.config && $rootScope.myAccount.config.strongWords) {
+					if ($rootScope.myAccount.config && $rootScope.myAccount.config.strongWords) {
 						hightLightArray = $rootScope.myAccount.config.strongWords.split(",").map(function(word) {
 							return word.replace(/^[\s　]+|[\s　]+$/g, "");
 						});
@@ -2063,11 +2063,15 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 									}
 								});
 							}
-							var n = new Notification($rootScope.messages.message, {
-								body : message.body
+							var n = new Notification(message.owner.name + "@" + eventTargetChannel.name, {
+								body : message.body,
+								iconUrl : "images/application_icon.png",
+								icon : "images/application_icon.png"
 							});
 							n.onclick = function() {
 								$("#messageInput").focus();
+								window.focus();
+								n.close();
 							};
 							bounce();
 						}
