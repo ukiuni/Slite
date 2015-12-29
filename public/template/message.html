@@ -25,7 +25,7 @@
 					</div>
 				</div>
 				<div id="messageAccountsBottomMarginArea" class="row hidden-xs"></div>
-				<div id="messageChannelsArea" class="row hidden-xs" ng-show="joiningChannels">
+				<div id="messageChannelsArea" class="row hidden-xs" ng-show="joiningChannels.length > 1">
 					<div class="col-xs-12" ng-repeat="channel in joiningChannels track by channel.id">
 						<div class="otherChannel" ng-click="changeChannel(channel)" ng-class="{'otherChannelBrink':channel.notify}">
 							{{channel.name}}/{{channel.Group.name}}<span ng-show="channel.unreadCount" class="badge" style="margin-left: 10px" ng-bind="channel.unreadCount"></span>
@@ -33,7 +33,7 @@
 					</div>
 				</div>
 				<div id="messageControllArea" class="row hidden-xs">
-					<div class="col-xs-12" style="height: 100%">
+					<div class="col-xs-12" style="height: 100%" align="right">
 						<img class="messageSettingButton" src="images/setting_icon.png" ng-click="showSettingDialog()"></img>
 					</div>
 				</div>

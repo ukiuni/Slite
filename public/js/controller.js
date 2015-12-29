@@ -2017,7 +2017,7 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 	var strongWordsParsed;
 	var parseStrongWords = function() {
 		var strongWordArray
-		if ($rootScope.myAccount.config && $rootScope.myAccount.config.strongWords) {
+		if ($rootScope.myAccount && $rootScope.myAccount.config && $rootScope.myAccount.config.strongWords) {
 			strongWordArray = $rootScope.myAccount.config.strongWords.split(",").map(function(word) {
 				return word.replace(/^[\s　]+|[\s　]+$/g, "");
 			});
