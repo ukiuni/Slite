@@ -1,4 +1,4 @@
-<div style="height: 100%; margin-top: -70px; padding-top: 70px">
+<div style="height: 100%; margin-top: -54px; padding-top: 54px">
 	<div class="col-xs-12" ng-show="channel">
 		<div class="row" style="height: 100%; overflow: scroll">
 			<div id="accuntArea" class="col-sm-3 col-xs-12">
@@ -13,12 +13,12 @@
 				<div class="row">
 					<div class="col-sm-12 col-xs-1" ng-repeat="account in channel.Group.Accounts track by account.id">
 						<div class="row messageAccountArea" ng-class="{'messageAccountAreaNow' : account.now}">
-							<div class="col-sm-2 col-xs-12">
+							<div class="hidden-sm hidden-md hidden-lg col-xs-12">
 								<img class="accountIcon img-circle" style="height: 20px" ng-src="{{account.iconUrl}}" />
 							</div>
 							<div class="accountName col-sm-10 hidden-xs" style="display: table; height: 20px;">
 								<div style="vertical-align: middle; display: table-cell;">
-									<div ng-bind="account.name"></div>
+									<img class="accountIcon img-circle" style="height: 20px; margin-right: 5px" ng-src="{{account.iconUrl}}" /><span ng-bind="account.name"></span>
 								</div>
 							</div>
 						</div>
