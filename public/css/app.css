@@ -151,7 +151,10 @@ button {
 	height: 100%;
 	overflow: scroll;
 }
-
+/* for index.html contents area */
+.marginTop10 {
+	margin-top: 10px;
+}
 /* Message */
 .messageAccountArea {
 	opacity: 0.5;
@@ -161,6 +164,9 @@ button {
 	#accuntArea {
 		height: 100%;
 		position: relative;
+		background-color: #448;
+		color: #EEE;
+		padding-top: 10px;
 	}
 	#messageAccountsBottomMarginArea {
 		height: 150px;
@@ -178,7 +184,7 @@ button {
 		position: absolute;
 		left: 0px;
 		bottom: 5px;
-		width: 100%;
+		width: 96%;
 		margin: 0;
 		padding: 0;
 		padding-top: 5px;
@@ -186,17 +192,23 @@ button {
 		background-color: #F6F6F6;
 		overflow: scroll;
 		border-radius: 5px;
+		margin-left: 2%;
+		margin-right: 2%;
+	}
+	#messageArea {
+		padding-left: 20px;
 	}
 	.otherChannel {
-		background-color: #FFF;
 		border-radius: 5px;
 		margin-bottom: 5px;
 		padding: 5px;
+		color: #FFF;
+		background-color: #88A;
 	}
 	.otherChannel:HOVER {
 		cursor: pointer;
-		color: white;
-		background-color: #CCC;
+		color: #FFF;
+		background-color: #336;
 	}
 }
 

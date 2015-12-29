@@ -1929,6 +1929,7 @@ var editGroupController = [ "$rootScope", "$scope", "$resource", "$location", "$
 	}
 } ];
 var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$http", "$routeParams", function($rootScope, $scope, $resource, $location, $http, $routeParams) {
+	$scope.noMarginTop = true;
 	$resource('/api/groups/:groupAccessKey/:channelAccessKey').get({
 		groupAccessKey : $routeParams.groupAccessKey,
 		channelAccessKey : $routeParams.channelAccessKey,
