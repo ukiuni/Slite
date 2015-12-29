@@ -2006,7 +2006,7 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 				delete $scope.channel.scrollTop;
 			}
 		});
-		delete $scope.myMessage;
+		delete $scope.sendingMessage;
 	}
 	$scope.changeChannel = function(channel) {
 		selectChannel(channel.accessKey);
@@ -2059,7 +2059,7 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 					if ("message" == event.type) {
 						eventTargetChannel.messages.push(message);
 						if (message.owner.id == $rootScope.myAccount.id) {
-							delete $scope.myMessage;
+							delete $scope.sendingMessage;
 						}
 					} else {
 						eventTargetChannel.messages.unshift(message);
@@ -2156,8 +2156,8 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 				return;
 			}
 			sendingMessage = $scope.text;
-			$scope.myMessage = {};
-			$scope.myMessage.body = sendingMessage;
+			$scope.sendingMessage = {};
+			$scope.sendingMessage.body = sendingMessage;
 			$scope.text = "";
 			setTimeout(function() {
 				jqScrollPane.animate({
