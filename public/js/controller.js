@@ -1993,10 +1993,6 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 				break;
 			}
 		}
-		if ($scope.channel.scrollTop) {
-			jqScrollPane.scrollTop($scope.channel.scrollTop);
-			delete $scope.channel.scrollTop;
-		}
 		delete $scope.channel.notify;
 		$scope.channel.Group.visibility = $rootScope.groupVisibilities[$scope.channel.Group.visibility - 1];
 		if (0 == $scope.channel.messages.length) {
@@ -2004,6 +2000,12 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 				channelAccessKey : channelAccessKey
 			});
 		}
+		highlightStrongWords(function() {
+			if ($scope.channel.scrollTop) {
+				jqScrollPane.scrollTop($scope.channel.scrollTop);
+				delete $scope.channel.scrollTop;
+			}
+		});
 		delete $scope.myMessage;
 	}
 	$scope.changeChannel = function(channel) {
@@ -2012,6 +2014,37 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 	var jqScrollPane = $("#messageScrollPane");
 	var jqScrollInner = $("#messageScrollInner");
 	var notification;
+	var strongWordsParsed;
+	var parseStrongWords = function() {
+		var strongWordArray
+		if ($rootScope.myAccount.config && $rootScope.myAccount.config.strongWords) {
+			strongWordArray = $rootScope.myAccount.config.strongWords.split(",").map(function(word) {
+				return word.replace(/^[\s　]+|[\s　]+$/g, "");
+			});
+		} else {
+			strongWordArray = [ $rootScope.myAccount.name ];
+		}
+		return strongWordArray;
+	}
+	var highlightStrongWords = function(onComplete) {
+		setTimeout(function() {
+			strongWordsParsed.forEach(function(word) {
+				$('.messageBody').highlight(word);
+			});
+			if (onComplete) {
+				onComplete();
+			}
+		}, 0);
+	}
+	if ($rootScope.myAccount) {
+		strongWordsParsed = parseStrongWords();
+	} else {
+		var unbind = $rootScope.$watch("myAccount", function() {
+			strongWordsParsed = parseStrongWords();
+			unbind();
+			delete unbind;
+		})
+	}
 	var listenComment = function(event) {
 		var event = JSON.parse(event);
 		var channelAccessKey = event.channelAccessKey;
@@ -2046,17 +2079,8 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 				if (!$rootScope.myAccount) {
 					return;
 				}
-				setTimeout(function() {
-					var hightLightArray
-					if ($rootScope.myAccount.config && $rootScope.myAccount.config.strongWords) {
-						hightLightArray = $rootScope.myAccount.config.strongWords.split(",").map(function(word) {
-							return word.replace(/^[\s　]+|[\s　]+$/g, "");
-						});
-					} else {
-						hightLightArray = [ $rootScope.myAccount.name ];
-					}
-					hightLightArray.forEach(function(word) {
-						$('.messageBody').highlight(word);
+				highlightStrongWords(function() {
+					strongWordsParsed.forEach(function(word) {
 						if (0 <= message.body.indexOf(word)) {
 							if (eventTargetChannel.accessKey != $scope.channel.accessKey) {
 								$scope.$apply(function() {
@@ -2089,7 +2113,7 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 							bounce();
 						}
 					});
-				}, 0)
+				});
 			});
 		} else if ("join" == event.type || "hello" == event.type) {
 			var joinedAccount = event.account;
@@ -2232,6 +2256,8 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 				value : strongWords
 			}).then(function() {
 				$rootScope.myAccount.config.strongWords = strongWords;
+				strongWordsParsed = parseStrongWords();
+				highlightStrongWords();
 			})["catch"](function(response) {
 				$rootScope.showErrorWithStatus(response.status);
 			});
