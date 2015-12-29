@@ -2040,6 +2040,9 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 		strongWordsParsed = parseStrongWords();
 	} else {
 		var unbind = $rootScope.$watch("myAccount", function() {
+			if (!$rootScope.myAccount) {
+				return;
+			}
 			strongWordsParsed = parseStrongWords();
 			unbind();
 			delete unbind;
