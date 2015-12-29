@@ -189,12 +189,11 @@ button {
 		margin: 5px;
 		padding: 3px;
 		border-radius: 5px;
-		background-color: #CCC;
+		background-color: #88A;
 		transition: all 0.3s ease;
 	}
 	.messageSettingButton:HOVER {
-		opacity: 0.5;
-		background-color: #999;
+		background-color: #336;
 		cursor: pointer;
 	}
 	#messageChannelsArea {
