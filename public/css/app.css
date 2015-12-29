@@ -169,21 +169,37 @@ button {
 		padding-top: 10px;
 	}
 	#messageAccountsBottomMarginArea {
-		height: 150px;
+		height: 185px;
 	}
 	#messageControllArea {
 		position: absolute;
 		left: 0px;
-		bottom: 0px;
-		width: 100%;
-		margin: 0;
+		bottom: 7px;
+		width: 96%;
+		margin-left: 2%;
+		margin-right: 2%;
 		padding: 0;
-		height: 0px;
+		height: 40px;
+		background-color: #F6F6F6;
+		border-radius: 5px;
+	}
+	.messageSettingButton {
+		width: 30px;
+		height: 30px;
+		margin: 5px;
+		padding: 0;
+		border-radius: 5px;
+		transition: all 0.3s ease;
+	}
+	.messageSettingButton:HOVER {
+		opacity: 0.5;
+		background-color: #EEE;
+		cursor: pointer;
 	}
 	#messageChannelsArea {
 		position: absolute;
 		left: 0px;
-		bottom: 5px;
+		bottom: 50px;
 		width: 96%;
 		margin: 0;
 		padding: 0;
@@ -204,6 +220,7 @@ button {
 		padding: 5px;
 		color: #FFF;
 		background-color: #88A;
+		transition: all 0.3s ease;
 	}
 	.otherChannel:HOVER {
 		cursor: pointer;

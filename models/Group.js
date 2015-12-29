@@ -24,6 +24,7 @@ module.exports = function(sequelize, DataTypes) {
 		Group.belongsToMany(sequelize.Account, {
 			through : sequelize.AccountInGroup
 		});
+		Group.hasMany(sequelize.AccountConfig);
 	}
 	Group.VISIBILITY_OPEN = 1;
 	Group.VISIBILITY_SECRET = 2;

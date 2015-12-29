@@ -2,6 +2,7 @@ var Account = global.db.Account;
 var AccessKey = global.db.AccessKey;
 var Group = global.db.Group;
 var AccountInGroup = global.db.AccountInGroup;
+var AccountConfig = global.db.AccountConfig;
 var Channel = global.db.Channel;
 var Content = global.db.Content;
 var ContentBody = global.db.ContentBody;
@@ -259,17 +260,26 @@ router.get('/', function(req, res) {
 		return Account.find({
 			where : {
 				id : accessKey.AccountId
-			}
+			},
+			include : [ {
+				model : AccountConfig
+			} ]
 		});
 	}).then(function(account) {
 		if (!account) {
 			throw ERROR_NOTACCESSIBLE;
 		}
+		account.dataValues.config = {};
+		account.AccountConfigs.forEach(function(config) {
+			account.dataValues.config[config.key] = config.value
+		});
+		delete account.dataValues.AccountConfigs;
 		res.status(200).json(account);
 	})["catch"](function(error) {
 		if (error == ERROR_NOTACCESSIBLE) {
 			res.status(400).end();
 		} else {
+			console.log(error.stack);
 			res.status(500).end();
 		}
 	});
@@ -284,7 +294,10 @@ router.get('/signin', function(req, res) {
 	Account.find({
 		where : {
 			mail : req.query.mail
-		}
+		},
+		include : [ {
+			model : AccountConfig
+		} ]
 	}).then(function(account) {
 		if (!account) {
 			throw ERROR_WRONG_ACCESS;
@@ -342,6 +355,11 @@ router.get('/signin', function(req, res) {
 			});
 		}
 	}).then(function() {
+		loadedAccount.dataValues.config = {};
+		loadedAccount.AccountConfigs.forEach(function(config) {
+			loadedAccount.dataValues.config[config.key] = config.value
+		});
+		delete loadedAccount.dataValues.AccountConfigs;
 		res.status(200).json({
 			sessionKey : createdAccessKey,
 			account : loadedAccount
@@ -764,6 +782,32 @@ router.post("/devices", function(req, res) {
 			res.status(403).end();
 		} else if (DUPLICATE_ERROR == error) {
 			res.status(409).end();
+		} else {
+			console.log(error.stack);
+			res.status(500).end();
+		}
+	});
+});
+router.put("/config", function(req, res) {
+	if (!(req.body.sessionKey && req.body.key && req.body.value)) {
+		res.status(400).end();
+		return;
+	}
+	AccessKey.findBySessionKey(req.body.sessionKey).then(function(accessKey) {
+		if (!accessKey) {
+			throw ERROR_NOTACCESSIBLE;
+		}
+		return Account.findById(accessKey.AccountId);
+	}).then(function(account) {
+		if (!account) {
+			throw ERROR_NOTACCESSIBLE;
+		}
+		return account.setConfig(req.body.key, req.body.value, req.body.description);
+	}).then(function() {
+		res.status(200).end();
+	})["catch"](function(error) {
+		if (ERROR_NOTACCESSIBLE == error) {
+			res.status(403).end();
 		} else {
 			console.log(error.stack);
 			res.status(500).end();
