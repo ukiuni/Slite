@@ -1997,6 +1997,7 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 			jqScrollPane.scrollTop($scope.channel.scrollTop);
 			delete $scope.channel.scrollTop;
 		}
+		delete $scope.channel.notify;
 		$scope.channel.Group.visibility = $rootScope.groupVisibilities[$scope.channel.Group.visibility - 1];
 		if (0 == $scope.channel.messages.length) {
 			$rootScope.requestMessage({
@@ -2010,6 +2011,7 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 	}
 	var jqScrollPane = $("#messageScrollPane");
 	var jqScrollInner = $("#messageScrollInner");
+	var notification;
 	var listenComment = function(event) {
 		var event = JSON.parse(event);
 		var channelAccessKey = event.channelAccessKey;
@@ -2055,7 +2057,15 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 					}
 					hightLightArray.forEach(function(word) {
 						$('.messageBody').highlight(word);
-						if (0 <= message.body.indexOf(word) && !document.hasFocus()) {
+						if (0 <= message.body.indexOf(word)) {
+							if (eventTargetChannel.accessKey != $scope.channel.accessKey) {
+								$scope.$apply(function() {
+									eventTargetChannel.notify = true;
+								});
+							}
+							if (document.hasFocus()) {
+								return;
+							}
 							if (Notification && "granted" != Notification.permission) {
 								Notification.requestPermission(function(status) {
 									if (Notification.permission !== status) {
@@ -2063,12 +2073,15 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 									}
 								});
 							}
-							var n = new Notification(message.owner.name + "@" + eventTargetChannel.name, {
+							if (notification) {
+								notification.close();
+							}
+							notification = new Notification(message.owner.name + "@" + eventTargetChannel.name, {
 								body : message.body,
 								iconUrl : "images/application_icon.png",
 								icon : "images/application_icon.png"
 							});
-							n.onclick = function() {
+							notification.onclick = function() {
 								$("#messageInput").focus();
 								window.focus();
 								n.close();
