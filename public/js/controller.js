@@ -1928,7 +1928,7 @@ var editGroupController = [ "$rootScope", "$scope", "$resource", "$location", "$
 		});
 	}
 } ];
-var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$http", "$routeParams", function($rootScope, $scope, $resource, $location, $http, $routeParams) {
+var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$http", "$routeParams", "$modal", function($rootScope, $scope, $resource, $location, $http, $routeParams, $modal) {
 	$scope.noMarginTop = true;
 	$resource('/api/groups/:groupAccessKey/:channelAccessKey').get({
 		groupAccessKey : $routeParams.groupAccessKey,
@@ -2045,24 +2045,34 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 					return;
 				}
 				setTimeout(function() {
-					$('.messageBody').highlight($rootScope.myAccount.name);
-				}, 0)
-				if (0 <= message.body.indexOf($rootScope.myAccount.name) && !document.hasFocus()) {
-					if (Notification && "granted" != Notification.permission) {
-						Notification.requestPermission(function(status) {
-							if (Notification.permission !== status) {
-								Notification.permission = status;
-							}
+					var hightLightArray
+					if ($rootScope.myAccount && $rootScope.myAccount.config && $rootScope.myAccount.config.strongWords) {
+						hightLightArray = $rootScope.myAccount.config.strongWords.split(",").map(function(word) {
+							return word.replace(/^[\s　]+|[\s　]+$/g, "");
 						});
+					} else {
+						hightLightArray = [ $rootScope.myAccount.name ];
 					}
-					var n = new Notification($rootScope.messages.message, {
-						body : message.body
+					hightLightArray.forEach(function(word) {
+						$('.messageBody').highlight(word);
+						if (0 <= message.body.indexOf(word) && !document.hasFocus()) {
+							if (Notification && "granted" != Notification.permission) {
+								Notification.requestPermission(function(status) {
+									if (Notification.permission !== status) {
+										Notification.permission = status;
+									}
+								});
+							}
+							var n = new Notification($rootScope.messages.message, {
+								body : message.body
+							});
+							n.onclick = function() {
+								$("#messageInput").focus();
+							};
+							bounce();
+						}
 					});
-					n.onclick = function() {
-						$("#messageInput").focus();
-					};
-					bounce();
-				}
+				}, 0)
 			});
 		} else if ("join" == event.type || "hello" == event.type) {
 			var joinedAccount = event.account;
@@ -2181,6 +2191,34 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 			$rootScope.timelinedMessages = messages;
 		}, function(error) {
 			$rootScope.showErrorWithStatus(error.status);
+		});
+	}
+	$scope.showSettingDialog = function() {
+		var dialogController = [ "$scope", "$modalInstance", function($dialogScope, $modalInstance) {
+			$dialogScope.save = function() {
+				$modalInstance.close($dialogScope.strongWords);
+			};
+			$dialogScope.message = $rootScope.messages.menu.setting;
+			$dialogScope.strongWords = $rootScope.myAccount.config.strongWords;
+			if (!$dialogScope.strongWords) {
+				$dialogScope.strongWords = $rootScope.myAccount.name;
+			}
+		} ];
+		var modalInstance = $modal.open({
+			templateUrl : 'template/messageSetting.html',
+			controller : dialogController
+		});
+		modalInstance.result.then(function(strongWords) {
+			put($http, '/api/account/config', {
+				sessionKey : $rootScope.getSessionKey(),
+				key : "strongWords",
+				value : strongWords
+			}).then(function() {
+				$rootScope.myAccount.config.strongWords = strongWords;
+			})["catch"](function(response) {
+				$rootScope.showErrorWithStatus(response.status);
+			});
+		}, function() {
 		});
 	}
 } ];

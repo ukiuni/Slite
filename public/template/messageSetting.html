@@ -1,0 +1,14 @@
+<div class="modal-body" id="confirmDialog">
+	<div class="row">
+		<div class="col-xs-12">
+			<div class="input-group">
+				<span class="input-group-addon" id="basic-addon3" ng-bind="messages.messages.strongWords"></span> <input type="text" class="form-control" id="basic-url" aria-describedby="basic-addon3" ng-model="strongWords">
+			</div>
+			<div style="font-size: xx-small;" align="right" ng-bind="messages.messages.strongWordsDescription"></div>
+		</div>
+	</div>
+</div>
+<div class="modal-footer">
+	<button type="button" id="closeButton" class="btn btn-default" ng-click="$dismiss()" ng-bind="messages.cancel"></button>
+	<button type="button" id="deleteButton" class="btn btn-primary" ng-click="save()" ng-bind="messages.save"></button>
+</div>

@@ -69,7 +69,9 @@
 		},
 		"message" : "message",
 		"messages" : {
-			"loadHistory" : "Load message"
+			"loadHistory" : "Load message",
+			"strongWord" : "Strong words",
+			"strongWordsDescription" : "Joins with comma"
 		},
 		"sendWithEnter" : "Send on enter",
 		"create" : "Create",
@@ -192,7 +194,9 @@
 		},
 		"message" : "メッセージ",
 		"messages" : {
-			"loadHistory" : "メッセージを読み込む"
+			"loadHistory" : "メッセージを読み込む",
+			"strongWords" : "強調する文字",
+			"strongWordsDescription" : "カンマ区切り"
 		},
 		"sendWithEnter" : "Enterで送信",
 		"create" : "作成",

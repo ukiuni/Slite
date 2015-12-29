@@ -23,6 +23,25 @@ module.exports = function(sequelize, DataTypes) {
 					name : this.name,
 					iconUrl : this.iconUrl
 				}
+			},
+			setConfig : function(key, value, description) {
+				var self = this;
+				return global.db.AccountConfig.find({
+					where : {
+						key : key
+					}
+				}).then(function(config) {
+					if (config) {
+						return config.destroy();
+					}
+				}).then(function() {
+					return global.db.AccountConfig.create({
+						ownerId : self.id,
+						key : key,
+						value : value,
+						description : description
+					})
+				})
 			}
 		}
 	});
@@ -140,6 +159,9 @@ module.exports = function(sequelize, DataTypes) {
 			through : sequelize.AccountInGroup
 		});
 		Account.hasMany(sequelize.NotificationTarget, {
+			foreignKey : "ownerId"
+		});
+		Account.hasMany(sequelize.AccountConfig, {
 			foreignKey : "ownerId"
 		});
 	};
