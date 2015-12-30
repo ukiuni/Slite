@@ -782,7 +782,6 @@ router.put('/:accessKey/join', function(req, res) {
 		return;
 	}
 	var loadedAccount;
-	var targetAccount;
 	var loadedGroup;
 	AccessKey.findBySessionKey(accessKey).then(function(accessKey) {
 		if (!accessKey) {
@@ -813,6 +812,93 @@ router.put('/:accessKey/join', function(req, res) {
 		}
 		accountInGroup.inviting = Group.INVITING_DONE;
 		return accountInGroup.save();
+	}).then(function(accountInGroup) {
+		res.status(200).json(accountInGroup);
+	})["catch"](function(error) {
+		if (ERROR_NOTACCESSIBLE == error) {
+			res.status(403).end();
+		} else if (ERROR_NOTFOUND == error) {
+			res.status(404).end();
+		} else if (ERROR_DUPLICATED == error) {
+			res.status(409).end();
+		} else {
+			console.log(error.stack);
+			res.status(500).end();
+		}
+	});
+});
+var loadTargetAccountIngroupAsAdmin = function(accessKey, groupAccessKey, targetAccountId) {
+	var loadedAccount;
+	var targetAccount;
+	var loadedGroup;
+	return AccessKey.findBySessionKey(accessKey).then(function(accessKey) {
+		if (!accessKey) {
+			throw ERROR_NOTACCESSIBLE;
+		}
+		return accessKey.getAccount();
+	}).then(function(account) {
+		loadedAccount = account;
+		return Group.find({
+			where : {
+				accessKey : groupAccessKey
+			}
+		});
+	}).then(function(group) {
+		if (!group) {
+			throw ERROR_NOTACCESSIBLE;
+		}
+		loadedGroup = group;
+		return AccountInGroup.find({
+			where : {
+				AccountId : loadedAccount.id,
+				GroupId : group.id,
+				authorization : Account.AUTHORIZATION_ADMIN
+			}
+		});
+	}).then(function(accountInGroup) {
+		if (!accountInGroup) {
+			throw ERROR_NOTACCESSIBLE;
+		}
+		return AccountInGroup.find({
+			where : {
+				AccountId : targetAccountId,
+				GroupId : loadedGroup.id,
+			}
+		});
+	})
+}
+router.put('/:accessKey/authorization', function(req, res) {
+	var accessKey = req.body.sessionKey || req.body.access_token;
+	if (!accessKey || !req.body.targetId || !req.body.authorization) {
+		res.status(400).end();
+		return;
+	}
+	loadTargetAccountIngroupAsAdmin(accessKey, req.params.accessKey, req.body.targetId).then(function(accountInGroup) {
+		accountInGroup.authorization = req.body.authorization;
+		return accountInGroup.save();
+	}).then(function(accountInGroup) {
+		res.status(200).json(accountInGroup);
+	})["catch"](function(error) {
+		if (ERROR_NOTACCESSIBLE == error) {
+			res.status(403).end();
+		} else if (ERROR_NOTFOUND == error) {
+			res.status(404).end();
+		} else if (ERROR_DUPLICATED == error) {
+			res.status(409).end();
+		} else {
+			console.log(error.stack);
+			res.status(500).end();
+		}
+	});
+});
+router.put('/:accessKey/strike', function(req, res) {
+	var accessKey = req.body.sessionKey || req.body.access_token;
+	if (!accessKey || !req.body.targetId) {
+		res.status(400).end();
+		return;
+	}
+	loadTargetAccountIngroupAsAdmin(accessKey, req.params.accessKey, req.body.targetId).then(function(accountInGroup) {
+		return accountInGroup.destroy();
 	}).then(function(accountInGroup) {
 		res.status(200).json(accountInGroup);
 	})["catch"](function(error) {

@@ -1879,7 +1879,7 @@ var groupController = [ "$rootScope", "$scope", "$resource", "$location", "$http
 	}
 	$scope.inviteUserAuthorization = $rootScope.groupAuthorizations[0];
 } ];
-var editGroupController = [ "$rootScope", "$scope", "$resource", "$location", "$http", "$routeParams", function($rootScope, $scope, $resource, $location, $http, $routeParams) {
+var editGroupController = [ "$rootScope", "$scope", "$resource", "$location", "$http", "$routeParams", "$uibModal", function($rootScope, $scope, $resource, $location, $http, $routeParams, $modal) {
 	if (!$routeParams.accessKey || $routeParams.accessKey == 0) {
 		$scope.group = {};
 		$scope.group.visibility = $rootScope.groupVisibilities[0];
@@ -1925,6 +1925,59 @@ var editGroupController = [ "$rootScope", "$scope", "$resource", "$location", "$
 				}
 				return false;
 			});
+		});
+	}
+	$scope.changeAuthrozation = function(targetId, authorization) {
+		put($http, '/api/groups/' + $routeParams.accessKey + "/authorization", {
+			sessionKey : $rootScope.getSessionKey(),
+			targetId : targetId,
+			authorization : authorization
+		}).then(function(response) {
+			for ( var i in $scope.group.Accounts) {
+				if ($scope.group.Accounts[i].id == response.data.AccountId) {
+					$scope.group.Accounts[i].AccountInGroup = response.data;
+					return;
+				}
+			}
+		})["catch"](function(response) {
+			$rootScope.showErrorWithStatus(response.status, function(status) {
+				if (409 == status) {
+					$rootScope.showError($rootScope.messages.groups.error.aleadyIn);
+					return true;
+				}
+				return false;
+			});
+		});
+	}
+	$scope.strike = function(account) {
+		var strikeAccount = function() {
+			put($http, '/api/groups/' + $routeParams.accessKey + "/strike", {
+				sessionKey : $rootScope.getSessionKey(),
+				targetId : account.id
+			}).then(function(response) {
+				for ( var i in $scope.group.Accounts) {
+					if ($scope.group.Accounts[i].id == response.data.AccountId) {
+						$scope.group.Accounts.splice(i, 1);
+						return;
+					}
+				}
+			})["catch"](function(response) {
+				$rootScope.showErrorWithStatus(response.status);
+			});
+		}
+		var dialogController = [ "$scope", "$modalInstance", function($dialogScope, $modalInstance) {
+			$dialogScope["delete"] = function() {
+				$modalInstance.close();
+			};
+			$dialogScope.message = $rootScope.messages.groups.confirmStrike + "\n\n" + account.name;
+		} ];
+		var modalInstance = $modal.open({
+			templateUrl : 'template/confirmDialog.html',
+			controller : dialogController
+		});
+		modalInstance.result.then(function() {
+			strikeAccount();
+		}, function() {
 		});
 	}
 } ];

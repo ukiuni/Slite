@@ -5,7 +5,7 @@
 				<div id="groupName" class="col-xs-8" ng-bind="group.name"></div>
 				<div id="groupVisibility" class="col-xs-2" ng-bind="group.visibility.message"></div>
 				<div class="col-xs-2">
-					<button id="saveButton" ng-show="isEditable()" class="btn btn-default" ng-bind="messages.edit" ng-click="gotoEdit()"></button>
+					<button id="editButton" ng-show="isEditable()" class="btn btn-default" ng-bind="messages.edit" ng-click="gotoEdit()"></button>
 				</div>
 			</div>
 			<div class="row">
@@ -130,7 +130,7 @@
 	<div ng-show="'NO' === visible && isNotMember() && !currentInvited">
 		<div class="row" ng-show="isNotMember()" style="margin-top: 20px">
 			<div class="col-sm-8 col-sm-offset-2 col-xs-12">
-				<div ng-bind="messages.groups.thisGroupIsNotOpen"></div>
+				<div id="notVisibleInformationArea" ng-bind="messages.groups.thisGroupIsNotOpen"></div>
 				<form class="form-inline">
 					<div class="form-group col-sm-9 col-xs-12">
 						<div class="input-group" style="width: 100%">
