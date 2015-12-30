@@ -1,0 +1,8 @@
+.brink {
+	animation: blinkAnimation 1.0s ease-in-out infinite alternate;
+}
+
+@keyframes blinkAnimation {
+	from {opacity: 0.5;}
+	to {opacity: 1;}
+}
