@@ -61,7 +61,10 @@
 			"error" : {
 				"aleadyIn" : "Invited member is aleady in this group or inviting.",
 				"aleadyThisName" : "Group name is aleady exist."
-			}
+			},
+			"authority" : "authority",
+			"strike" : "Strike",
+			"confirmStrike" : "Are you sure to strike from group?"
 		},
 		"channels" : {
 			"new" : "New channel",
@@ -186,7 +189,10 @@
 			"error" : {
 				"aleadyIn" : "すでにメンバーか招待中です。",
 				"aleadyThisName" : "このグループ名はすでに他で使われています。"
-			}
+			},
+			"authority" : "権限",
+			"strike" : "除名",
+			"confirmStrike" : "グループから除名してよいですか?"
 		},
 		"channels" : {
 			"new" : "新規チャネル",
