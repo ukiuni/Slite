@@ -161,15 +161,29 @@ button {
 }
 
 @media ( min-width : 750px) {
-	#accuntArea {
+	#infoArea {
 		height: 100%;
 		position: relative;
 		background-color: #448;
 		color: #EEE;
 		padding-top: 10px;
 	}
+	#infoAreaInner {
+		height: 100%;
+		overflow: scroll;
+	}
+	#channelNameArea {
+		height: 60px;
+		position: absolute;
+		background-color: #448;
+		z-index: 99;
+		width:100%;
+	}
+	.marginForChannelName {
+		height: 60px;
+	}
 	#messageAccountsBottomMarginArea {
-		height: 185px;
+		height: 200px;
 	}
 	#messageControllArea {
 		position: absolute;
