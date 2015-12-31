@@ -1252,7 +1252,7 @@ var editCalendarAlbumController = [ "$rootScope", "$scope", "$resource", "$locat
 			if ($scope.editingContent.article[keyDate]) {
 				for ( var i in $scope.editingContent.article[keyDate].images) {
 					if ($scope.editingContent.article[keyDate].images[i].file.endsWith(srcFile.name)) {
-						$rootScope.showWarn($rootScope.messages.contents.errors.sameNameFileAleadyAndSkipUpload + " :" + srcFile.name);
+						$rootScope.showWarn($rootScope.messages.contents.errors.sameNameFileAleadyAndSkipUpload + " :　" + srcFile.name);
 						return;
 					}
 				}

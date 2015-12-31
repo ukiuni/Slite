@@ -18,19 +18,32 @@ if (serverConfig.dropbox) {
 					serviceKey = key + "/" + encodeURIComponent(name);
 				}
 				serviceKey = serviceKey.replace(/\//g, "_");
-				request.post({
-					url : 'https://content.dropboxapi.com/1/files_put/auto/SliteStore/' + serviceKey,
-					headers : {
-						'Authorization' : 'Bearer ' + accessToken
-					},
-					body : file.buffer
-				}, function(error, response, body) {
-					if (!error && response.statusCode == 200) {
-						success(body)
-					} else {
-						fail(response);
-					}
-				});
+				if (file.buffer) {
+					request.post({
+						url : 'https://content.dropboxapi.com/1/files_put/auto/SliteStore/' + serviceKey,
+						headers : {
+							'Authorization' : 'Bearer ' + accessToken
+						},
+						body : file.buffer || fs.createReadStream(file.path)
+					}, function(error, response, body) {
+						if (!error && response.statusCode == 200) {
+							success(body)
+						} else {
+							fail(response || error);
+						}
+					});
+				} else {
+					fs.createReadStream(file.path).pipe(request.post({
+						url : 'https://content.dropboxapi.com/1/files_put/auto/SliteStore/' + serviceKey,
+						headers : {
+							'Authorization' : 'Bearer ' + accessToken
+						},
+					}).on("response", function(response) {
+						success(response)
+					}).on("error", function(error) {
+						fail(error)
+					}))
+				}
 			}).then(function() {
 				return File.create({
 					accessKey : key,
@@ -96,7 +109,7 @@ if (serverConfig.dropbox) {
 				s3.putObject({
 					Bucket : serverConfig.s3.bucket,
 					Key : serviceKey,
-					Body : file.buffer,
+					Body : file.buffer || fs.readFileSync(file.path),//TODO to stream
 					ContentLength : file.size,
 					ContentType : contentType,
 					ACL : "authenticated-read"
@@ -188,19 +201,26 @@ if (serverConfig.dropbox) {
 					} catch (ignored) {
 					}
 				}
-				fs.writeFile(path.join(__dirname, STORAGE_PATH, key), file.buffer, function() {
-					var paramData = {
-						name : name,
-						contentType : contentType
-					}
-					fs.writeFile(path.join(__dirname, STORAGE_CONTENTTYPE_PATH, key), JSON.stringify(paramData), {
-						encoding : "utf8"
-					}, function() {
-						var url = serverConfig.hostURL + "/api/image/" + key;
-						url = name ? url + "/" + name : url;
-						onFulfilled(url);
+				var writeToFile = function(error, data) {
+					fs.writeFile(path.join(__dirname, STORAGE_PATH, key), data, function() {
+						var paramData = {
+							name : name,
+							contentType : contentType
+						}
+						fs.writeFile(path.join(__dirname, STORAGE_CONTENTTYPE_PATH, key), JSON.stringify(paramData), {
+							encoding : "utf8"
+						}, function() {
+							var url = serverConfig.hostURL + "/api/image/" + key;
+							url = name ? url + "/" + name : url;
+							onFulfilled(url);
+						});
 					});
-				});
+				}
+				if (file.buffer) {
+					writeToFile(null, file.buffer)
+				} else {
+					fs.readFile(file.path, writeToFile);
+				}
 			});
 		},
 		load : function(key) {
