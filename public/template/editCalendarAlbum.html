@@ -43,7 +43,7 @@
 				<select id="selectGroup" ng-model="contentGroup" ng-options="group as group.name for group in myGroups"></select>
 			</div>
 		</div>
-		<button class="btn btn-primary col-xs-12" ng-bind="messages.save" ng-click="save()"></button>
+		<button id="saveButton" class="btn btn-primary col-xs-12" ng-bind="messages.save" ng-click="save()"></button>
 	</div>
 </div>
 <div id="imagePane" ng-show="datePaneSrc" align="center"></div>
