@@ -510,9 +510,9 @@ var openWithBrowser = function(url, event) {
 	}
 	event.preventDefault();
 }
-var indexController = [ "$rootScope", "$scope", "$modal", "$location", "$http", "$window", "$resource", "$routeParams", function($rootScope, $scope, $modal, $location, $http, $window, $resource, $routeParams) {
+var indexController = [ "$rootScope", "$scope", "$uibModal", "$location", "$http", "$window", "$resource", "$routeParams", function($rootScope, $scope, $modal, $location, $http, $window, $resource, $routeParams) {
 	$scope.openCreateAccountDialog = function() {
-		var dialogController = [ "$scope", "$modalInstance", function($dialogScope, $modalInstance) {
+		var dialogController = [ "$scope", "$uibModalInstance", function($dialogScope, $modalInstance) {
 			$dialogScope.create = function() {
 				var account = {};
 				account.name = $dialogScope.name;
@@ -1659,7 +1659,7 @@ var groupsController = [ "$rootScope", "$scope", "$resource", "$location", "$htt
 		$location.path("/group/0/edit");
 	}
 } ];
-var groupController = [ "$rootScope", "$scope", "$resource", "$location", "$http", "$routeParams", "$modal", function($rootScope, $scope, $resource, $location, $http, $routeParams, $modal) {
+var groupController = [ "$rootScope", "$scope", "$resource", "$location", "$http", "$routeParams", "$uibModal", function($rootScope, $scope, $resource, $location, $http, $routeParams, $modal) {
 	var initGroup = function(callback) {
 		$resource('/api/groups/:accessKey').get({
 			accessKey : $routeParams.accessKey,
@@ -1848,7 +1848,7 @@ var groupController = [ "$rootScope", "$scope", "$resource", "$location", "$http
 		$location.path("/editContent");
 	}
 	$scope.createNewChannel = function() {
-		var dialogController = [ "$scope", "$modalInstance", function($dialogScope, $modalInstance) {
+		var dialogController = [ "$scope", "$uibModalInstance", function($dialogScope, $modalInstance) {
 			$dialogScope.create = function() {
 				var account = {};
 				if ("" == $dialogScope.text) {
@@ -1878,7 +1878,7 @@ var groupController = [ "$rootScope", "$scope", "$resource", "$location", "$http
 		});
 	}
 	$scope.deleteContent = function($index, title, accessKey) {
-		var dialogController = [ "$scope", "$modalInstance", function($dialogScope, $modalInstance) {
+		var dialogController = [ "$scope", "$uibModalInstance", function($dialogScope, $modalInstance) {
 			$dialogScope["delete"] = function() {
 				$modalInstance.close();
 			};
@@ -1986,7 +1986,7 @@ var editGroupController = [ "$rootScope", "$scope", "$resource", "$location", "$
 				$rootScope.showErrorWithStatus(response.status);
 			});
 		}
-		var dialogController = [ "$scope", "$modalInstance", function($dialogScope, $modalInstance) {
+		var dialogController = [ "$scope", "$uibModalInstance", function($dialogScope, $modalInstance) {
 			$dialogScope["delete"] = function() {
 				$modalInstance.close();
 			};
@@ -2002,7 +2002,7 @@ var editGroupController = [ "$rootScope", "$scope", "$resource", "$location", "$
 		});
 	}
 } ];
-var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$http", "$routeParams", "$modal", function($rootScope, $scope, $resource, $location, $http, $routeParams, $modal) {
+var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$http", "$routeParams", "$uibModal", function($rootScope, $scope, $resource, $location, $http, $routeParams, $modal) {
 	$scope.noMarginTop = true;
 	$resource('/api/groups/:groupAccessKey/:channelAccessKey').get({
 		groupAccessKey : $routeParams.groupAccessKey,
@@ -2315,7 +2315,7 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 		});
 	}
 	$scope.showSettingDialog = function() {
-		var dialogController = [ "$scope", "$modalInstance", function($dialogScope, $modalInstance) {
+		var dialogController = [ "$scope", "$uibModalInstance", function($dialogScope, $modalInstance) {
 			$dialogScope.save = function() {
 				$modalInstance.close($dialogScope.strongWords);
 			};
@@ -2345,7 +2345,7 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 		});
 	}
 } ];
-var accountController = [ "$rootScope", "$scope", "$resource", "$location", "$http", "$modal", "$routeParams", function($rootScope, $scope, $resource, $location, $http, $modal, $routeParams) {
+var accountController = [ "$rootScope", "$scope", "$resource", "$location", "$http", "$uibModal", "$routeParams", function($rootScope, $scope, $resource, $location, $http, $modal, $routeParams) {
 	var id = $routeParams.id;
 	$resource("/api/account/:id").get({
 		id : id
@@ -2355,7 +2355,7 @@ var accountController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 		$rootScope.showErrorWithStatus(error.status);
 	});
 } ];
-var homeController = [ "$rootScope", "$scope", "$resource", "$location", "$http", "$modal", function($rootScope, $scope, $resource, $location, $http, $modal) {
+var homeController = [ "$rootScope", "$scope", "$resource", "$location", "$http", "$uibModal", function($rootScope, $scope, $resource, $location, $http, $modal) {
 	if (!$rootScope.getSessionKey()) {
 		$location.path("/");
 		return;
@@ -2378,7 +2378,7 @@ var homeController = [ "$rootScope", "$scope", "$resource", "$location", "$http"
 		$location.path("/editContent");
 	}
 	$scope.deleteContent = function($index, title, accessKey) {
-		var dialogController = [ "$scope", "$modalInstance", function($dialogScope, $modalInstance) {
+		var dialogController = [ "$scope", "$uibModalInstance", function($dialogScope, $modalInstance) {
 			$dialogScope["delete"] = function() {
 				$modalInstance.close();
 			};
