@@ -100,7 +100,6 @@ var tests = {
 			Actions.signout(client);
 			Actions.signin(client, account2);
 			client.url(groupUrl);
-			client.assert.equal();
 			client.assert.containsText("#memberArea", account2.name);
 			if (onComplete) {
 				onComplete(account, account2, groupUrl);
@@ -142,7 +141,6 @@ var tests = {
 			Actions.signout(client);
 			Actions.createAccountAndSignin(client, account2);
 			client.url(groupUrl);
-			client.assert.equal();
 			client.assert.containsText("#memberArea", account2.name);
 			if (onComplete) {
 				onComplete(account, account2, groupUrl);
@@ -254,6 +252,12 @@ var tests = {
 				client.assert.containsText("#groupArea", groupName);
 				client.end();
 			});
+		});
+	},
+	'Goto next month on calendar content' : function(client) {
+		Actions.createAccountAndSignin(client);
+		Actions.createCalendarAndGotoNextAndPrevPage(client, function() {
+			client.end();
 		});
 	},
 	'[API] create account and signin' : function(client) {

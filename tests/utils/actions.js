@@ -271,6 +271,33 @@ var self = {
 		client.url(groupUrl);
 		client.waitForElementVisible('#groupListLink', testWaitTime);
 		client.expect.element('#groupName').to.not.be.visible;
+	},
+	createCalendarAndGotoNextAndPrevPage : function(client, onComplete) {
+		client.click('a.dropdown-toggle');
+		client.waitForElementVisible('#toEditCalendarAlbum', testWaitTime);
+		client.click('#toEditCalendarAlbum');
+		client.waitForElementVisible('#saveButton', testWaitTime);
+		client.click('#saveButton');
+		client.pause(1000);
+		client.waitForElementVisible('.contentListColmun', testWaitTime);
+		client.click('.contentListColmun a');
+		client.waitForElementVisible('#monthLabel', testWaitTime);
+		var currentDate = new Date();
+		var prevMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1);
+		var nextMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1);
+		client.assert.containsText("#monthLabel", currentDate.getFullYear() + "/" + ("0" + (currentDate.getMonth() + 1)).slice(-2), "this month");
+		client.click('#nextButton');
+		client.pause(1000);
+		client.assert.containsText("#monthLabel", nextMonth.getFullYear() + "/" + ("0" + (nextMonth.getMonth() + 1)).slice(-2), "this month");
+		client.click('#prevButton');
+		client.pause(1000);
+		client.assert.containsText("#monthLabel", currentDate.getFullYear() + "/" + ("0" + (currentDate.getMonth() + 1)).slice(-2), "this month");
+		client.click('#prevButton');
+		client.pause(1000);
+		client.assert.containsText("#monthLabel", prevMonth.getFullYear() + "/" + ("0" + (prevMonth.getMonth() + 1)).slice(-2), "this month");
+		if (onComplete) {
+			onComplete();
+		}
 	}
 }
 module.exports = self;
