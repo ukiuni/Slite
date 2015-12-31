@@ -1054,7 +1054,7 @@ var editContentController = [ "$rootScope", "$scope", "$resource", "$location", 
 		delete pressingKeyMap[event.which];
 	}
 } ];
-var editCalendarAlbumController = [ "$rootScope", "$scope", "$resource", "$location", "$http", "$routeParams", function($rootScope, $scope, $resource, $location, $http, $routeParams) {
+var editCalendarAlbumController = [ "$rootScope", "$scope", "$resource", "$location", "$http", "$routeParams", "$uibModal", function($rootScope, $scope, $resource, $location, $http, $routeParams, $modal) {
 	$scope.contentKey = $routeParams.contentKey
 	$scope.targetGroupId = $rootScope.pullTargetGroupId();
 	$scope.date = $routeParams.date
@@ -1278,6 +1278,27 @@ var editCalendarAlbumController = [ "$rootScope", "$scope", "$resource", "$locat
 			}
 			$rootScope.uploadFile($scope.editingContent.contentKey, srcFile, onSuccess, onSuccess, onError);
 		})
+	}
+	$scope.deletePictureConfirm = function(event, images, index) {
+		var dialogController = [ "$scope", "$uibModalInstance", function($dialogScope, $modalInstance) {
+			$dialogScope["delete"] = function() {
+				$modalInstance.close();
+			};
+			$dialogScope.message = $rootScope.messages.contents.confirmDeletePicture + "\n\n";
+		} ];
+		var modalInstance = $modal.open({
+			templateUrl : 'template/confirmDialog.html',
+			controller : dialogController
+		});
+		modalInstance.result.then(function() {
+			images.splice(index, 1);
+			if (0 == images.length) {
+				$scope.hideImages();
+			} else {
+				$scope.imagesIndex = 0;
+			}
+		}, function() {
+		});
 	}
 	$scope.showImagesAt = function(keyDate) {
 		$scope.datePaneSrc = $scope.editingContent.article[keyDate];
