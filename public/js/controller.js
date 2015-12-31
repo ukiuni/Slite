@@ -1064,9 +1064,9 @@ var editCalendarAlbumController = [ "$rootScope", "$scope", "$resource", "$locat
 	} else {
 		try {
 			$scope.firstDay = new Date();
+			$scope.firstDay.setDate(1);
 			$scope.firstDay.setFullYear(parseInt($scope.date.substring(0, 4)));
 			$scope.firstDay.setMonth(parseInt($scope.date.substring(4, 6)) - 1);
-			$scope.firstDay.setDate(1);
 		} catch (e) {
 			$scope.firstDay = new Date();
 			$scope.firstDay.setDate(1);
@@ -1081,10 +1081,10 @@ var editCalendarAlbumController = [ "$rootScope", "$scope", "$resource", "$locat
 	var prevMonth = new Date($scope.firstDay.getFullYear(), $scope.firstDay.getMonth() - 1, 1);
 	var nextMonth = new Date($scope.firstDay.getFullYear(), $scope.firstDay.getMonth() + 1, 1);
 	$scope.gotoPrevMonth = function() {
-		$location.path("/editCalendarAlbum/" + $scope.editingContent.contentKey + "/" + prevMonth.getFullYear() + "" + (prevMonth.getMonth() + 1))
+		$location.path("/editCalendarAlbum/" + $scope.editingContent.contentKey + "/" + prevMonth.getFullYear() + "" + ("0" + (prevMonth.getMonth() + 1)).slice(-2))
 	}
 	$scope.gotoNextMonth = function() {
-		$location.path("/editCalendarAlbum/" + $scope.editingContent.contentKey + "/" + nextMonth.getFullYear() + "" + (nextMonth.getMonth() + 1))
+		$location.path("/editCalendarAlbum/" + $scope.editingContent.contentKey + "/" + nextMonth.getFullYear() + "" + ("0" + (nextMonth.getMonth() + 1)).slice(-2))
 	}
 	function initGroupSelect() {
 		if ($scope.myGroups && $scope.targetGroupId) {
@@ -1524,9 +1524,9 @@ var contentController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 		} else {
 			try {
 				$scope.firstDay = new Date();
+				$scope.firstDay.setDate(1);
 				$scope.firstDay.setFullYear(parseInt($scope.date.substring(0, 4)));
 				$scope.firstDay.setMonth(parseInt($scope.date.substring(4, 6)) - 1);
-				$scope.firstDay.setDate(1);
 			} catch (e) {
 				$scope.firstDay = new Date();
 				$scope.firstDay.setDate(1);
@@ -1541,10 +1541,10 @@ var contentController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 		var prevMonth = new Date($scope.firstDay.getFullYear(), $scope.firstDay.getMonth() - 1, 1);
 		var nextMonth = new Date($scope.firstDay.getFullYear(), $scope.firstDay.getMonth() + 1, 1);
 		$scope.gotoPrevMonth = function() {
-			$location.path("/content/" + $scope.content.accessKey + "/" + prevMonth.getFullYear() + "" + (prevMonth.getMonth() + 1))
+			$location.path("/content/" + $scope.content.accessKey + "/" + prevMonth.getFullYear() + "" + ("0" + (prevMonth.getMonth() + 1)).slice(-2))
 		}
 		$scope.gotoNextMonth = function() {
-			$location.path("/content/" + $scope.content.accessKey + "/" + nextMonth.getFullYear() + "" + (nextMonth.getMonth() + 1))
+			$location.path("/content/" + $scope.content.accessKey + "/" + nextMonth.getFullYear() + "" + ("0" + (nextMonth.getMonth() + 1)).slice(-2))
 		}
 		$scope.showImagesAt = function(keyDate) {
 			$scope.datePaneSrc = $scope.content.article[keyDate];
