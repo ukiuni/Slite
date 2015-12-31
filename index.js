@@ -7,6 +7,7 @@ var multer = require('multer');
 var ECT = require('ect');
 var env = process.env.NODE_ENV || "development";
 var serverConfig = require(__dirname + "/config/server.json")[env];
+var Random = require(__dirname + "/util/random");
 var db = require('./models');
 var ectRenderer = ECT({
 	watch : true,
@@ -22,13 +23,15 @@ app.use(bodyParser.urlencoded({
 	extended : false
 }));
 app.use(multer({
-	//storage : multer.memoryStorage()
+	// storage : multer.memoryStorage()
 	storage : multer.diskStorage({
 		destination : function(req, file, cb) {
 			cb(null, '/tmp')
 		},
 		filename : function(req, file, cb) {
-			cb(null, file.fieldname + '-' + Date.now())
+			Random.createRandomBase62().then(function(random) {
+				cb(null, file.fieldname + '-' + Date.now() + "-" + random)
+			})
 		}
 	})
 }).fields([ {
