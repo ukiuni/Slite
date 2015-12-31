@@ -6,9 +6,9 @@
 	</div>
 	<div class="row" style="margin-top: 10px">
 		<div class="col-xs-12">
-			<div style="width: 20%; float: left;">
+			<div style="float: left;">
 				<button class="btn btn-default glyphicon glyphicon-chevron-left" ng-click="gotoPrevMonth()"></button>
-				<span style="margin: 10px">{{firstDay.getTime() | date:'yyyy/MM'}}</span>
+				<span ng-click="dateSelect=true" ng-hide="dateSelect" style="margin: 10px">{{firstDay.getTime() | date:'yyyy/MM'}}</span> <input type="text" ng-show="dateSelect" ng-model="selectingDate" ng-blur="dateSelect=false" placeholder="{{firstDay.getTime() | date:'yyyy/MM'}}">
 				<button class="btn btn-default glyphicon glyphicon-chevron-right" ng-click="gotoNextMonth()"></button>
 			</div>
 			<div style="width: 69%; float: left; background-color: #999; border: solid 3px #999; padding: 10px; border-radius: 5px; text-align: center; color: white" ng-model="autoDateSetImages" ngf-multiple="true" ngf-drop ngf-drag-over-class="'calenderDragover'" ng-bind="messages.contents.fileUploadArea"></div>

@@ -1416,6 +1416,17 @@ var editCalendarAlbumController = [ "$rootScope", "$scope", "$resource", "$locat
 			$rootScope.uploadFile(contentKey, srcFile, onSuccess, onSuccessAsFile, onError);
 		});
 	});
+	var dateLegex = /^(\d{4})\/(\d{2})$/;
+	$scope.$watch("selectingDate", function() {
+		if ($scope.dateSelect) {
+			if ($scope.selectingDate) {
+				var result = $scope.selectingDate.match(dateLegex);
+				if (result) {
+					$location.path("/content/" + $scope.editingContent.contentKey + "/" + result[1] + "" + result[2])
+				}
+			}
+		}
+	});
 } ]
 var contentController = [ "$rootScope", "$scope", "$resource", "$location", "$http", "$routeParams", function($rootScope, $scope, $resource, $location, $http, $routeParams) {
 	$resource('/api/content/:contentKey?sessionKey=:sessionKey').get({
@@ -1601,6 +1612,17 @@ var contentController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 		}
 		$scope.videoPaneSrc = null;
 	}
+	var dateLegex = /^(\d{4})\/(\d{2})$/;
+	$scope.$watch("selectingDate", function() {
+		if ($scope.dateSelect) {
+			if ($scope.selectingDate) {
+				var result = $scope.selectingDate.match(dateLegex);
+				if (result) {
+					$location.path("/content/" + $routeParams.contentKey + "/" + result[1] + "" + result[2])
+				}
+			}
+		}
+	});
 } ];
 var tagsController = [ "$rootScope", "$scope", "$resource", "$location", "$http", function($rootScope, $scope, $resource, $location, $http) {
 	$resource('/api/tags/listAll').query({}, function(tags) {
