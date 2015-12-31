@@ -114,7 +114,8 @@
 				"failToSave" : "Fail to save content.",
 				"upload" : "Fail to upload file",
 				"alertLocationChangeOnSaving" : "Now saving. Really leave away?",
-				"failToUploadAndRetry" : "Fail to upload file and retrying..."
+				"failToUploadAndRetry" : "Fail to upload file and retrying...",
+				"sameNameFileAleadyAndSkipUpload" : "Same name file is aleady in the day. skip upload."
 			}
 		},
 		"error" : {
@@ -244,7 +245,8 @@
 				"failToSave" : "投稿の保存に失敗しました。",
 				"upload" : "ファイルのアップロードに失敗しました。",
 				"alertLocationChangeOnSaving" : "保存できていませんが、本当に移動しますか？",
-				"failToUploadAndRetry" : "ファイルのアップロードに失敗しました。リトライしています..."
+				"failToUploadAndRetry" : "ファイルのアップロードに失敗しました。リトライしています...",
+				"sameNameFileAleadyAndSkipUpload" : "同名のファイルがすでに同日にあるのでアップロードをスキップします。"
 			}
 		},
 		"error" : {

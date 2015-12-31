@@ -1249,6 +1249,14 @@ var editCalendarAlbumController = [ "$rootScope", "$scope", "$resource", "$locat
 		var changing = true;
 		var fileLength = 0;
 		files.forEach(function(srcFile) {
+			if ($scope.editingContent.article[keyDate]) {
+				for ( var i in $scope.editingContent.article[keyDate].images) {
+					if ($scope.editingContent.article[keyDate].images[i].file.endsWith(srcFile.name)) {
+						$rootScope.showWarn($rootScope.messages.contents.errors.sameNameFileAleadyAndSkipUpload + " :" + srcFile.name);
+						return;
+					}
+				}
+			}
 			var onSuccessAsFile = function(thumbnailImageUrl, fileImageUrl, srcFile) {
 				putToArticle(new Date(), thumbnailImageUrl, fileImageUrl);
 			}
@@ -1280,7 +1288,7 @@ var editCalendarAlbumController = [ "$rootScope", "$scope", "$resource", "$locat
 				$rootScope.showWarn($rootScope.messages.contents.errors.failToUploadAndRetry);
 				uploadFileWithRetry();
 			}
-			var uploadFileWithRetry = function(){
+			var uploadFileWithRetry = function() {
 				$rootScope.uploadFile($scope.editingContent.contentKey, srcFile, onSuccess, onSuccess, onError);
 			}
 			uploadFileWithRetry();
