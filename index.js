@@ -22,15 +22,15 @@ app.use(bodyParser.urlencoded({
 	extended : false
 }));
 app.use(multer({
-	storage : multer.memoryStorage()
-	/*storage : multer.diskStorage({
+	//storage : multer.memoryStorage()
+	storage : multer.diskStorage({
 		destination : function(req, file, cb) {
 			cb(null, '/tmp')
 		},
 		filename : function(req, file, cb) {
 			cb(null, file.fieldname + '-' + Date.now())
 		}
-	})*/
+	})
 }).fields([ {
 	name : "imageFile",
 	maxCount : 1
