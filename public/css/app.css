@@ -177,7 +177,7 @@ button {
 		position: absolute;
 		background-color: #448;
 		z-index: 99;
-		width:100%;
+		width: 100%;
 	}
 	.marginForChannelName {
 		height: 60px;

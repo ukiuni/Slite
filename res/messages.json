@@ -109,6 +109,7 @@
 			"saved" : "Content has saved.",
 			"calendarDescription" : "Description",
 			"fileUploadArea" : "Drop JPEG file here. Or drop to a day.",
+			"confirmDeletePicture" : "Delete picture?",
 			"errors" : {
 				"failToSave" : "Fail to save content.",
 				"upload" : "Fail to upload file",
@@ -237,6 +238,7 @@
 			"saved" : "投稿が保存されました。",
 			"calendarDescription" : "出来事",
 			"fileUploadArea" : "JPEGをここにドロップすると日付を自動判別します。もしくは日付欄に直接入れてください。",
+			"confirmDeletePicture" : "写真を削除して構いませんか？",
 			"errors" : {
 				"failToSave" : "投稿の保存に失敗しました。",
 				"upload" : "ファイルのアップロードに失敗しました。",

@@ -55,7 +55,7 @@
 				<div ng-bind="datePaneSrc.description" class="col-xs-12" style="margin-top: 10px; text-align: left; color: white; white-space: pre-wrap;"></div>
 			</div>
 		</div>
-		<div class="col-sm-7 col-xs-12">
+		<div class="col-sm-7 col-xs-12" ng-mouseover="showEdit=true" ng-mouseleave="showEdit=false">
 			<div class="row">
 				<div class="col-xs-12" ng-show="!isMovie(datePaneSrc.images[imagesIndex].file)">
 					<div id="overlayImage" class="center-cropped" style="background-image: url('{{datePaneSrc.images[imagesIndex].file}}')">
@@ -64,6 +64,11 @@
 				</div>
 				<div class="col-xs-12" ng-show="isMovie(datePaneSrc.images[imagesIndex].file)">
 					<video id="overlayVideo" class="center-cropped" onclick="return false;" style="max-height: 10%" ng-src="{{datePaneSrc.images[imagesIndex].file}}" controls autoplay loop></video>
+				</div>
+			</div>
+			<div class="row" ng-show="showEdit">
+				<div class="col-xs-2 col-xs-offset-2">
+					<button class="btn btn-default glyphicon glyphicon-minus" style="margin-top: -40px;" ng-click="deletePictureConfirm($event, datePaneSrc.images, imagesIndex);$event.preventDefault(); $event.stopPropagation();"></button>
 				</div>
 			</div>
 		</div>
