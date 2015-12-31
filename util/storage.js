@@ -80,6 +80,9 @@ if (serverConfig.dropbox) {
 								'Authorization' : 'Bearer ' + accessToken
 							}
 						}, function(error, response, body) {
+							if (file.path) {
+								fs.unlink(file.path)
+							}
 							if (!error && response.statusCode == 200) {
 								file.redirectUrl = JSON.parse(body).url;
 								success(file);
@@ -109,11 +112,16 @@ if (serverConfig.dropbox) {
 				s3.putObject({
 					Bucket : serverConfig.s3.bucket,
 					Key : serviceKey,
-					Body : file.buffer || fs.readFileSync(file.path),//TODO to stream
+					Body : file.buffer || fs.readFileSync(file.path),// TODO
+					// to
+					// stream
 					ContentLength : file.size,
 					ContentType : contentType,
 					ACL : "authenticated-read"
 				}, function(err, data) {
+					if (file.path) {
+						fs.unlink(file.path)
+					}
 					if (err) {
 						fail(err);
 					} else {
@@ -212,6 +220,9 @@ if (serverConfig.dropbox) {
 						}, function() {
 							var url = serverConfig.hostURL + "/api/image/" + key;
 							url = name ? url + "/" + name : url;
+							if (file.path) {
+								fs.unlink(file.path)
+							}
 							onFulfilled(url);
 						});
 					});
