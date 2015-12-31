@@ -1072,8 +1072,8 @@ var editCalendarAlbumController = [ "$rootScope", "$scope", "$resource", "$locat
 			$scope.firstDay.setDate(1);
 		}
 	}
-	var maxDay = new Date($scope.firstDay.getFullYear(), $scope.firstDay.getMonth(), 0).getDate();
-	var dayBoxCount = $scope.firstDay.getDay() + maxDay;
+	$scope.maxDate = new Date($scope.firstDay.getFullYear(), $scope.firstDay.getMonth() + 1, 0).getDate();
+	var dayBoxCount = $scope.firstDay.getDay() + $scope.maxDate;
 	$scope.weekColumn = [ 0, 1, 2, 3 ];
 	for (var i = 4; dayBoxCount / (7 * i) > 1; i++) {
 		$scope.weekColumn.push(i);
@@ -1532,8 +1532,8 @@ var contentController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 				$scope.firstDay.setDate(1);
 			}
 		}
-		var maxDay = new Date($scope.firstDay.getFullYear(), $scope.firstDay.getMonth(), 0).getDate();
-		var dayBoxCount = $scope.firstDay.getDay() + maxDay;
+		$scope.maxDate = new Date($scope.firstDay.getFullYear(), $scope.firstDay.getMonth() + 1, 0).getDate();
+		var dayBoxCount = $scope.firstDay.getDay() + $scope.maxDate;
 		$scope.weekColumn = [ 0, 1, 2, 3 ];
 		for (var i = 4; dayBoxCount / (7 * i) > 1; i++) {
 			$scope.weekColumn.push(i);
