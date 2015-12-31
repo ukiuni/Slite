@@ -206,6 +206,9 @@ myapp.run([ "$rootScope", "$location", "$resource", "$cookies", "Upload", functi
 	$rootScope.showError = function(message) {
 		toastr.error(message);
 	}
+	$rootScope.showWarn = function(message) {
+		toastr.warning(message);
+	}
 	$rootScope.showToast = function(message) {
 		toastr.info(message);
 	}
@@ -1274,9 +1277,13 @@ var editCalendarAlbumController = [ "$rootScope", "$scope", "$resource", "$locat
 				incrementComplete();
 			}
 			var onError = function() {
-				incrementComplete();
+				$rootScope.showWarn($rootScope.messages.contents.errors.failToUploadAndRetry);
+				uploadFileWithRetry();
 			}
-			$rootScope.uploadFile($scope.editingContent.contentKey, srcFile, onSuccess, onSuccess, onError);
+			var uploadFileWithRetry = function(){
+				$rootScope.uploadFile($scope.editingContent.contentKey, srcFile, onSuccess, onSuccess, onError);
+			}
+			uploadFileWithRetry();
 		})
 	}
 	$scope.deletePictureConfirm = function(event, images, index) {
