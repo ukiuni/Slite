@@ -216,7 +216,7 @@ myapp.run([ "$rootScope", "$location", "$resource", "$cookies", "Upload", functi
 		$rootScope.progressing = true;
 		$rootScope.progress = {};
 		$rootScope.progress.type = type || "success";
-		$rootScope.progress.value = percent || 0;
+		$rootScope.progress.value = percent ? percent.toFixed(2) : 0;
 		$rootScope.progress.message = message ? message + " " : "";
 	}
 	$rootScope.hideProgress = function(percent) {
@@ -1265,62 +1265,70 @@ var editCalendarAlbumController = [ "$rootScope", "$scope", "$resource", "$locat
 	$scope.uploadFiles = function(keyDate, files) {
 		var changing = true;
 		var uploadedFileLength = 0;
+		var chain = new Chain();
 		files.forEach(function(srcFile) {
-			var calcProgress = function() {
-				return uploadedFileLength * 100.0 / files.length
-			}
-			$rootScope.showProgress(calcProgress(), srcFile.name);
-			if ($scope.editingContent.article[keyDate]) {
-				for ( var i in $scope.editingContent.article[keyDate].images) {
-					if ($scope.editingContent.article[keyDate].images[i].file.endsWith(srcFile.name)) {
-						$rootScope.showWarn($rootScope.messages.contents.errors.sameNameFileAleadyAndSkipUpload + " :　" + srcFile.name);
-						return;
+			chain = chain.then(function(next) {
+				var calcProgress = function() {
+					return uploadedFileLength * 100.0 / files.length
+				}
+				$rootScope.showProgress(calcProgress(), srcFile.name);
+				if ($scope.editingContent.article[keyDate]) {
+					for ( var i in $scope.editingContent.article[keyDate].images) {
+						if ($scope.editingContent.article[keyDate].images[i].file.endsWith(srcFile.name)) {
+							$rootScope.showWarn($rootScope.messages.contents.errors.sameNameFileAleadyAndSkipUpload + " :　" + srcFile.name);
+							return;
+						}
 					}
 				}
-			}
-			var onSuccessAsFile = function(thumbnailImageUrl, fileImageUrl, srcFile) {
-				putToArticle(new Date(), thumbnailImageUrl, fileImageUrl);
-			}
-			var incrementComplete = function() {
-				uploadedFileLength++;
-				$rootScope.showProgress(calcProgress());
-				if (uploadedFileLength && files.length <= uploadedFileLength) {
-					$scope.save(null, function() {
-						$rootScope.showToast($rootScope.messages.contents.saved);
-						changing = false;
-					}, function() {
-						$rootScope.showError($rootScope.messages.contents.errors.failToSave);
+				var onSuccessAsFile = function(thumbnailImageUrl, fileImageUrl, srcFile) {
+					putToArticle(new Date(), thumbnailImageUrl, fileImageUrl);
+				}
+				var incrementComplete = function() {
+					uploadedFileLength++;
+					$rootScope.showProgress(calcProgress());
+					if (uploadedFileLength && files.length <= uploadedFileLength) {
+						$scope.save(null, function() {
+							$rootScope.showToast($rootScope.messages.contents.saved);
+							changing = false;
+						}, function() {
+							$rootScope.showError($rootScope.messages.contents.errors.failToSave);
+						});
+						$rootScope.hideProgress();
+					}
+					next();
+				}
+				var onSuccess = function(thumbnailUrl, fileUrl, srcFile) {
+					if (!$scope.editingContent.article[keyDate]) {
+						$scope.editingContent.article[keyDate] = {};
+						$scope.editingContent.article[keyDate].images = [];
+					}
+					$scope.editingContent.article[keyDate].images.unshift({
+						thumbnail : thumbnailUrl,
+						file : fileUrl
 					});
-					$rootScope.hideProgress();
+					incrementComplete();
 				}
-			}
-			var onSuccess = function(thumbnailUrl, fileUrl, srcFile) {
-				if (!$scope.editingContent.article[keyDate]) {
-					$scope.editingContent.article[keyDate] = {};
-					$scope.editingContent.article[keyDate].images = [];
+				var onError = function() {
+					$rootScope.showWarn($rootScope.messages.contents.errors.failToUploadAndRetry);
+					uploadFileWithRetry();
 				}
-				$scope.editingContent.article[keyDate].images.unshift({
-					thumbnail : thumbnailUrl,
-					file : fileUrl
-				});
-				incrementComplete();
-			}
-			var onError = function() {
-				$rootScope.showWarn($rootScope.messages.contents.errors.failToUploadAndRetry);
+				var onProgress = function(percent, fileName) {
+					var totalPercent;
+					if (files.length > 1) {
+						totalPercent = calcProgress() + (percent / files.length);
+					}
+					$rootScope.showProgress(totalPercent || percent, fileName);
+				}
+				var uploadFileWithRetry = function() {
+					$rootScope.uploadFile($scope.editingContent.contentKey, srcFile, onSuccess, onSuccess, onError, onProgress);
+				}
 				uploadFileWithRetry();
-			}
-			var onProgress = function(percent, fileName) {
-				var totalPercent;
-				if (files.length > 1) {
-					totalPercent = calcProgress() + (percent / files.length);
-				}
-				$rootScope.showProgress(totalPercent || percent, fileName);
-			}
-			var uploadFileWithRetry = function() {
-				$rootScope.uploadFile($scope.editingContent.contentKey, srcFile, onSuccess, onSuccess, onError, onProgress);
-			}
-			uploadFileWithRetry();
-		})
+			})
+		});
+		chain.error = function(error) {
+			$rootScope.showErrorWithStatus(error);
+		}
+		chain.fire();
 	}
 	$scope.deletePictureConfirm = function(event, images, index) {
 		var dialogController = [ "$scope", "$uibModalInstance", function($dialogScope, $modalInstance) {
@@ -1374,7 +1382,7 @@ var editCalendarAlbumController = [ "$rootScope", "$scope", "$resource", "$locat
 		$rootScope.showProgress(calcProgress());
 		var changing = true;
 		var uploadedFileLength = 0;
-		var putToArticle = function(date, thumbnailUrl, fileUrl, fileName) {
+		var putToArticle = function(date, thumbnailUrl, fileUrl, fileName, next) {
 			var keyDate = date.getFullYear() + "/" + (date.getMonth() + 1) + "/" + date.getDate();
 			$scope.$apply(function() {
 				if (!$scope.editingContent.article[keyDate]) {
@@ -1399,73 +1407,81 @@ var editCalendarAlbumController = [ "$rootScope", "$scope", "$resource", "$locat
 					$rootScope.hideProgress();
 				}
 			}
+			next();
 		}
+		var chain = new Chain();
 		$scope.autoDateSetImages.forEach(function(srcFile) {
-			var contentKey = $scope.editingContent.contentKey;
-			var onError = function(error) {
-				$rootScope.showWarn($rootScope.messages.contents.errors.failToUploadAndRetry);
-				uploadFile();
-			}
-			var onSuccess = function(thumbnailImageUrl, fileImageUrl, srcFile) {
-				if (0 == srcFile.type.lastIndexOf("video", 0)) {
-					try {
-						mp4(srcFile, function(err, tags) {
-							if (err) {
-								var date = new Date();
-							} else {
-								var dateSrc = tags.date;
+			chain = chain.then(function(next) {
+				var contentKey = $scope.editingContent.contentKey;
+				var onError = function(error) {
+					$rootScope.showWarn($rootScope.messages.contents.errors.failToUploadAndRetry);
+					uploadFile();
+				}
+				var onSuccess = function(thumbnailImageUrl, fileImageUrl, srcFile) {
+					if (0 == srcFile.type.lastIndexOf("video", 0)) {
+						try {
+							mp4(srcFile, function(err, tags) {
+								if (err) {
+									var date = new Date();
+								} else {
+									var dateSrc = tags.date;
+									if (dateSrc) {
+										try {
+											var dateValues = dateSrc.split(/[-T:Z\s]/)
+											var date = new Date(dateValues[0], dateValues[1] - 1, dateValues[2], dateValues[3], dateValues[4]);
+										} catch (ignored) {
+										}
+									}
+								}
+								if (!date) {
+									date = new Date();
+								}
+								putToArticle(date, thumbnailImageUrl, fileImageUrl, srcFile.name, next);
+							});
+						} catch (ignored) {
+							putToArticle(new Date(), thumbnailImageUrl, fileImageUrl, srcFile.name, next);
+						}
+					} else if (0 == srcFile.type.lastIndexOf("image", 0)) {
+						try {
+							EXIF.getData(srcFile, function() {
+								var dateSrc = EXIF.getTag(srcFile, "DateTimeOriginal") || EXIF.getTag(srcFile, "DateTime");
 								if (dateSrc) {
 									try {
-										var dateValues = dateSrc.split(/[-T:Z\s]/)
+										var dateValues = dateSrc.split(/[:\s]/)
 										var date = new Date(dateValues[0], dateValues[1] - 1, dateValues[2], dateValues[3], dateValues[4]);
 									} catch (ignored) {
 									}
 								}
-							}
-							if (!date) {
-								date = new Date();
-							}
-							putToArticle(date, thumbnailImageUrl, fileImageUrl, srcFile.name);
-						});
-					} catch (ignored) {
-						putToArticle(new Date(), thumbnailImageUrl, fileImageUrl, srcFile.name);
-					}
-				} else if (0 == srcFile.type.lastIndexOf("image", 0)) {
-					try {
-						EXIF.getData(srcFile, function() {
-							var dateSrc = EXIF.getTag(srcFile, "DateTimeOriginal") || EXIF.getTag(srcFile, "DateTime");
-							if (dateSrc) {
-								try {
-									var dateValues = dateSrc.split(/[:\s]/)
-									var date = new Date(dateValues[0], dateValues[1] - 1, dateValues[2], dateValues[3], dateValues[4]);
-								} catch (ignored) {
+								if (!date) {
+									date = new Date();
 								}
-							}
-							if (!date) {
-								date = new Date();
-							}
-							putToArticle(date, thumbnailImageUrl, fileImageUrl, srcFile.name);
-						});
-					} catch (ignored) {
-						putToArticle(new Date(), thumbnailImageUrl, fileImageUrl, srcFile.name);
+								putToArticle(date, thumbnailImageUrl, fileImageUrl, srcFile.name, next);
+							});
+						} catch (ignored) {
+							putToArticle(new Date(), thumbnailImageUrl, fileImageUrl, srcFile.name, next);
+						}
 					}
 				}
-			}
-			var onSuccessAsFile = function(thumbnailImageUrl, fileImageUrl, srcFile) {
-				putToArticle(new Date(), thumbnailImageUrl, fileImageUrl);
-			}
-			var onProgress = function(percent, fileName) {
-				var totalPercent;
-				if (files.length > 1) {
-					totalPercent = calcProgress() + (percent / $scope.autoDateSetImages.length);
+				var onSuccessAsFile = function(thumbnailImageUrl, fileImageUrl, srcFile) {
+					putToArticle(new Date(), thumbnailImageUrl, fileImageUrl, next);
 				}
-				$rootScope.showProgress(totalPercent || percent, fileName);
-			}
-			var uploadFile = function() {
-				$rootScope.uploadFile(contentKey, srcFile, onSuccess, onSuccessAsFile, onError, onProgress);
-			}
-			uploadFile();
+				var onProgress = function(percent, fileName) {
+					var totalPercent;
+					if (files.length > 1) {
+						totalPercent = calcProgress() + (percent / $scope.autoDateSetImages.length);
+					}
+					$rootScope.showProgress(totalPercent || percent, fileName);
+				}
+				var uploadFile = function() {
+					$rootScope.uploadFile(contentKey, srcFile, onSuccess, onSuccessAsFile, onError, onProgress);
+				}
+				uploadFile();
+			});
 		});
+		chain.error = function(error) {
+			$rootScope.showErrorWithStatus(error);
+		}
+		chain.fire();
 	});
 	var dateLegex = /^(\d{4})\/(\d{2})$/;
 	$scope.$watch("selectingDate", function() {
