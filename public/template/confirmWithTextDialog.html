@@ -1,7 +1,11 @@
 <div class="modal-body" id="confirmDialog">
 	<div class="row">
-		<div class="col-xs-12" style="white-space: pre;" ng-bind="message"></div>
-		<input id="dialogText" type="text" class="form-control col-xs-12" placeholder="{{placeholder}}" ng-model="text" />
+		<h4 class="modal-title col-xs-12" ng-bind="message">Modal title</h4>
+	</div>
+	<div class="row">
+		<div class="col-xs-12">
+			<input id="dialogText" type="text" class="form-control" placeholder="{{placeholder}}" ng-model="text" />
+		</div>
 	</div>
 </div>
 <div class="modal-footer">
