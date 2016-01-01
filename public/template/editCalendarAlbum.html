@@ -11,7 +11,7 @@
 				<span ng-click="dateSelect=true" ng-hide="dateSelect" style="margin: 10px">{{firstDay.getTime() | date:'yyyy/MM'}}</span> <input type="text" ng-show="dateSelect" ng-model="selectingDate" ng-blur="dateSelect=false" placeholder="{{firstDay.getTime() | date:'yyyy/MM'}}">
 				<button class="btn btn-default glyphicon glyphicon-chevron-right" ng-click="gotoNextMonth()"></button>
 			</div>
-			<div style="width: 69%; float: left; background-color: #999; border: solid 3px #999; padding: 10px; border-radius: 5px; text-align: center; color: white" ng-model="autoDateSetImages" ngf-multiple="true" ngf-drop ngf-drag-over-class="'calenderDragover'" ng-bind="messages.contents.fileUploadArea"></div>
+			<div style="margin-left: 20px; width: 65%; float: left; background-color: #999; border: solid 3px #999; padding: 10px; border-radius: 5px; text-align: center; color: white" ng-model="autoDateSetImages" ngf-multiple="true" ngf-drop ngf-drag-over-class="'calenderDragover'" ng-bind="messages.contents.fileUploadArea"></div>
 			<br style="clear: both" />
 			<div style="margin-top: 10px; border-top: solid 1px #DDD; border-left: solid 1px #DDD;">
 				<div ng-repeat="day in ['Sun','Mon','Tue','Wed','Thu','Fr','Sat'] track by $index" style="width: 14%; float: left; position: relative; border-right: solid 1px #DDD; border-bottom: solid 1px #DDD; text-align: center; color: #999">{{day}}</div>
@@ -49,7 +49,7 @@
 <div id="imagePane" ng-show="datePaneSrc" align="center"></div>
 <div id="calendarImagePaneImgBase" ng-show="datePaneSrc" align="center" ng-click="hideImages()" class="col-xs-12">
 	<div class="row">
-		<div class="col-sm-2 col-xs-12" style="max-height: 100%" style="overflow: scroll;">
+		<div class="col-sm-2 col-xs-12" style="max-height: 100%;overflow: scroll;">
 			<div class="row">
 				<h2 ng-bind="datePaneSrc.keyDate" class="col-xs-12" style="text-align: left; color: white"></h2>
 				<div ng-bind="datePaneSrc.description" class="col-xs-12" style="margin-top: 10px; text-align: left; color: white; white-space: pre-wrap;"></div>
@@ -72,7 +72,7 @@
 				</div>
 			</div>
 		</div>
-		<div class="col-sm-3 col-xs-12" style="max-height: 100%" style="overflow: scroll;">
+		<div class="col-sm-3 col-xs-12" style="max-height: 100%; overflow: scroll;">
 			<div class="row">
 				<div ng-repeat="image in datePaneSrc.images track by $index" class="col-sm-6 col-xs-2">
 					<div class="row">
