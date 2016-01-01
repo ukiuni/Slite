@@ -41,8 +41,10 @@
 <link href="css/app.css" rel="stylesheet" />
 <link href="css/brink.css" rel="stylesheet" />
 <link href="css/bootstrap_theme.css" rel="stylesheet" />
+<link href="css/progressbar.css" rel="stylesheet" />
 <script src="js/util.js"></script>
 <script src="js/controller.js"></script>
+<script src="js/progressScroll.js"></script>
 <script type="text/javascript">
 	try {
 		if (nodeModule) {
@@ -97,6 +99,7 @@
 		</div>
 	</nav>
 	<div ng-view ng-class="{marginTop10: !noMarginTop }"></div>
+	<uib-progressbar id="progressArea" ng-show="progressing" class="progressAbsolute progress-striped active" value="progress.value" type="progress.type"><b>{{progress.message + progress.value}}%</b></uib-progressbar>
 </body>
 </html>
 

@@ -212,6 +212,17 @@ myapp.run([ "$rootScope", "$location", "$resource", "$cookies", "Upload", functi
 	$rootScope.showToast = function(message) {
 		toastr.info(message);
 	}
+	$rootScope.showProgress = function(percent, message, type) {
+		$rootScope.progressing = true;
+		$rootScope.progress = {};
+		$rootScope.progress.type = type || "success";
+		$rootScope.progress.value = percent || 0;
+		$rootScope.progress.message = message ? message + " " : "";
+	}
+	$rootScope.hideProgress = function(percent) {
+		delete $rootScope.progressing;
+		delete $rootScope.progress;
+	}
 	$rootScope.showErrorWithStatus = function(status, otherFunc) {
 		if (otherFunc && otherFunc(status)) {
 			// DO Nothing
@@ -379,8 +390,8 @@ myapp.run([ "$rootScope", "$location", "$resource", "$cookies", "Upload", functi
 		var canvas = com.ukiuni.ImageUtil.createTextImage(100, 50, 40, 30, 5, text);
 		return canvas.toDataURL('image/png');
 	}
-	var upload = function(contentKey, data, name, success, fail) {
-		$uploader.upload({
+	var upload = function(contentKey, data, name, success, fail, progress) {
+		var uploader = $uploader.upload({
 			url : '/api/image/' + contentKey,
 			fields : {
 				sessionKey : $rootScope.getSessionKey(),
@@ -399,6 +410,12 @@ myapp.run([ "$rootScope", "$location", "$resource", "$cookies", "Upload", functi
 				fail(error);
 			}
 		});
+		if (progress) {
+			uploader.progress(function(evt) {
+				var progressPercentage = parseInt(100.0 * evt.loaded / evt.total);
+				progress(progressPercentage, evt.config.file.name);
+			});
+		}
 	};
 	var uploadAsFile = function(contentKey, file, onSuccess, onError) {
 		var contentType = file.type ? file.type : "file/unknown";
@@ -1247,8 +1264,12 @@ var editCalendarAlbumController = [ "$rootScope", "$scope", "$resource", "$locat
 	var changing = false;
 	$scope.uploadFiles = function(keyDate, files) {
 		var changing = true;
-		var fileLength = 0;
+		var uploadedFileLength = 0;
 		files.forEach(function(srcFile) {
+			var calcProgress = function() {
+				return uploadedFileLength * 100.0 / files.length
+			}
+			$rootScope.showProgress(calcProgress(), srcFile.name);
 			if ($scope.editingContent.article[keyDate]) {
 				for ( var i in $scope.editingContent.article[keyDate].images) {
 					if ($scope.editingContent.article[keyDate].images[i].file.endsWith(srcFile.name)) {
@@ -1261,16 +1282,16 @@ var editCalendarAlbumController = [ "$rootScope", "$scope", "$resource", "$locat
 				putToArticle(new Date(), thumbnailImageUrl, fileImageUrl);
 			}
 			var incrementComplete = function() {
-				fileLength++;
-				if (fileLength) {
-					if (files.length <= fileLength) {
-						$scope.save(null, function() {
-							$rootScope.showToast($rootScope.messages.contents.saved);
-							changing = false;
-						}, function() {
-							$rootScope.showError($rootScope.messages.contents.errors.failToSave);
-						});
-					}
+				uploadedFileLength++;
+				$rootScope.showProgress(calcProgress());
+				if (uploadedFileLength && files.length <= uploadedFileLength) {
+					$scope.save(null, function() {
+						$rootScope.showToast($rootScope.messages.contents.saved);
+						changing = false;
+					}, function() {
+						$rootScope.showError($rootScope.messages.contents.errors.failToSave);
+					});
+					$rootScope.hideProgress();
 				}
 			}
 			var onSuccess = function(thumbnailUrl, fileUrl, srcFile) {
@@ -1288,8 +1309,15 @@ var editCalendarAlbumController = [ "$rootScope", "$scope", "$resource", "$locat
 				$rootScope.showWarn($rootScope.messages.contents.errors.failToUploadAndRetry);
 				uploadFileWithRetry();
 			}
+			var onProgress = function(percent, fileName) {
+				var totalPercent;
+				if (files.length > 1) {
+					totalPercent = calcProgress() + (percent / files.length);
+				}
+				$rootScope.showProgress(totalPercent || percent, fileName);
+			}
 			var uploadFileWithRetry = function() {
-				$rootScope.uploadFile($scope.editingContent.contentKey, srcFile, onSuccess, onSuccess, onError);
+				$rootScope.uploadFile($scope.editingContent.contentKey, srcFile, onSuccess, onSuccess, onError, onProgress);
 			}
 			uploadFileWithRetry();
 		})
@@ -1340,9 +1368,13 @@ var editCalendarAlbumController = [ "$rootScope", "$scope", "$resource", "$locat
 		if (!$scope.autoDateSetImages || !$scope.autoDateSetImages.length) {
 			return;
 		}
+		var calcProgress = function() {
+			return uploadedFileLength * 100.0 / $scope.autoDateSetImages.length;
+		}
+		$rootScope.showProgress(calcProgress());
 		var changing = true;
-		var fileLength = 0;
-		var putToArticle = function(date, thumbnailUrl, fileUrl) {
+		var uploadedFileLength = 0;
+		var putToArticle = function(date, thumbnailUrl, fileUrl, fileName) {
 			var keyDate = date.getFullYear() + "/" + (date.getMonth() + 1) + "/" + date.getDate();
 			$scope.$apply(function() {
 				if (!$scope.editingContent.article[keyDate]) {
@@ -1354,31 +1386,25 @@ var editCalendarAlbumController = [ "$rootScope", "$scope", "$resource", "$locat
 					file : fileUrl
 				});
 			});
-			fileLength++;
-			if (fileLength) {
-				if ($scope.autoDateSetImages.length <= fileLength) {
+			uploadedFileLength++;
+			$rootScope.showProgress(calcProgress(), fileName);
+			if (uploadedFileLength) {
+				if ($scope.autoDateSetImages.length <= uploadedFileLength) {
 					$scope.save(null, function() {
 						$rootScope.showToast($rootScope.messages.contents.saved);
 						changing = false;
 					}, function() {
 						$rootScope.showError($rootScope.messages.contents.errors.failToSave);
 					});
+					$rootScope.hideProgress();
 				}
 			}
 		}
 		$scope.autoDateSetImages.forEach(function(srcFile) {
 			var contentKey = $scope.editingContent.contentKey;
 			var onError = function(error) {
-				$rootScope.showError($rootScope.messages.contents.errors.upload + ":" + srcFile.name);
-				fileLength++;
-				if ($scope.autoDateSetImages.length <= fileLength) {
-					$scope.save(null, function() {
-						$rootScope.showToast($rootScope.messages.contents.saved);
-						changing = false;
-					}, function() {
-						$rootScope.showError($rootScope.messages.contents.errors.failToSave);
-					});
-				}
+				$rootScope.showWarn($rootScope.messages.contents.errors.failToUploadAndRetry);
+				uploadFile();
 			}
 			var onSuccess = function(thumbnailImageUrl, fileImageUrl, srcFile) {
 				if (0 == srcFile.type.lastIndexOf("video", 0)) {
@@ -1399,10 +1425,10 @@ var editCalendarAlbumController = [ "$rootScope", "$scope", "$resource", "$locat
 							if (!date) {
 								date = new Date();
 							}
-							putToArticle(date, thumbnailImageUrl, fileImageUrl);
+							putToArticle(date, thumbnailImageUrl, fileImageUrl, srcFile.name);
 						});
 					} catch (ignored) {
-						putToArticle(new Date(), thumbnailImageUrl, fileImageUrl);
+						putToArticle(new Date(), thumbnailImageUrl, fileImageUrl, srcFile.name);
 					}
 				} else if (0 == srcFile.type.lastIndexOf("image", 0)) {
 					try {
@@ -1418,17 +1444,27 @@ var editCalendarAlbumController = [ "$rootScope", "$scope", "$resource", "$locat
 							if (!date) {
 								date = new Date();
 							}
-							putToArticle(date, thumbnailImageUrl, fileImageUrl);
+							putToArticle(date, thumbnailImageUrl, fileImageUrl, srcFile.name);
 						});
 					} catch (ignored) {
-						putToArticle(new Date(), thumbnailImageUrl, fileImageUrl);
+						putToArticle(new Date(), thumbnailImageUrl, fileImageUrl, srcFile.name);
 					}
 				}
 			}
 			var onSuccessAsFile = function(thumbnailImageUrl, fileImageUrl, srcFile) {
 				putToArticle(new Date(), thumbnailImageUrl, fileImageUrl);
 			}
-			$rootScope.uploadFile(contentKey, srcFile, onSuccess, onSuccessAsFile, onError);
+			var onProgress = function(percent, fileName) {
+				var totalPercent;
+				if (files.length > 1) {
+					totalPercent = calcProgress() + (percent / $scope.autoDateSetImages.length);
+				}
+				$rootScope.showProgress(totalPercent || percent, fileName);
+			}
+			var uploadFile = function() {
+				$rootScope.uploadFile(contentKey, srcFile, onSuccess, onSuccessAsFile, onError, onProgress);
+			}
+			uploadFile();
 		});
 	});
 	var dateLegex = /^(\d{4})\/(\d{2})$/;

@@ -20,7 +20,8 @@ app.set('port', process.env.PORT || 3030);
 app.set('views', path.join(__dirname, 'views'));
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({
-	extended : false
+	extended : false,
+	limit : '100mb'
 }));
 app.use(multer({
 	// storage : multer.memoryStorage()
