@@ -1,3 +1,5 @@
+var EventEmitter = require('events').EventEmitter;
+var ev = new EventEmitter();
 var Account = global.db.Account;
 var AccessKey = global.db.AccessKey;
 var Content = global.db.Content;
@@ -7,6 +9,7 @@ var Message = global.db.Message;
 var AccountInGroup = global.db.AccountInGroup;
 var Channel = global.db.Channel;
 var ERROR_NOTACCESSIBLE = "ERROR_NOTACCESSIBLE";
+var PRIVATE_ROOM_NAME_PREFIX = "accountId:";
 var socketIO = function(io) {
 	var connected;
 	var self = this;
@@ -150,13 +153,14 @@ var socketIO = function(io) {
 				socket.client.accountId = account.id;
 				socket.client.account = account;
 				socket.emit("authorized", account);
+				socket.join(PRIVATE_ROOM_NAME_PREFIX + account.id);
 			})["catch"](function(e) {
 				if (e.stack) {
 					console.log(e.stack);
 				} else {
 					console.log(e);
 				}
-				// TODO send error
+				socket.emit("exception", e);
 			});
 		});
 		socket.on("disconnect", function() {
@@ -164,6 +168,9 @@ var socketIO = function(io) {
 				self.sendReaveFromChannelEvent(i, socket.client.account);
 			}
 		});
+		socket.on("pongListening", function(accessKey) {
+			self.pongListening(socket.client.account, accessKey);
+		})
 	});
 	self.sendToContent = function(contentKey, comment) {
 		io.to(contentKey).emit(contentKey, JSON.stringify(comment));
@@ -194,6 +201,21 @@ var socketIO = function(io) {
 	}
 	self.sendReaveFromChannelEvent = function(channelAccessKey, account) {
 		self.sendAccountEvent(channelAccessKey, account, "reave");
+	}
+	self.pingListening = function(accountId, accessKey, emitter) {
+		ev.once(PRIVATE_ROOM_NAME_PREFIX + accountId + ":" + accessKey, function() {
+			emitter();
+		});
+		io.to(PRIVATE_ROOM_NAME_PREFIX + accountId).emit("pingListening", accessKey);
+	}
+	self.stopPingListening = function(accountId, accessKey, emitter) {
+		ev.removeListener(PRIVATE_ROOM_NAME_PREFIX + accountId + ":" + accessKey, emitter);
+	}
+	self.pongListening = function(account, accessKey) {
+		ev.emit(PRIVATE_ROOM_NAME_PREFIX + account.id + ":" + accessKey, {
+			account : account,
+			accessKey : accessKey
+		});
 	}
 	return self;
 }

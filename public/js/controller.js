@@ -374,6 +374,11 @@ myapp.run([ "$rootScope", "$location", "$resource", "$cookies", "Upload", functi
 		$rootScope.socket.on('disconnect', function(data) {
 			$rootScope.disconnected = true;
 		});
+		$rootScope.socket.on('pingListening', function(data) {
+			if ($rootScope.nowInChannel) {
+				$rootScope.socket.emit('pongListening', data);
+			}
+		});
 	}
 	initSocket();
 	var authorizationImageUrls = [ "", "/images/viewer.png", "/images/editor.png", "/images/admin.png" ];
@@ -2093,6 +2098,7 @@ var editGroupController = [ "$rootScope", "$scope", "$resource", "$location", "$
 } ];
 var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$http", "$routeParams", "$uibModal", function($rootScope, $scope, $resource, $location, $http, $routeParams, $modal) {
 	$scope.noMarginTop = true;
+	$rootScope.nowInChannel = true;
 	$resource('/api/groups/:groupAccessKey/:channelAccessKey').get({
 		groupAccessKey : $routeParams.groupAccessKey,
 		channelAccessKey : $routeParams.channelAccessKey,
@@ -2140,6 +2146,7 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 			$rootScope.searchWord = null;
 			$rootScope.searchTimeline = null;
 			$rootScope.timelinedMessages = null;
+			delete $rootScope.nowInChannel;
 		});
 		selectChannel($routeParams.channelAccessKey);
 	}, function(error) {

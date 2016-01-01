@@ -69,13 +69,34 @@ module.exports = function(sequelize, DataTypes) {
 				}
 			})
 		}).then(function(notificationTargets) {
+			var notifyTargetPonged = [];
+			var registedListener = [];
 			notificationTargets.forEach(function(notificationTarget) {
-				if (NotificationTarget.PLATFORM_ANDROID == notificationTarget.platform) {
-					notifyMessageToAndroid(notificationTarget, channel, message);
-				} else if (NotificationTarget.PLATFORM_WEBHOOK == notificationTarget.platform) {
-					webhookMessage(notificationTarget, channel, message);
-				}
+				var listener = function(data) {
+					notifyTargetPonged[notificationTarget.ownerId] = true;
+				};
+				global.socket.pingListening(notificationTarget.ownerId, channel.accessKey, listener);
+				registedListener.push({
+					ownerId : notificationTarget.ownerId,
+					accessKey : channel.accessKey,
+					listener : listener
+				});
 			});
+			setTimeout(function() {
+				notificationTargets.forEach(function(notificationTarget) {
+					if (notifyTargetPonged[notificationTarget.ownerId]) {
+						return;
+					}
+					if (NotificationTarget.PLATFORM_ANDROID == notificationTarget.platform) {
+						notifyMessageToAndroid(notificationTarget, channel, message);
+					} else if (NotificationTarget.PLATFORM_WEBHOOK == notificationTarget.platform) {
+						webhookMessage(notificationTarget, channel, message);
+					}
+				});
+				registedListener.forEach(function(listener) {
+					global.socket.stopPingListening(listener.ownerId, listener.accessKey, listener.listener);
+				})
+			}, 5000)
 		});
 	}
 	NotificationTarget.PLATFORM_ANDROID = 1;
