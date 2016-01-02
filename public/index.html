@@ -74,6 +74,9 @@
 					<li class="dropdown"><a href="#" class="dropdown-toggle navbar-button" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" ng-show="myAccount"><img style="margin-right: 10px; height: 20px; margin-top: -5px" ng-show="myAccount.iconUrl" class="img-circle" ng-src="{{myAccount.iconUrl}}" /><span id="userNameInMenu" ng-bind="myAccount.name"></span><span class="caret"></span></a>
 						<ul class="dropdown-menu">
 							<li><a href="/home" ng-bind="messages.menu.home"></a></li>
+							<li><a href="/messages" ng-bind="messages.message"></a></li>
+							<li role="separator" class="divider"></li>
+							<li class="dropdown-header" ng-bind="messages.content"></li>
 							<li><a id="toEditContentLink" href="/editContent" ng-bind="messages.menu.newContent"></a></li>
 							<li><a id="toEditCalendarAlbum" href="/editCalendarAlbum" ng-bind="messages.menu.newCalendarAlbum"></a></li>
 
