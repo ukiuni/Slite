@@ -4,11 +4,17 @@ module.exports = function(sequelize, DataTypes) {
 	var Account = sequelize.define("Account", {
 		mail : {
 			type : DataTypes.TEXT,
-			unique : true
+			unique : true,
+			valiate : {
+				isEmail: true
+			}
 		},
 		name : {
 			type : DataTypes.TEXT,
-			unique : true
+			unique : true,
+			validate : {
+				is : ["^[a-zA-Z0-9][a-zA-Z0-9][a-zA-Z0-9][a-zA-Z0-9]+$", "i"]
+			}
 		},
 		information : DataTypes.TEXT,
 		iconUrl : DataTypes.TEXT,

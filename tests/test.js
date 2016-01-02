@@ -100,6 +100,7 @@ var tests = {
 			Actions.signout(client);
 			Actions.signin(client, account2);
 			client.url(groupUrl);
+			client.waitForElementVisible('#memberArea', 1000);
 			client.assert.containsText("#memberArea", account2.name);
 			if (onComplete) {
 				onComplete(account, account2, groupUrl);
@@ -141,6 +142,7 @@ var tests = {
 			Actions.signout(client);
 			Actions.createAccountAndSignin(client, account2);
 			client.url(groupUrl);
+			client.waitForElementVisible('#memberArea', 1000);
 			client.assert.containsText("#memberArea", account2.name);
 			if (onComplete) {
 				onComplete(account, account2, groupUrl);
@@ -187,6 +189,11 @@ var tests = {
 				client.url(contentUrl);
 				client.waitForElementVisible('#requestInvitationButtonOnSecret', 1000);
 				client.click("#requestInvitationButtonOnSecret");
+				client.waitForElementVisible('.toast', 1000);
+				client.click(".toast");//For hide toast caz it hides sign out button 
+				client.waitForElementVisible('.toast', 1000);
+				client.click(".toast");//For hide toast caz it hides sign out button 
+				client.waitForElementNotVisible('.toast', 10000);
 				Actions.signout(client);
 				Actions.signin(client, account);
 				client.url(groupUrl);
@@ -244,7 +251,6 @@ var tests = {
 		Actions.createContentAndCheckExists(client, function(contentUrl, content) {
 			Actions.createGroupAndCheckExists(client, function(groupName, groupUrl, group) {
 				client.url(contentUrl);
-				client.pause(1000)
 				client.waitForElementVisible('#accountName', 1000);
 				client.click("#accountName");
 				client.waitForElementVisible('.contentListTitle', 1000);
