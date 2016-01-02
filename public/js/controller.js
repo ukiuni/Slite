@@ -139,6 +139,10 @@ myapp.config([ "$locationProvider", "$httpProvider", "$routeProvider", "markedPr
 		templateUrl : "template/message.html",
 		controller : "messageController"
 	});
+	$routeProvider.when("/messages", {
+		templateUrl : "template/message.html",
+		controller : "messageController"
+	});
 	$routeProvider.when("/invitation", {
 		templateUrl : "template/invitation.html",
 		controller : "invitationController"
@@ -2099,21 +2103,6 @@ var editGroupController = [ "$rootScope", "$scope", "$resource", "$location", "$
 var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$http", "$routeParams", "$uibModal", function($rootScope, $scope, $resource, $location, $http, $routeParams, $modal) {
 	$scope.noMarginTop = true;
 	$rootScope.nowInChannel = true;
-	$resource('/api/groups/:groupAccessKey/:channelAccessKey').get({
-		groupAccessKey : $routeParams.groupAccessKey,
-		channelAccessKey : $routeParams.channelAccessKey,
-		sessionKey : $rootScope.getSessionKey()
-	}, function(channel) {
-	}, function(error) {
-		$rootScope.showErrorWithStatus(error.status, function(status) {
-			if (403 == status) {
-				$rootScope.showErrorWithStatus(error.status);
-				$location.path("/group/" + $routeParams.groupAccessKey);
-				return true;
-			}
-			return false;
-		});
-	});
 	var loadingHistory = false;
 	$scope.loadHistory = function() {
 		if ((!$scope.channel.messages[0]) || loadingHistory) {
@@ -2148,7 +2137,7 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 			$rootScope.timelinedMessages = null;
 			delete $rootScope.nowInChannel;
 		});
-		selectChannel($routeParams.channelAccessKey);
+		selectChannel($routeParams.channelAccessKey || $scope.joiningChannels[0].accessKey);
 	}, function(error) {
 		$rootScope.showErrorWithStatus(error.status);
 	});
@@ -2304,7 +2293,7 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 			}
 			if ("join" == event.type) {
 				$rootScope.sendHello({
-					channelAccessKey : $routeParams.channelAccessKey
+					channelAccessKey : eventTargetChannel.accessKey
 				})
 			}
 		} else if ("reave" == event.type) {
@@ -2320,7 +2309,7 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 			}
 			if ($rootScope.myAccount.id == reaveAccount.id) {
 				$rootScope.sendHello({
-					channelAccessKey : $routeParams.channelAccessKey
+					channelAccessKey : eventTargetChannel.accessKey
 				})
 			}
 		}
