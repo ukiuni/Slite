@@ -255,6 +255,13 @@ select {
 	opacity: 0.5;
 }
 
+.messageBody {
+	white-space: pre;
+	white-space: pre-wrap;
+	white-space: pre-line;
+	white-space: -hp-pre-line;
+	word-wrap: break-word;
+}
 .messageBody img {
 	max-height: 200px;
 }
