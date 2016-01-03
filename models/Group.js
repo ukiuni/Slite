@@ -24,6 +24,7 @@ module.exports = function(sequelize, DataTypes) {
 			through : sequelize.AccountInGroup
 		});
 		Group.hasMany(sequelize.AccountConfig);
+		Group.hasMany(sequelize.Bot);
 	}
 	Group.VISIBILITY_OPEN = 1;
 	Group.VISIBILITY_SECRET = 2;

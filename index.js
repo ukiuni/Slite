@@ -23,6 +23,7 @@ app.use(bodyParser.urlencoded({
 	extended : false,
 	limit : '100mb'
 }));
+app.use("/api/bots/events/webhook", bodyParser());//limit parse url for security reason that sequelize where accept object
 app.use(multer({
 	// storage : multer.memoryStorage()
 	storage : multer.diskStorage({

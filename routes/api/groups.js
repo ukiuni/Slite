@@ -116,57 +116,6 @@ router.get('/:groupAccessKey/:channelAccessKey', function(req, res) {
 		}
 	});
 });
-var resolveChannel = function(sessionKey, channelAccessKey) {
-	var loadedAccount;
-	var loadedChannel;
-	var createdMessage;
-	return AccessKey.findBySessionKey(sessionKey).then(function(accessKey) {
-		if (!accessKey) {
-			throw ERROR_NOTACCESSIBLE;
-		}
-		return Account.find({
-			where : {
-				id : accessKey.AccountId
-			},
-			attributes : [ "id", "name", "iconUrl" ]
-		});
-	}).then(function(account) {
-		if (!account) {
-			throw ERROR_NOTACCESSIBLE;
-		}
-		loadedAccount = account;
-		return Channel.find({
-			where : {
-				accessKey : channelAccessKey
-			},
-			include : [ {
-				model : Group
-			} ]
-		});
-	}).then(function(channel) {
-		if (!channel) {
-			throw ERROR_NOTACCESSIBLE;
-		}
-		loadedChannel = channel;
-		return AccountInGroup.find({
-			where : {
-				AccountId : loadedAccount.id,
-				GroupId : loadedChannel.GroupId,
-				inviting : Group.INVITING_DONE
-			}
-		});
-	}).then(function(accountInGroup) {
-		if (!accountInGroup) {
-			throw ERROR_NOTACCESSIBLE;
-		}
-		return new Promise(function(success) {
-			success({
-				loadedAccount : loadedAccount,
-				loadedChannel : loadedChannel
-			});
-		});
-	})
-}
 router.post('/:accessKey/channels/:channelAccessKey/messages', function(req, res) {
 	var sessionKey = req.body.sessionKey || req.body.access_token;
 	if (!sessionKey) {
@@ -180,7 +129,7 @@ router.post('/:accessKey/channels/:channelAccessKey/messages', function(req, res
 	var channelAccessKey = req.params.channelAccessKey;
 	var loadedAccount;
 	var loadedChannel;
-	resolveChannel(sessionKey, channelAccessKey).then(function(resolved) {
+	Channel.resolveChannel(sessionKey, channelAccessKey).then(function(resolved) {
 		loadedAccount = resolved.loadedAccount;
 		loadedChannel = resolved.loadedChannel;
 		return Random.createRandomBase62();
@@ -197,7 +146,6 @@ router.post('/:accessKey/channels/:channelAccessKey/messages', function(req, res
 		message.owner = loadedAccount;
 		res.status(201).json(message);
 		socket.sendToChannel(loadedChannel.accessKey, message);
-		createdMessage = message;
 		NotificationTarget.notifyToChannel(loadedChannel, message);
 	})["catch"](function(error) {
 		if (ERROR_NOTACCESSIBLE == error) {
@@ -217,7 +165,7 @@ router.get('/:accessKey/channels/:channelAccessKey/messages/query', function(req
 	var channelAccessKey = req.params.channelAccessKey;
 	var loadedAccount;
 	var loadedChannel;
-	resolveChannel(sessionKey, channelAccessKey).then(function(resolved) {
+	Channel.resolveChannel(sessionKey, channelAccessKey).then(function(resolved) {
 		loadedAccount = resolved.loadedAccount;
 		loadedChannel = resolved.loadedChannel;
 		return Message.findAll({
@@ -261,7 +209,7 @@ router.get('/:accessKey/channels/:channelAccessKey/messages/queryTimeline', func
 	var channelAccessKey = req.params.channelAccessKey;
 	var loadedAccount;
 	var loadedChannel;
-	resolveChannel(sessionKey, channelAccessKey).then(function(resolved) {
+	Channel.resolveChannel(sessionKey, channelAccessKey).then(function(resolved) {
 		loadedAccount = resolved.loadedAccount;
 		loadedChannel = resolved.loadedChannel;
 		return Message.findAll({

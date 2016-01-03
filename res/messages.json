@@ -74,7 +74,9 @@
 		"messages" : {
 			"loadHistory" : "Load message",
 			"strongWord" : "Strong words",
-			"strongWordsDescription" : "Joins with comma"
+			"strongWordsDescription" : "Joins with comma",
+			"webhookConnect" : "Generate webhook URL",
+			"forGitlab" : "For Gitlab"
 		},
 		"sendWithEnter" : "Send on enter",
 		"create" : "Create",
@@ -83,6 +85,7 @@
 		"save" : "save",
 		"delete" : "delete",
 		"cancel" : "cancel",
+		"close" : "close",
 		"next" : "next",
 		"prev" : "prev",
 		"search" : "search",
@@ -205,7 +208,9 @@
 		"messages" : {
 			"loadHistory" : "メッセージを読み込む",
 			"strongWords" : "強調する文字",
-			"strongWordsDescription" : "カンマ区切り"
+			"strongWordsDescription" : "カンマ区切り",
+			"webhookConnect" : "WebHook URL 生成",
+			"forGitlab" : "Gitlab用"
 		},
 		"sendWithEnter" : "Enterで送信",
 		"create" : "作成",
@@ -214,6 +219,7 @@
 		"save" : "保存",
 		"delete" : "削除",
 		"cancel" : "キャンセル",
+		"close" : "閉じる",
 		"next" : "次へ",
 		"prev" : "前へ",
 		"search" : "検索",

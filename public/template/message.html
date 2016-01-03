@@ -51,12 +51,13 @@
 							<div class="col-xs-12 messageRow" ng-repeat="message in channel.messages track by message.id" ng-class-odd="'repeatOdd'">
 								<div class="row">
 									<div class="col-xs-1">
-										<img class="accountIcon img-circle" style="height: 40px" ng-src="{{message.owner.iconUrl}}" />
+										<img class="accountIcon img-circle" style="height: 40px" ng-src="{{message.Bot.iconUrl || message.owner.iconUrl}}" />
 									</div>
 									<div class="col-xs-10">
 										<div class="row" style="color: #999; font-size: 10px; height: 20px">
-											<div class="col-xs-3 ellipsis" title="{{message.owner.name}}" alt="{{message.owner.name}}" ng-bind="message.owner.name"></div>
-											<div class="col-xs-9 ellipsis" ng-bind="message.createdAt | date :'yyyy/MM/dd HH:mm:ss'"></div>
+											<div class="col-xs-3 ellipsis" title="{{message.Bot.name || message.owner.name}}" alt="{{message.Bot.name || message.owner.name}}" ng-bind="message.Bot.name || message.owner.name"></div>
+											<div class="ellipsis" ng-class="{'col-xs-5':message.Bot, 'col-xs-9':!message.Bot}" ng-bind="message.createdAt | date :'yyyy/MM/dd HH:mm:ss'"></div>
+											<div class="ellipsis col-xs-4" ng-show="message.Bot" ng-bind="'owner ' + message.owner.name"></div>
 										</div>
 										<div class="row">
 											<div class="col-xs-12 messageBody" marked="message.body"></div>

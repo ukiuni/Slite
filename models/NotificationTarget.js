@@ -37,6 +37,9 @@ module.exports = function(sequelize, DataTypes) {
 				channel : channel,
 			}
 		}
+		if (message.bot) {
+			pushValue.message.bot = message.bot;
+		}
 		gcm.push(notificationTarget.endpoint, pushValue)["catch"](function(error) {
 			console.log("#### GCM failed " + error);
 		});

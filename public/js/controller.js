@@ -630,8 +630,7 @@ var activationController = [ "$rootScope", "$scope", "$resource", "$location", f
 			$location.path("/signin");
 		};
 	}, function(error) {
-		// TODO switch message with error
-		$rootScope.showError($rootScope.messages.error.withServer);
+		$rootScope.showErrorWithStatus(error.status);
 	});
 } ];
 var signinController = [ "$rootScope", "$scope", "$resource", "$location", function($rootScope, $scope, $resource, $location) {
@@ -713,8 +712,7 @@ var requestResetPasswordController = [ "$rootScope", "$scope", "$resource", "$lo
 		}).then(function(account) {
 			$location.path("/resetPasswordRequested");
 		})["catch"](function(error) {
-			// TODO switch message with error
-			$rootScope.showError($rootScope.messages.error.withServer);
+			$rootScope.showErrorWithStatus(error.status);
 		});
 	}
 } ];
@@ -1957,6 +1955,7 @@ var groupController = [ "$rootScope", "$scope", "$resource", "$location", "$http
 			$dialogScope.text = "";
 			$dialogScope.message = $rootScope.messages.channels["new"];
 			$dialogScope.placeholder = $rootScope.messages.channels.name;
+			$dialogScope.onCompleteButtonMessage = $rootScope.messages.channels["new"];
 		} ];
 		var modalInstance = $modal.open({
 			templateUrl : 'template/confirmWithTextDialog.html',
@@ -2273,7 +2272,7 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 							notification.onclick = function() {
 								$("#messageInput").focus();
 								window.focus();
-								n.close();
+								notification.close();
 							};
 							bounce();
 						}
@@ -2402,7 +2401,16 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 	$scope.showSettingDialog = function() {
 		var dialogController = [ "$scope", "$uibModalInstance", function($dialogScope, $modalInstance) {
 			$dialogScope.save = function() {
-				$modalInstance.close($dialogScope.strongWords);
+				$modalInstance.close({
+					type : "strongWords",
+					value : $dialogScope.strongWords
+				});
+			};
+			$dialogScope.createWebhookUrl = function(target) {
+				$modalInstance.close({
+					type : "webhook",
+					value : target
+				});
 			};
 			$dialogScope.message = $rootScope.messages.menu.setting;
 			$dialogScope.strongWords = $rootScope.myAccount.config.strongWords;
@@ -2414,18 +2422,46 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 			templateUrl : 'template/messageSetting.html',
 			controller : dialogController
 		});
-		modalInstance.result.then(function(strongWords) {
-			put($http, '/api/account/config', {
-				sessionKey : $rootScope.getSessionKey(),
-				key : "strongWords",
-				value : strongWords
-			}).then(function() {
-				$rootScope.myAccount.config.strongWords = strongWords;
-				strongWordsParsed = parseStrongWords();
-				highlightStrongWords();
-			})["catch"](function(response) {
-				$rootScope.showErrorWithStatus(response.status);
-			});
+		modalInstance.result.then(function(complete) {
+			if ("strongWords" == complete.type) {
+				put($http, '/api/account/config', {
+					sessionKey : $rootScope.getSessionKey(),
+					key : "strongWords",
+					value : complete.value
+				}).then(function() {
+					$rootScope.myAccount.config.strongWords = strongWords;
+					strongWordsParsed = parseStrongWords();
+					highlightStrongWords();
+				})["catch"](function(response) {
+					$rootScope.showErrorWithStatus(response.status);
+				});
+			} else if ("webhook" == complete.type) {
+				post($http, "/api/bots/", {
+					sessionKey : $rootScope.getSessionKey(),
+					channelAccessKey : $scope.channel.accessKey,
+					type : complete.value,
+				}).then(function(resp) {
+					$scope.showWebhookDialog(resp.data.key);
+				})["catch"](function(response) {
+					$rootScope.showErrorWithStatus(response.status);
+				});
+			}
+		}, function() {
+		});
+	}
+	$scope.showWebhookDialog = function(botkey) {
+		var dialogController = [ "$scope", "$uibModalInstance", function($dialogScope, $modalInstance) {
+			$dialogScope.text = $location.protocol() + "://" + location.host + "/api/bots/events/webhook/" + botkey;
+			$dialogScope.message = $rootScope.messages.messages.forGitlab;
+			$dialogScope.onCancelButtonMessage = $rootScope.messages.close;
+			$dialogScope.placeholder = "";
+			$dialogScope.hideCompleteButton = true;
+		} ];
+		var modalInstance = $modal.open({
+			templateUrl : 'template/confirmWithTextDialog.html',
+			controller : dialogController
+		});
+		modalInstance.result.then(function(channelName) {
 		}, function() {
 		});
 	}

@@ -15,6 +15,7 @@ module.exports = function(sequelize, DataTypes) {
 		Message.belongsTo(sequelize.Account, {
 			as : 'owner'
 		});
+		Message.belongsTo(sequelize.Bot);
 		Message.belongsTo(sequelize.Channel, {
 			as : 'channel'
 		});
