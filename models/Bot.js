@@ -86,6 +86,6 @@ module.exports = function(sequelize, DataTypes) {
 			} ]
 		});
 	}
-	Bot.TYPE_GITLAB = "gitlab";
+	Bot.TYPE_GITLAB = 1;
 	return Bot;
 };
