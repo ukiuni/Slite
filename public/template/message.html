@@ -17,11 +17,11 @@
 							<div class="col-sm-12 col-xs-1" ng-repeat="account in channel.Group.Accounts track by account.id">
 								<div class="row messageAccountArea" ng-class="{'messageAccountAreaNow' : account.now}">
 									<div class="hidden-sm hidden-md hidden-lg col-xs-12">
-										<img class="accountIcon img-circle" style="height: 20px" ng-src="{{account.iconUrl}}" />
+										<img class="accountIcon" style="height: 20px" ng-src="{{account.iconUrl}}" />
 									</div>
 									<div class="accountName col-sm-10 hidden-xs" style="display: table; height: 20px;">
 										<div style="vertical-align: middle; display: table-cell;">
-											<img class="accountIcon img-circle" style="height: 20px; margin-right: 5px" ng-src="{{account.iconUrl}}" /><span ng-bind="account.name"></span>
+											<img class="accountIcon" style="height: 20px; margin-right: 5px" ng-src="{{account.iconUrl}}" /><span ng-bind="account.name"></span>
 										</div>
 									</div>
 								</div>
@@ -51,7 +51,7 @@
 							<div class="col-xs-12 messageRow" ng-repeat="message in channel.messages track by message.id" ng-class-odd="'repeatOdd'">
 								<div class="row">
 									<div class="col-xs-1">
-										<img class="accountIcon img-circle" style="height: 40px" ng-src="{{message.Bot.iconUrl || message.owner.iconUrl}}" />
+										<img class="accountIcon" style="height: 40px" ng-src="{{message.Bot.iconUrl || message.owner.iconUrl}}" />
 									</div>
 									<div class="col-xs-10">
 										<div class="row" style="color: #999; font-size: 10px; height: 20px">
@@ -68,7 +68,7 @@
 							<div class="col-xs-12 messageRow" ng-class-odd="'repeatOdd'" ng-show="sendingMessage">
 								<div class="row">
 									<div class="col-xs-1">
-										<img class="accountIcon img-circle" style="height: 40px" ng-src="{{myAccount.iconUrl}}" />
+										<img class="accountIcon" style="height: 40px" ng-src="{{myAccount.iconUrl}}" />
 									</div>
 									<div class="col-xs-10">
 										<div class="row" style="color: #999; font-size: 10px; height: 20px">
