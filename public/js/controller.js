@@ -2121,6 +2121,11 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 		$scope.joiningChannels = channels;
 		$scope.joiningChannels.forEach(function(channel) {
 			channel.messages = [];
+			channel.Bots.forEach(function(bot) {
+				if (1 == bot.type) {
+					channel.hasGitlabBot = true;
+				}
+			})
 			channel.unreadCount = 0;
 			$rootScope.listenChannel(channel.accessKey, listenComment);
 			channelMap[channel.accessKey] = channel;
@@ -2291,14 +2296,13 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 						});
 					}
 				});
-				if(!exist){
+				if (!exist) {
 					$scope["$apply"](function() {
 						eventTargetChannel.Group.Accounts.push(joinedAccount);
 						joinedAccount.now = true;
 					});
 				}
 			}
-			
 			if ("join" == event.type) {
 				$rootScope.sendHello({
 					channelAccessKey : eventTargetChannel.accessKey
@@ -2450,6 +2454,7 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 					channelAccessKey : $scope.channel.accessKey,
 					type : complete.value,
 				}).then(function(resp) {
+					$scope.channel.hasGitlabBot = true;
 					$scope.showWebhookDialog(resp.data.key);
 				})["catch"](function(response) {
 					$rootScope.showErrorWithStatus(response.status);

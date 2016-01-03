@@ -39,7 +39,8 @@
 				</div>
 				<div id="messageControllArea" class="row hidden-xs">
 					<div class="col-xs-12" style="height: 100%" align="right">
-						<img class="messageSettingButton" src="images/setting_icon.png" ng-click="showSettingDialog()" alt="{{messages.menu.setting}}" title="{{messages.menu.setting}}"></img>
+						<img class="toolAreaItem" ng-show="channel.hasGitlabBot" src="images/gitlab_bw.png" alt="{{messages.channels.connectedToGitlab}}" title="{{messages.channels.connectedToGitlab}}"></img>
+						<img class="toolAreaItem messageSettingButton" src="images/setting_icon.png" ng-click="showSettingDialog()" alt="{{messages.menu.setting}}" title="{{messages.menu.setting}}"></img>
 					</div>
 				</div>
 			</div>

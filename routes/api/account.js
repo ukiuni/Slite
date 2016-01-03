@@ -6,6 +6,7 @@ var AccountConfig = global.db.AccountConfig;
 var Channel = global.db.Channel;
 var Content = global.db.Content;
 var ContentBody = global.db.ContentBody;
+var Bot = global.db.Bot;
 var NotificationTarget = global.db.NotificationTarget;
 var express = require('express');
 var router = express.Router();
@@ -631,9 +632,12 @@ router.get("/channels/accessible", function(req, res) {
 					include : [ {
 						model : Account
 					} ]
+				}, {
+					model : Bot,
+					attribute : [ "id", "name", "iconUrl" ]
 				} ]
-			}).then(function(Channels) {
-				res.status(200).json(Channels);
+			}).then(function(channels) {
+				res.status(200).json(channels);
 			});
 		}
 	})["catch"](function(error) {
