@@ -19,7 +19,7 @@ router.post('/', function(req, res) {
 		loadedChannel = result.loadedChannel;
 		return Random.createRandomBase62();
 	}).then(function(random) {
-		var type = "gitlab" == req.body.type ? Bot.TYPE_GITLAB : 0;
+		var type = (("gitlab" == req.body.type) ? Bot.TYPE_GITLAB : 0);
 		return Bot.create({
 			key : random,
 			type : type,
