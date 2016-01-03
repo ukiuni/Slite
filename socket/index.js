@@ -1,6 +1,7 @@
 var EventEmitter = require('events').EventEmitter;
 var ev = new EventEmitter();
 var Account = global.db.Account;
+var Bot = global.db.Bot;
 var AccessKey = global.db.AccessKey;
 var Content = global.db.Content;
 var ContentBody = global.db.ContentBody;
@@ -108,6 +109,9 @@ var socketIO = function(io) {
 					include : [ {
 						model : Account,
 						as : "owner",
+						attributes : [ "id", "name", "iconUrl" ]
+					}, {
+						model : Bot,
 						attributes : [ "id", "name", "iconUrl" ]
 					} ],
 					order : [ [ 'id', 'DESC' ] ],

@@ -1,6 +1,6 @@
 <div class="modal-body" id="confirmDialog">
 	<div class="row">
-		<h4 class="modal-title col-xs-12" ng-bind="message">Modal title</h4>
+		<h4 class="modal-title col-xs-12" ng-bind="message"></h4>
 	</div>
 	<div class="row">
 		<div class="col-xs-12">
@@ -9,6 +9,6 @@
 	</div>
 </div>
 <div class="modal-footer">
-	<button type="button" id="closeButton" class="btn btn-default" ng-disabled="'' == editingTodo.description" ng-click="$dismiss()" ng-bind="messages.cancel"></button>
-	<button type="button" id="createButton" class="btn btn-primary" ng-disabled="text == ''" ng-click="create()" ng-bind="messages.channels.new"></button>
+	<button type="button" id="closeButton" class="btn btn-default" ng-click="$dismiss()" ng-bind="onCancelButtonMessage || messages.cancel"></button>
+	<button ng-hide="hideCompleteButton" type="button" id="createButton" class="btn btn-primary" ng-disabled="text == ''" ng-click="create()" ng-bind="onCompleteButtonMessage"></button>
 </div>

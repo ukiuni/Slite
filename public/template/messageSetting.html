@@ -7,6 +7,12 @@
 			<div style="font-size: xx-small;" align="right" ng-bind="messages.messages.strongWordsDescription"></div>
 		</div>
 	</div>
+	<div class="row">
+		<div class="col-xs-12">
+			<div style="font-size: xx-small;" align="left" ng-bind="messages.messages.webhookConnect"></div>
+			<button class="btn btn-default" style="width: 100%" ng-bind="messages.messages.forGitlab" ng-click="createWebhookUrl('gitlab')"></button>
+		</div>
+	</div>
 </div>
 <div class="modal-footer">
 	<button type="button" id="closeButton" class="btn btn-default" ng-click="$dismiss()" ng-bind="messages.cancel"></button>
