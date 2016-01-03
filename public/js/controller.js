@@ -2281,15 +2281,24 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 			});
 		} else if ("join" == event.type || "hello" == event.type) {
 			var joinedAccount = event.account;
+			var exist = false;
 			if (eventTargetChannel.Group.Accounts) {
 				eventTargetChannel.Group.Accounts.forEach(function(account) {
 					if (account.id == joinedAccount.id) {
 						$scope["$apply"](function() {
 							account.now = true;
+							exist = true;
 						});
 					}
 				});
+				if(!exist){
+					$scope["$apply"](function() {
+						eventTargetChannel.Group.Accounts.push(joinedAccount);
+						joinedAccount.now = true;
+					});
+				}
 			}
+			
 			if ("join" == event.type) {
 				$rootScope.sendHello({
 					channelAccessKey : eventTargetChannel.accessKey
