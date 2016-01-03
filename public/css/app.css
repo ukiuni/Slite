@@ -201,11 +201,13 @@ select {
 		background-color: #F6F6F6;
 		border-radius: 5px;
 	}
-	.messageSettingButton {
+	.toolAreaItem {
 		width: 30px;
 		height: 30px;
 		margin: 5px;
 		padding: 3px;
+	}
+	.messageSettingButton {
 		border-radius: 5px;
 		background-color: #88A;
 		transition: all 0.3s ease;
