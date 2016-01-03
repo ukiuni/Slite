@@ -1,9 +1,8 @@
-<%- @author %> <%- @event %> to [<%- @repositoryName %>](<%- @url %>)
+> ** <%- @author %> <%- @event %> to [<%- @repositoryName %>](<%- @url %>) **
 <% if @title || @description : %>
 ```
-<%- @title %>
+Title: <%- @title %>
 
-<%- @description %>
-
+Description: <%- @description %>
 ```
 <% end %>
