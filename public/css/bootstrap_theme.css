@@ -51,8 +51,8 @@
 	background-color: #0088cc;
 }
 
-.popover {
-	max-width: 100%;
+body > .popover {
+	max-width: 50%;
 	height: 80%;
 	margin-left: -150px;
 }
