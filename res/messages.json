@@ -69,7 +69,8 @@
 		"channels" : {
 			"new" : "New channel",
 			"name" : "Name",
-			"connectedToGitlab": "Connected to Gitlab"
+			"connectedToGitlab": "Connected to Gitlab",
+			"connectedToGithub": "Connected to Github"
 		},
 		"message" : "message",
 		"messages" : {
@@ -77,7 +78,8 @@
 			"strongWord" : "Strong words",
 			"strongWordsDescription" : "Joins with comma",
 			"webhookConnect" : "Generate webhook URL",
-			"forGitlab" : "For Gitlab"
+			"forGitlab" : "For Gitlab",
+			"forGithub" : "For Github"
 		},
 		"sendWithEnter" : "Send on enter",
 		"create" : "Create",
@@ -204,7 +206,8 @@
 		"channels" : {
 			"new" : "新規チャネル",
 			"name" : "チャネル名",
-			"connectedToGitlab": "Gitlabに接続されています"
+			"connectedToGitlab": "Gitlabに接続されています",
+			"connectedToGithub": "Githubに接続されています"
 		},
 		"message" : "メッセージ",
 		"messages" : {
@@ -212,7 +215,8 @@
 			"strongWords" : "強調する文字",
 			"strongWordsDescription" : "カンマ区切り",
 			"webhookConnect" : "WebHook URL 生成",
-			"forGitlab" : "Gitlab用"
+			"forGitlab" : "Gitlab用",
+			"forGithub" : "Github用"
 		},
 		"sendWithEnter" : "Enterで送信",
 		"create" : "作成",

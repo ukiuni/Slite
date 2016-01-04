@@ -2124,6 +2124,8 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 			channel.Bots.forEach(function(bot) {
 				if (1 == bot.type) {
 					channel.hasGitlabBot = true;
+				} else if (2 == bot.type) {
+					channel.hasGithubBot = true;
 				}
 			})
 			channel.unreadCount = 0;
@@ -2454,7 +2456,11 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 					channelAccessKey : $scope.channel.accessKey,
 					type : complete.value,
 				}).then(function(resp) {
-					$scope.channel.hasGitlabBot = true;
+					if ("gitlab" == complete.value) {
+						$scope.channel.hasGitlabBot = true;
+					} else if ("github" == complete.value) {
+						$scope.channel.hasGithubBot = true;
+					}
 					$scope.showWebhookDialog(resp.data.key);
 				})["catch"](function(response) {
 					$rootScope.showErrorWithStatus(response.status);

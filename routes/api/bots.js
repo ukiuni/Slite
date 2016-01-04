@@ -19,14 +19,22 @@ router.post('/', function(req, res) {
 		loadedChannel = result.loadedChannel;
 		return Random.createRandomBase62();
 	}).then(function(random) {
-		var type = (("gitlab" == req.body.type) ? Bot.TYPE_GITLAB : 0);
+		if ("gitlab" == req.body.type) {
+			var type = Bot.TYPE_GITLAB;
+			var name = "gitlab";
+			var iconUrl = "/images/gitlab.png";
+		} else {
+			var type = Bot.TYPE_GITHUB;
+			var name = "github";
+			var iconUrl = "/images/github.png";
+		}
 		return Bot.create({
 			key : random,
 			type : type,
 			ownerId : loadedAccount.id,
 			ChannelId : loadedChannel.id,
-			name : "gitlab",
-			iconUrl : "/images/gitlab.png"
+			name : name,
+			iconUrl : iconUrl
 		})
 	}).then(function(bot) {
 		res.status(201).json(bot);
@@ -48,7 +56,15 @@ router.post('/events/webhook/:accessKey', function(req, res) {
 		if (!bot) {
 			throw ERROR_NOTFOUND;
 		}
-		return bot.handleGitrabRequest(req.body);
+		var githubHeader = req.header("X-Github-Event");
+		var type;
+		if (githubHeader) {
+			type = Bot.TYPE_GITHAB;
+			req.body.event = githubHeader;
+		} else {
+			type = Bot.TYPE_GITLAB;
+		}
+		return bot.handleWebhookRequest(type, req.body);
 	}).then(function() {
 		res.status(200).end();
 	})["catch"](function(error) {
