@@ -10,11 +10,20 @@
 	<div class="row">
 		<div class="col-xs-12">
 			<div style="font-size: xx-small;" align="left" ng-bind="messages.messages.webhookConnect"></div>
-			<button class="btn btn-default" style="width: 100%" ng-bind="messages.messages.forGitlab" ng-click="createWebhookUrl('gitlab')"></button>
+			<div class="col-xs-6">
+				<button class="btn btn-default" style="width: 100%" ng-click="createWebhookUrl('gitlab')">
+					<img src="/images/gitlab_bw.png" style="height: 15px; margin-top: -3px; margin-left: 10px;"> <span ng-bind="messages.messages.forGitlab"></span>
+				</button>
+			</div>
+			<div class="col-xs-6">
+				<button class="btn btn-default" style="width: 100%" ng-click="createWebhookUrl('github')">
+					<img src="/images/github_bw.png" style="height: 15px; margin-top: -3px; margin-left: 10px"> <span ng-bind="messages.messages.forGithub"></span>
+				</button>
+			</div>
 		</div>
 	</div>
 </div>
-<div class="modal-footer">
+<div class="modal-footer" style="margin-top: 20px">
 	<button type="button" id="closeButton" class="btn btn-default" ng-click="$dismiss()" ng-bind="messages.cancel"></button>
 	<button type="button" id="saveButton" class="btn btn-primary" ng-click="save()" ng-bind="messages.save"></button>
 </div>

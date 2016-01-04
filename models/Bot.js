@@ -14,24 +14,47 @@ module.exports = function(sequelize, DataTypes) {
 		paranoid : true,
 		classMethods : {},
 		instanceMethods : {
-			handleGitrabRequest : function(json) {
-				var event = json.object_kind;
-				var author = json.user_name;
-				var url = json.repository.homepage;
-				var repositoryName = json.repository.name;
-				var message = json.message;
+			handleWebhookRequest : function(type, json) {
+				if (Bot.TYPE_GITLAB == type) {
+					var event = json.object_kind;
+					var author = json.user_name;
+					var url = json.repository.homepage;
+					var repositoryName = json.repository.name;
+					var message = json.message;
+					if (json.object_attributes) {
+						var title = json.object_attributes.title;
+						var description = json.object_attributes.description;
+						url = json.object_attributes.url;
+					}
+				} else {
+					var event = json.event;
+					var author;
+					if (json.pusher) {
+						author = json.pusher.name;
+					} else if (json.sender) {
+						author = json.sender
+					}
+					var repositoryName = json.repository.name;
+					var message = json.message;
+					if (json.issue) {
+						url = json.issue.url;
+					} else if (json.compare) {
+						url = json.compare;
+					} else if (json.compare) {
+						url = json.compare;
+					} else {
+						url = json.repository.url
+					}
+				}
 				var messageBodyData = {
 					event : event,
 					author : author,
 					repositoryName : repositoryName,
 					url : url,
-					message : message
+					message : message,
+					title : title,
+					description : description
 				};
-				if (json.object_attributes) {
-					messageBodyData.title = json.object_attributes.title;
-					messageBodyData.description = json.object_attributes.description;
-					messageBodyData.url = json.object_attributes.url;
-				}
 				var messageBody = renderer.render("gitlabWebhookMessage.ect", messageBodyData);
 				var self = this;
 				Random.createRandomBase62().then(function(random) {
@@ -87,5 +110,6 @@ module.exports = function(sequelize, DataTypes) {
 		});
 	}
 	Bot.TYPE_GITLAB = 1;
+	Bot.TYPE_GITHUB = 2;
 	return Bot;
 };
