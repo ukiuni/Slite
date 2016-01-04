@@ -1496,7 +1496,7 @@ var editCalendarAlbumController = [ "$rootScope", "$scope", "$resource", "$locat
 			if ($scope.selectingDate) {
 				var result = $scope.selectingDate.match(dateLegex);
 				if (result) {
-					$location.path("/content/" + $scope.editingContent.contentKey + "/" + result[1] + "" + result[2])
+					$location.path("/editCalendarAlbum/" + $scope.editingContent.contentKey + "/" + result[1] + "" + result[2])
 				}
 			}
 		}
