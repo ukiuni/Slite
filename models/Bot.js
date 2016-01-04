@@ -32,7 +32,9 @@ module.exports = function(sequelize, DataTypes) {
 					if (json.pusher) {
 						author = json.pusher.name;
 					} else if (json.sender) {
-						author = json.sender
+						author = json.sender.login
+					} else if (json.pusher) {
+						author = json.pusher.name
 					}
 					var repositoryName = json.repository.name;
 					var message = json.message;
@@ -40,8 +42,8 @@ module.exports = function(sequelize, DataTypes) {
 						url = json.issue.url;
 					} else if (json.compare) {
 						url = json.compare;
-					} else if (json.compare) {
-						url = json.compare;
+					} else if (json.pull_request) {
+						url = json.pull_request.url;
 					} else {
 						url = json.repository.url
 					}
