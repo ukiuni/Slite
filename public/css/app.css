@@ -257,7 +257,7 @@ select {
 	opacity: 0.5;
 }
 
-.messageBody {
+.messageBody > p {
 	white-space: pre;
 	white-space: pre-wrap;
 	white-space: pre-line;
