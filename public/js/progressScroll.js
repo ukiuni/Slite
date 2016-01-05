@@ -1,7 +1,7 @@
 $(function() {
-	var nav = $('#progressArea'), offset = nav.offset();
+	var nav = $('#progressArea');
 	$(window).scroll(function() {
-		if ($(window).scrollTop() >= offset.top - 15) {
+		if ($(window).scrollTop() >= 35) {
 			nav.addClass('progressFixed');
 			nav.removeClass('progressAbsolute');
 		} else {
