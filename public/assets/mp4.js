@@ -490,8 +490,10 @@ MP4Tag.parse = function(handle, callback) {
           // decorate M4A tags
           tags.year = (new Date(Date.parse(tags.date)))
             .getUTCFullYear()
-
-          tags.track = tags.tracknumber.join("/");
+          
+          if(tags.tracknumber){
+            tags.track = tags.tracknumber.join("/");
+          }
           callback(null, tags);
         } else {
           callback(err);
