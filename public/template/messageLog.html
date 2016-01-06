@@ -1,0 +1,31 @@
+<div class="row">
+	<div class="col-xs-10 col-xs-offset-1">
+		<div class="row">
+			<div class="col-xs-6">
+				<a ng-href="{{'/group/'+channel.Group.accessKey+'/channel/'+channel.accessKey+'/messages' }}"><span style="font-size: 20px" ng-bind="channel.name"></span></a> / <a ng-href="{{'/group/'+channel.Group.accessKey}}"><span id="groupName" ng-bind="channel.Group.name" class="ellipsis" style="font-size: 12px"></span></a>
+			</div>
+			<div class="col-xs-6">
+				<span ng-bind="from | date :'yyyy/MM/dd HH:mm:ss'"></span> - <span ng-bind="to | date :'yyyy/MM/dd HH:mm:ss'"></span>
+			</div>
+		</div>
+		<div class="row" style="margin-top: 10px">
+			<div class="col-xs-12 messageRow" ng-repeat="message in messageLog track by message.id" ng-class-odd="'repeatOdd'">
+				<div class="row">
+					<div class="col-xs-1">
+						<img class="accountIcon" style="height: 40px" ng-src="{{message.Bot.iconUrl || message.owner.iconUrl}}" />
+					</div>
+					<div class="col-xs-10">
+						<div class="row" style="color: #999; font-size: 10px; height: 20px">
+							<div class="col-xs-3 ellipsis" title="{{message.Bot.name || message.owner.name}}" alt="{{message.Bot.name || message.owner.name}}" ng-bind="message.Bot.name || message.owner.name"></div>
+							<div class="ellipsis" ng-class="{'col-xs-5':message.Bot, 'col-xs-9':!message.Bot}" ng-bind="message.createdAt | date :'yyyy/MM/dd HH:mm:ss'"></div>
+							<div class="ellipsis col-xs-4" ng-show="message.Bot" ng-bind="'owner ' + message.owner.name"></div>
+						</div>
+						<div class="row">
+							<div class="col-xs-12 messageBody" marked="message.body"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

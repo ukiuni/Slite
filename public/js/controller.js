@@ -143,6 +143,10 @@ myapp.config([ "$locationProvider", "$httpProvider", "$routeProvider", "markedPr
 		templateUrl : "template/message.html",
 		controller : "messageController"
 	});
+	$routeProvider.when("/messageLog/:groupAccessKey/:channelAccessKey/:from/:to", {
+		templateUrl : "template/messageLog.html",
+		controller : "messageLogController"
+	});
 	$routeProvider.when("/invitation", {
 		templateUrl : "template/invitation.html",
 		controller : "invitationController"
@@ -1997,6 +2001,30 @@ var groupController = [ "$rootScope", "$scope", "$resource", "$location", "$http
 	}
 	$scope.inviteUserAuthorization = $rootScope.groupAuthorizations[0];
 } ];
+var messageLogController = [ "$rootScope", "$scope", "$resource", "$location", "$http", "$routeParams", "$uibModal", function($rootScope, $scope, $resource, $location, $http, $routeParams, $modal) {
+	$scope.from = $routeParams.from;
+	$scope.to = $routeParams.to;
+	$resource("/api/groups/:groupAccessKey/channels/:channelAccessKey/messages/queryTimeline").query({
+		groupAccessKey : $routeParams.groupAccessKey,
+		channelAccessKey : $routeParams.channelAccessKey,
+		startTime : $scope.from,
+		endTime : $scope.to,
+		sessionKey : $rootScope.getSessionKey()
+	}, function(messages) {
+		$scope.messageLog = messages;
+	}, function(error) {
+		$rootScope.showErrorWithStatus(error.status);
+	});
+	$resource("/api/groups/:groupAccessKey/:channelAccessKey").get({
+		groupAccessKey : $routeParams.groupAccessKey,
+		channelAccessKey : $routeParams.channelAccessKey,
+		sessionKey : $rootScope.getSessionKey()
+	}, function(channel) {
+		$scope.channel = channel;
+	}, function(error) {
+		$rootScope.showErrorWithStatus(error.status);
+	});
+} ];
 var editGroupController = [ "$rootScope", "$scope", "$resource", "$location", "$http", "$routeParams", "$uibModal", function($rootScope, $scope, $resource, $location, $http, $routeParams, $modal) {
 	if (!$routeParams.accessKey || $routeParams.accessKey == 0) {
 		$scope.group = {};
@@ -2141,6 +2169,7 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 			$rootScope.searchWord = null;
 			$rootScope.searchTimeline = null;
 			$rootScope.timelinedMessages = null;
+			$rootScope.timelineLogUrl = null;
 			delete $rootScope.nowInChannel;
 		});
 		selectChannel($routeParams.channelAccessKey || $scope.joiningChannels[0].accessKey);
@@ -2397,6 +2426,7 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 		var targetTime = new Date(message.createdAt).getTime();
 		var startTime = new Date(targetTime - (parseInt($rootScope.time.before) * 1000)).getTime();
 		var endTime = new Date(targetTime + (parseInt($rootScope.time.after) * 1000)).getTime();
+		$rootScope.timelineLogUrl = $location.protocol() + "://" + location.host + "/messageLog/" + $scope.channel.Group.accessKey + "/" + $scope.channel.accessKey + "/" + startTime + "/" + endTime;
 		$rootScope.timelinedMessages = [];
 		$rootScope.timelinedMessages.push({
 			body : $rootScope.messages.searching
@@ -2559,5 +2589,6 @@ myapp.controller('groupsController', groupsController);
 myapp.controller('groupController', groupController);
 myapp.controller('editGroupController', editGroupController);
 myapp.controller('messageController', messageController);
+myapp.controller('messageLogController', messageLogController);
 myapp.controller('accountController', accountController);
 myapp.controller('homeController', homeController);
