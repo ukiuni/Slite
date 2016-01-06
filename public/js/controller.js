@@ -2028,7 +2028,7 @@ var messageLogController = [ "$rootScope", "$scope", "$resource", "$location", "
 var editGroupController = [ "$rootScope", "$scope", "$resource", "$location", "$http", "$routeParams", "$uibModal", function($rootScope, $scope, $resource, $location, $http, $routeParams, $modal) {
 	if (!$routeParams.accessKey || $routeParams.accessKey == 0) {
 		$scope.group = {};
-		$scope.group.visibility = $rootScope.groupVisibilities[0];
+		$scope.group.visibility = $rootScope.groupVisibilities[1];
 	} else {
 		$resource('/api/groups/:accessKey').get({
 			accessKey : $routeParams.accessKey,
