@@ -911,9 +911,8 @@ Renderer.prototype.link = function(href, title, text, classes) {
   if(classes){
 	out += ' class="' + classes.join(" ") + '"';  
   }
-  if (isElectron) {
-    out += ' onclick="openWithBrowser(\'' + href + '\', event)"';
-  }
+  out += ' onclick="openWithBrowser(\'' + href + '\', event)"';
+  
   out += '>' + text + '</a>';
   return out;
 };
