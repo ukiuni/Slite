@@ -93,9 +93,9 @@
 				</ul>
 				<form class="nav navbar-nav navbar-right navbar-form" ng-show="myAccount && isSearchable">
 					<div class="form-group">
-						<input type="text" class="form-control" style="border-radius: 20px; padding-top: 10px;" placeholder="{{messages.search}}" ng-model="searchWord">
+						<input type="text" class="form-control" style="border-radius: 20px;" placeholder="{{messages.search}}" ng-model="searchWord">
 					</div>
-					<button type="submit" class="btn btn-default" ng-bind="messages.search" style="margin-top: 1px; padding-top: 10px" ng-click="search()" uib-popover-template="'template/messageSearch.html'" popover-placement="bottom" popover-title="{{searchingWord}}" popover-append-to-body="true"></button>
+					<button type="submit" class="btn btn-default" ng-bind="messages.search" style="margin-top: 1px;" ng-click="search()" uib-popover-template="'template/messageSearch.html'" popover-placement="bottom" popover-title="{{searchingWord}}" popover-append-to-body="true"></button>
 				</form>
 
 			</div>
@@ -103,7 +103,8 @@
 		</div>
 	</nav>
 	<div ng-view ng-class="{marginTop10: !noMarginTop }"></div>
-	<uib-progressbar id="progressArea" ng-show="progressing" class="progressAbsolute progress-striped active" value="progress.value" type="progress.type"><b>{{progress.message + progress.value}}%</b></uib-progressbar>
+	<uib-progressbar id="progressArea" ng-show="progressing" class="progressAbsolute progress-striped active" value="progress.value" type="progress.type">
+	<b>{{progress.message + progress.value}}%</b></uib-progressbar>
 </body>
 </html>
 
