@@ -251,6 +251,13 @@ myapp.run([ "$rootScope", "$location", "$resource", "$cookies", "Upload", functi
 	$rootScope["goto"] = function(url) {
 		$location.path(url);
 	};
+	$rootScope.gotoHomeOrTop = function() {
+		if ($rootScope.myAccount) {
+			$location.path("/home");
+		} else {
+			$location.path("/");
+		}
+	}
 	$rootScope.gotoEditContent = function(content) {
 		if ("calendar" == content.type) {
 			$rootScope["goto"]("/editCalendarAlbum/" + content.accessKey);
