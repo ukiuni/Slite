@@ -2481,7 +2481,7 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 					key : "strongWords",
 					value : complete.value
 				}).then(function() {
-					$rootScope.myAccount.config.strongWords = strongWords;
+					$rootScope.myAccount.config.strongWords = complete.value;
 					strongWordsParsed = parseStrongWords();
 					highlightStrongWords();
 				})["catch"](function(response) {
