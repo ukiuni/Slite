@@ -541,6 +541,46 @@ myapp.run([ "$rootScope", "$location", "$resource", "$cookies", "Upload", functi
 	$rootScope.contentIcon = [];
 	$rootScope.contentIcon["calendar"] = "/images/calendar_icon.png";
 	$rootScope.contentIcon["markdown"] = "/images/article_icon.png";
+	var notifications = []
+	$rootScope.showNotification = function(title, body, param) {
+		if (!param) {
+			param = {};
+		}
+		if (Notification && "granted" != Notification.permission) {
+			Notification.requestPermission(function(status) {
+				if (Notification.permission !== status) {
+					Notification.permission = status;
+				}
+			});
+		}
+		var notification = new Notification(title, {
+			body : body,
+			iconUrl : "images/application_icon.png",
+			icon : "images/application_icon.png"
+		});
+		notification.onclick = function() {
+			$("#messageInput").focus();
+			window.focus();
+			notification.close();
+		};
+		notification.stay = param.stay;
+		if (!notification.stay) {
+			notifications.push(notification);
+			setTimeout(function() {
+				notification.close();
+				notifications.splice(notifications.indexOf(notification), 1);
+			}, 3000);
+		}
+		if (notifications.length > 3) {
+			for ( var i in notifications) {
+				notifications[i].close();
+				notifications.splice(i, 1);
+				if (notifications.length <= 3) {
+					break;
+				}
+			}
+		}
+	}
 	$rootScope.openWithBrowser = openWithBrowser;
 } ]);
 var openWithBrowser = function(url, event) {
@@ -2215,7 +2255,6 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 	}
 	var jqScrollPane = $("#messageScrollPane");
 	var jqScrollInner = $("#messageScrollInner");
-	var notification;
 	var strongWordsParsed;
 	var parseStrongWords = function() {
 		var strongWordArray
@@ -2287,41 +2326,29 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 				if (!$rootScope.myAccount) {
 					return;
 				}
-				highlightStrongWords(function() {
-					strongWordsParsed.forEach(function(word) {
-						if (0 <= message.body.indexOf(word)) {
-							if (eventTargetChannel.accessKey != $scope.channel.accessKey) {
-								$scope.$apply(function() {
-									eventTargetChannel.notify = true;
-								});
-							}
-							if (document.hasFocus()) {
-								return;
-							}
-							if (Notification && "granted" != Notification.permission) {
-								Notification.requestPermission(function(status) {
-									if (Notification.permission !== status) {
-										Notification.permission = status;
-									}
-								});
-							}
-							if (notification) {
-								notification.close();
-							}
-							notification = new Notification(message.owner.name + "@" + eventTargetChannel.name, {
-								body : message.body,
-								iconUrl : "images/application_icon.png",
-								icon : "images/application_icon.png"
-							});
-							notification.onclick = function() {
-								$("#messageInput").focus();
-								window.focus();
-								notification.close();
-							};
-							bounce();
-						}
-					});
+				var hasStrongWord = false;
+				strongWordsParsed.forEach(function(word) {
+					if (0 <= message.body.indexOf(word)) {
+						hasStrongWord = true;
+					}
 				});
+				if (hasStrongWord) {
+					if (eventTargetChannel.accessKey != $scope.channel.accessKey) {
+						$scope.$apply(function() {
+							eventTargetChannel.notify = true;
+						});
+					}
+					if (document.hasFocus()) {
+						return;
+					}
+					bounce();
+				}
+				if (!document.hasFocus() && (!$rootScope.myAccount.config.notification || "all" == $rootScope.myAccount.config.notification || (hasStrongWord && "strongWordOnly" == $rootScope.myAccount.config.notification))) {
+					$rootScope.showNotification(message.owner.name + "@" + eventTargetChannel.name, message.body, {
+						stay : hasStrongWord
+					});
+				}
+				highlightStrongWords();
 			});
 		} else if ("join" == event.type || "hello" == event.type) {
 			var joinedAccount = event.account;
@@ -2456,7 +2483,8 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 			$dialogScope.save = function() {
 				$modalInstance.close({
 					type : "strongWords",
-					value : $dialogScope.strongWords
+					value : $dialogScope.strongWords,
+					notification : $dialogScope.notificationSetting
 				});
 			};
 			$dialogScope.createWebhookUrl = function(target) {
@@ -2469,6 +2497,10 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 			$dialogScope.strongWords = $rootScope.myAccount.config.strongWords;
 			if (!$dialogScope.strongWords) {
 				$dialogScope.strongWords = $rootScope.myAccount.name;
+			}
+			$dialogScope.notificationSetting = $rootScope.myAccount.config.notification;
+			if (!$dialogScope.notificationSetting) {
+				$dialogScope.notificationSetting = "all";
 			}
 		} ];
 		var modalInstance = $modal.open({
@@ -2500,6 +2532,17 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 						$scope.channel.hasGithubBot = true;
 					}
 					$scope.showWebhookDialog(resp.data.key);
+				})["catch"](function(response) {
+					$rootScope.showErrorWithStatus(response.status);
+				});
+			}
+			if (complete.notification && complete.notification != $rootScope.myAccount.config.notification) {
+				put($http, '/api/account/config', {
+					sessionKey : $rootScope.getSessionKey(),
+					key : "notification",
+					value : complete.notification
+				}).then(function() {
+					$rootScope.myAccount.config.notification = complete.notification;
 				})["catch"](function(response) {
 					$rootScope.showErrorWithStatus(response.status);
 				});
