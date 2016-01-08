@@ -87,6 +87,18 @@
 				"all" : "All"
 			}
 		},
+		"markdown" : "Markdown",
+		"markdowns" : {
+			"info" : "You can use markdown to message",
+			"header" : "Starts line with #, to be header. Space after # is required",
+			"list" : "Starts line with */-/+ or 1, to be list。 After space is required",
+			"link" : "[alt](URL) is to be link, Simply written URL to be link too.",
+			"image" : "![alt](URL) is to be image",
+			"table" : "Sample below is to be table",
+			"code" : "Surround ``` to be code block",
+			"blockquote" : "Starts line with >, to be block. Space apfer > is required",
+			"hr" : "--- to be Horizonal line。 empty line is requires before."
+		},
 		"sendWithEnter" : "Send on enter",
 		"create" : "Create",
 		"send" : "send",
@@ -229,6 +241,18 @@
 				"strongWordOnly" : "強調文字のみ",
 				"all" : "すべて"
 			}
+		},
+		"markdown" : "Markdown",
+		"markdowns" : {
+			"info" : "Markdownを使うことができます。",
+			"header" : "#から行を始めるとヘッダになります。#の後にはスペースが必要です。",
+			"list" : "*/-/+や、1. から行を始めるとリストになります。後にはスペースが必要です。",
+			"link" : "[リンク名](URL)の形式でリンクになります。URL単独でもリンク化されます。",
+			"image" : "![画像タイトル](URL)の形式で画像が表示されます。",
+			"table" : "下のように|でくくるとテーブルになります。",
+			"code" : "行の前後を```で囲みます。",
+			"blockquote" : ">から行を始めるとブロックになります。>の後にはスペースが必要です。",
+			"hr" : "---を入れると、区切り線をひくことができます。前行に改行が必要です。"
 		},
 		"sendWithEnter" : "Enterで送信",
 		"create" : "作成",

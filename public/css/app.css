@@ -263,6 +263,30 @@ select {
 	padding: 0 3px;
 }
 
+.helpSample table {
+	border: 2px solid #DDD;
+}
+
+.helpSample table td {
+	border: 2px solid #DDD;
+	padding: 0 3px;
+}
+
+.helpSample table th {
+	border: 2px solid #DDD;
+	padding: 0 3px;
+}
+
+#messageHelp {
+	opacity: 0.5;
+	transition: all 0.3s ease;
+}
+
+#messageHelp:HOVER {
+	opacity: 1.0;
+	cursor: pointer;
+}
+
 .messageAccountAreaNow {
 	opacity: 1.0;
 }
