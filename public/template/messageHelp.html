@@ -1,0 +1,53 @@
+<div class="modal-body" id="confirmDialog">
+	<div class="row">
+		<div class="col-xs-12">
+			<H4 ng-bind="messages.markdown"></H4>
+			<div style="font-size: xx-small;" ng-bind="messages.markdowns.info"></div>
+			<hr />
+			<div class="row helpOneColmn">
+				<h5 class="col-xs-12 helpOneTitle">Lists</h5>
+				<div class="col-xs-12 helpOneDescription" ng-bind="messages.markdowns.list"></div>
+				<div class="col-xs-12" marked='"* list1\n* list2\n\n1. number list1\n1. number list2"'></div>
+			</div>
+			<div class="row helpOneColmn">
+				<h5 class="col-xs-12 helpOneTitle">Links</h5>
+				<div class="col-xs-12 helpOneDescription" ng-bind="messages.markdowns.link"></div>
+				<div class="col-xs-12" marked='"[URL](https://slite.ukiuni.com)"'></div>
+			</div>
+			<div class="row helpOneColmn">
+				<h5 class="col-xs-12 helpOneTitle">Images</h5>
+				<div class="col-xs-12 helpOneDescription" ng-bind="messages.markdowns.image"></div>
+				<div class="col-xs-12" marked='"![ImageName](https://slite.ukiuni.com/images/title.png)"'></div>
+			</div>
+			<div class="row helpOneColmn">
+				<h5 class="col-xs-12 helpOneTitle">Headers</h5>
+				<div class="col-xs-12 helpOneDescription" ng-bind="messages.markdowns.header"></div>
+				<div class="col-xs-12" marked='"# H1\n## H2"'></div>
+			</div>
+			<div class="row helpOneColmn">
+				<h5 class="col-xs-12 helpOneTitle">Code</h5>
+				<div class="col-xs-12 helpOneDescription" ng-bind="messages.markdowns.code"></div>
+				<div class="col-xs-12" marked='"```\nvar test=function(){\n  console.log(\"code\");\n}\n```"'></div>
+			</div>
+			<div class="row helpOneColmn">
+				<h5 class="col-xs-12 helpOneTitle">Tables</h5>
+				<div class="col-xs-12 helpOneDescription" ng-bind="messages.markdowns.table"></div>
+				<div class="col-xs-12" marked='"```\n| Table header 1 | Table header 2 |\n| ----- |\n| Table column 1 | Table column 2 |\n| Table column 3 | Table column 4 |\n```"'></div>
+				<div class="col-xs-12 helpSample" marked='"| Table header 1 | Table header 2 |\n| ----- |\n| Table column 1 | Table column 2 |\n| Table column 3 | Table column 4 |"'></div>
+			</div>
+			<div class="row helpOneColmn">
+				<h5 class="col-xs-12 helpOneTitle">Blockquotes</h5>
+				<div class="col-xs-12 helpOneDescription" ng-bind="messages.markdowns.blockquote"></div>
+				<div class="col-xs-12" marked='"> Blockquotes"'></div>
+			</div>
+			<div class="row helpOneColmn">
+				<h5 class="col-xs-12 helpOneTitle">Horizontal Rule</h5>
+				<div class="col-xs-12 helpOneDescription" ng-bind="messages.markdowns.hr"></div>
+				<div class="col-xs-12" marked='"Horizon\n\n ---"'></div>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="modal-footer" style="margin-top: 20px">
+	<button type="button" id="closeButton" class="btn btn-default" ng-click="$dismiss()" ng-bind="messages.close"></button>
+</div>
