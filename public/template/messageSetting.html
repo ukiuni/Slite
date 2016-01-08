@@ -9,6 +9,14 @@
 	</div>
 	<div class="row">
 		<div class="col-xs-12">
+			<div style="font-size: xx-small;" align="left" ng-bind="messages.messages.notification"></div>
+			<div class="btn-group" style="width: 100%; padding: 0 15px;">
+				<label class="btn btn-default col-xs-4" ng-model="notificationSetting" uib-btn-radio="'none'" ng-bind="messages.messages.notifications.none"></label> <label class="btn btn-default col-xs-4" ng-model="notificationSetting" uib-btn-radio="'strongWordOnly'" ng-bind="messages.messages.notifications.strongWordOnly"></label> <label class="btn btn-default col-xs-4" ng-model="notificationSetting" uib-btn-radio="'all'" ng-bind="messages.messages.notifications.all"></label>
+			</div>
+		</div>
+	</div>
+	<div class="row" style="margin-top: 10px">
+		<div class="col-xs-12">
 			<div style="font-size: xx-small;" align="left" ng-bind="messages.messages.webhookConnect"></div>
 			<div class="col-xs-6">
 				<button class="btn btn-default" style="width: 100%" ng-click="createWebhookUrl('gitlab')">

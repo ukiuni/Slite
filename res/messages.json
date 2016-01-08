@@ -79,7 +79,13 @@
 			"strongWordsDescription" : "Joins with comma",
 			"webhookConnect" : "Generate webhook URL",
 			"forGitlab" : "For Gitlab",
-			"forGithub" : "For Github"
+			"forGithub" : "For Github",
+			"notification" : "Notification",
+			"notifications" : {
+				"none" : "none",
+				"strongWordOnly" : "Strong word only",
+				"all" : "All"
+			}
 		},
 		"sendWithEnter" : "Send on enter",
 		"create" : "Create",
@@ -216,7 +222,13 @@
 			"strongWordsDescription" : "カンマ区切り",
 			"webhookConnect" : "WebHook URL 生成",
 			"forGitlab" : "Gitlab用",
-			"forGithub" : "Github用"
+			"forGithub" : "Github用",
+			"notification" : "通知",
+			"notifications" : {
+				"none" : "なし",
+				"strongWordOnly" : "強調文字のみ",
+				"all" : "すべて"
+			}
 		},
 		"sendWithEnter" : "Enterで送信",
 		"create" : "作成",
