@@ -411,7 +411,7 @@ router.post('/sendResetpasswordMail', function(req, res) {
 		};
 		return SendMail.send({
 			from : serverConfig.admin.mail,
-			to : toMailAddress,
+			to : req.body.mail,
 			subject : 'Welcome to ' + serverConfig.app.name,
 			body : renderer.render('resetPasswordMailTemplate.ect', dataForTemplate)
 		});
