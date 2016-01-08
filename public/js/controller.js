@@ -2566,6 +2566,14 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 		}, function() {
 		});
 	}
+	$scope.openHelp = function() {
+		var dialogController = [ "$scope", "$uibModalInstance", function($dialogScope, $modalInstance) {
+		} ];
+		var modalInstance = $modal.open({
+			templateUrl : 'template/messageHelp.html',
+			controller : dialogController
+		});
+	}
 } ];
 var accountController = [ "$rootScope", "$scope", "$resource", "$location", "$http", "$uibModal", "$routeParams", function($rootScope, $scope, $resource, $location, $http, $modal, $routeParams) {
 	var id = $routeParams.id;

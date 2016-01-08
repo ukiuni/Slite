@@ -39,9 +39,7 @@
 				</div>
 				<div id="messageControllArea" class="row hidden-xs">
 					<div class="col-xs-12" style="height: 100%" align="right">
-						<img class="toolAreaItem" ng-show="channel.hasGitlabBot" src="images/gitlab_bw.png" alt="{{messages.channels.connectedToGitlab}}" title="{{messages.channels.connectedToGitlab}}"></img>
-						<img class="toolAreaItem" ng-show="channel.hasGithubBot" src="images/github_bw.png" alt="{{messages.channels.connectedToGithub}}" title="{{messages.channels.connectedToGithub}}"></img>
-						<img class="toolAreaItem messageSettingButton" src="images/setting_icon.png" ng-click="showSettingDialog()" alt="{{messages.menu.setting}}" title="{{messages.menu.setting}}"></img>
+						<img class="toolAreaItem" ng-show="channel.hasGitlabBot" src="images/gitlab_bw.png" alt="{{messages.channels.connectedToGitlab}}" title="{{messages.channels.connectedToGitlab}}"></img> <img class="toolAreaItem" ng-show="channel.hasGithubBot" src="images/github_bw.png" alt="{{messages.channels.connectedToGithub}}" title="{{messages.channels.connectedToGithub}}"></img> <img class="toolAreaItem messageSettingButton" src="images/setting_icon.png" ng-click="showSettingDialog()" alt="{{messages.menu.setting}}" title="{{messages.menu.setting}}"></img>
 					</div>
 				</div>
 			</div>
@@ -96,6 +94,7 @@
 								</label>
 							</div>
 							<button type="submit" class="btn btn-default" ng-disabled="'' == text" ng-click="sendMessage()" ng-bind="messages.send"></button>
+							<span id="messageHelp" class="glyphicon glyphicon-question-sign" ng-click="openHelp()" style="margin-left: 10px"></span>
 						</div>
 						<br style="clear: both;" />
 					</div>
