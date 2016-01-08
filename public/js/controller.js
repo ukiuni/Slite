@@ -541,6 +541,7 @@ myapp.run([ "$rootScope", "$location", "$resource", "$cookies", "Upload", functi
 	$rootScope.contentIcon = [];
 	$rootScope.contentIcon["calendar"] = "/images/calendar_icon.png";
 	$rootScope.contentIcon["markdown"] = "/images/article_icon.png";
+	$rootScope.openWithBrowser = openWithBrowser;
 } ]);
 var openWithBrowser = function(url, event) {
 	if (isElectron) {
