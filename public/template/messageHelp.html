@@ -7,21 +7,31 @@
 			<div class="row helpOneColmn">
 				<h5 class="col-xs-12 helpOneTitle">Lists</h5>
 				<div class="col-xs-12 helpOneDescription" ng-bind="messages.markdowns.list"></div>
+				<div class="col-xs-12" marked='"```\n* list1\n* list2\n\n1. number list1\n1. number list2\n```"'></div>
+				<div class="col-xs-12" marked='"* list1\n* list2\n\n1. number list1\n1. number list2"'></div>
+			</div>
+			<div class="row helpOneColmn">
+				<h5 class="col-xs-12 helpOneTitle">Strong</h5>
+				<div class="col-xs-12 helpOneDescription" ng-bind="messages.markdowns.strong"></div>
+				<div class="col-xs-12" marked='"```\n* list1\n* list2\n\n1. number list1\n1. number list2\n```"'></div>
 				<div class="col-xs-12" marked='"* list1\n* list2\n\n1. number list1\n1. number list2"'></div>
 			</div>
 			<div class="row helpOneColmn">
 				<h5 class="col-xs-12 helpOneTitle">Links</h5>
 				<div class="col-xs-12 helpOneDescription" ng-bind="messages.markdowns.link"></div>
+				<div class="col-xs-12" marked='"```\n[URL](https://slite.ukiuni.com)\n```"'></div>
 				<div class="col-xs-12" marked='"[URL](https://slite.ukiuni.com)"'></div>
 			</div>
 			<div class="row helpOneColmn">
 				<h5 class="col-xs-12 helpOneTitle">Images</h5>
 				<div class="col-xs-12 helpOneDescription" ng-bind="messages.markdowns.image"></div>
-				<div class="col-xs-12" marked='"![ImageName](https://slite.ukiuni.com/images/title.png)"'></div>
+				<div class="col-xs-12" marked='"```\n![ImageName](https://slite.ukiuni.com/images/gitlab.png)\n```"'></div>
+				<div class="col-xs-12" marked='"![ImageName](https://slite.ukiuni.com/images/gitlab.png)"'></div>
 			</div>
 			<div class="row helpOneColmn">
 				<h5 class="col-xs-12 helpOneTitle">Headers</h5>
 				<div class="col-xs-12 helpOneDescription" ng-bind="messages.markdowns.header"></div>
+				<div class="col-xs-12" marked='"```\n# H1\n## H2\n```"'></div>
 				<div class="col-xs-12" marked='"# H1\n## H2"'></div>
 			</div>
 			<div class="row helpOneColmn">
@@ -38,11 +48,13 @@
 			<div class="row helpOneColmn">
 				<h5 class="col-xs-12 helpOneTitle">Blockquotes</h5>
 				<div class="col-xs-12 helpOneDescription" ng-bind="messages.markdowns.blockquote"></div>
+				<div class="col-xs-12" marked='"```\n> Blockquotes\n```"'></div>
 				<div class="col-xs-12" marked='"> Blockquotes"'></div>
 			</div>
 			<div class="row helpOneColmn">
 				<h5 class="col-xs-12 helpOneTitle">Horizontal Rule</h5>
 				<div class="col-xs-12 helpOneDescription" ng-bind="messages.markdowns.hr"></div>
+				<div class="col-xs-12" marked='"```\nHorizon\n\n ---\n```"'></div>
 				<div class="col-xs-12" marked='"Horizon\n\n ---"'></div>
 			</div>
 		</div>
