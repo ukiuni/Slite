@@ -174,7 +174,7 @@ myapp.config([ "$locationProvider", "$httpProvider", "$routeProvider", "markedPr
 		controller : "indexController"
 	});
 } ]);
-myapp.run([ "$rootScope", "$location", "$resource", "$cookies", "Upload", function($rootScope, $location, $resource, $cookies, $uploader) {
+myapp.run([ "$rootScope", "$location", "$resource", "$cookies", "$route", "Upload", function($rootScope, $location, $resource, $cookies, $route, $uploader) {
 	$resource('/api/resource/messages').get({
 		lang : ((navigator.languages && navigator.languages[0]) || navigator.browserLanguage || navigator.language || navigator.userLanguage).substr(0, 2)
 	}, function(messages) {
@@ -218,8 +218,21 @@ myapp.run([ "$rootScope", "$location", "$resource", "$cookies", "Upload", functi
 	$rootScope.showError = function(message) {
 		toastr.error(message);
 	}
-	$rootScope.showWarn = function(message) {
-		toastr.warning(message);
+	$rootScope.showWarn = function(message, onClick) {
+		if (onClick) {
+			var timeOutOrg = toastr.options.timeOut;
+			var extendedTimeOutOrg = toastr.options.timeOut;
+			toastr.options.timeOut = 0;
+			toastr.options.extendedTimeOut = 0;
+			toastr.options.closeButton = true;
+		}
+		var toast = toastr.warning(message);
+		if (onClick) {
+			toastr.options.timeOut = timeOutOrg;
+			toastr.options.extendedTimeOut = extendedTimeOutOrg;
+			toastr.options.closeButton = false;
+			toast.click(onClick);
+		}
 	}
 	$rootScope.showToast = function(message) {
 		toastr.info(message);
@@ -369,6 +382,13 @@ myapp.run([ "$rootScope", "$location", "$resource", "$cookies", "Upload", functi
 		return _targetGroupId;
 	}
 	$rootScope.socket = io.connect();
+	$rootScope.socket.on("event", function(data) {
+		if ("systemUpdated" == data.type) {
+			$rootScope.showWarn($rootScope.messages.systemUpdatedReload, function() {
+				$route.reload();
+			});
+		}
+	})
 	var initSocket = function() {
 		channelSocketListeners = new Map();
 		contentSocketListeners = new Map();

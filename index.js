@@ -1,6 +1,7 @@
 var express = require('express');
 var http = require('http');
 var path = require('path');
+var url = require('url');
 var bodyParser = require('body-parser');
 var cookieParser = require('cookie-parser')
 var multer = require('multer');
@@ -23,7 +24,10 @@ app.use(bodyParser.urlencoded({
 	extended : false,
 	limit : '100mb'
 }));
-app.use("/api/bots/events/webhook", bodyParser());//limit parse url for security reason that sequelize where accept object
+app.use("/api/bots/events/webhook", bodyParser());// limit parse url for
+// security reason that
+// sequelize where accept
+// object
 app.use(multer({
 	// storage : multer.memoryStorage()
 	storage : multer.diskStorage({
@@ -52,21 +56,29 @@ db.sequelize.sync().done(function(param) {
 	require('./routes')(app);
 	server.listen(app.get('port'), function() {
 		http.createServer(function(req, res) {
-			res.writeHead(200, {
-				'Content-Type' : 'text/plain'
-			});
-			console.log("====shutdown called...====");
-			res.write('shutdowning.');
-			server.close(function() {
-				console.log("====server closed...====");
-				res.write('.');
-			});
-			setTimeout(function() {
-				res.write('.');
-				res.end('complete\n');
-				console.log("====shutdown====");
-				process.exit();
-			}, 10000);
+			var path = url.parse(req.url, true).pathname;
+			if ("" == path || "/" == path) {
+				res.writeHead(200, {
+					'Content-Type' : 'text/plain'
+				});
+				console.log("====shutdown called...====");
+				res.write('shutdowning.');
+				server.close(function() {
+					console.log("====server closed...====");
+					res.write('.');
+				});
+				setTimeout(function() {
+					res.write('.');
+					res.end('complete\n');
+					console.log("====shutdown====");
+					process.exit();
+				}, 10000);
+			} else if (path == "/updated") {
+				io.emit('event', {
+					"type" : 'systemUpdated'
+				});
+				res.end('update called\n');
+			}
 		}).listen(parseInt(app.get('port')) + 10000, '127.0.0.1', function() {
 			console.log('Slite server listening on port ' + app.get('port') + " and manage port " + (parseInt(app.get('port')) + 10000))
 		});
