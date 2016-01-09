@@ -121,6 +121,7 @@
 		"noResult" : "No result",
 		"createdDate" : "Created date",
 		"hide" : "hide",
+		"systemUpdatedReload" : "Sytem is updated\nClick to reload",
 		"content" : "content",
 		"contents" : {
 			"self" : "content",
@@ -283,6 +284,7 @@
 		"noResult" : "結果なし",
 		"createdDate" : "作成日",
 		"hide" : "非表示",
+		"systemUpdatedReload" : "システムが更新されました。\n反映のためにクリックしてください。",
 		"content" : "投稿",
 		"contents" : {
 			"self" : "自分の投稿",
