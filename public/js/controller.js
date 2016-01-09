@@ -161,9 +161,13 @@ myapp.config([ "$locationProvider", "$httpProvider", "$routeProvider", "markedPr
 	$routeProvider.when("/license", {
 		templateUrl : "template/license.html"
 	});
-	$routeProvider.when("/:page", {
-		templateUrl : "template/indexView.html",
-		controller : "indexController"
+	$routeProvider.when("/contents/:page", {
+		templateUrl : "template/contents.html",
+		controller : "contentsController"
+	});
+	$routeProvider.when("/contents", {
+		templateUrl : "template/contents.html",
+		controller : "contentsController"
 	});
 	$routeProvider.otherwise({
 		templateUrl : "template/indexView.html",
@@ -592,6 +596,12 @@ var openWithBrowser = function(url, event) {
 	event.preventDefault();
 }
 var indexController = [ "$rootScope", "$scope", "$uibModal", "$location", "$http", "$window", "$resource", "$routeParams", function($rootScope, $scope, $modal, $location, $http, $window, $resource, $routeParams) {
+	$rootScope.noMarginTop = true;
+	$rootScope.hideTitle = true;
+	$scope.$on('$destroy', function() {
+		$rootScope.noMarginTop = false;
+		$rootScope.hideTitle = false;
+	});
 	$scope.openCreateAccountDialog = function() {
 		var dialogController = [ "$scope", "$uibModalInstance", function($dialogScope, $modalInstance) {
 			$dialogScope.create = function() {
@@ -648,6 +658,8 @@ var indexController = [ "$rootScope", "$scope", "$uibModal", "$location", "$http
 			});
 		});
 	}
+} ];
+var contentsController = [ "$rootScope", "$scope", "$uibModal", "$location", "$http", "$window", "$resource", "$routeParams", function($rootScope, $scope, $modal, $location, $http, $window, $resource, $routeParams) {
 	$resource("/api/content/").query({
 		page : $routeParams.page
 	}, function(contents) {
@@ -2630,6 +2642,7 @@ var homeController = [ "$rootScope", "$scope", "$resource", "$location", "$http"
 	}
 } ];
 myapp.controller('indexController', indexController);
+myapp.controller('contentsController', contentsController);
 myapp.controller('activationController', activationController);
 myapp.controller('signinController', signinController);
 myapp.controller('invitationController', invitationController);
