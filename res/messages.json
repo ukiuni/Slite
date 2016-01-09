@@ -5,7 +5,14 @@
 		},
 		"app" : {
 			"title" : "Slite",
-			"imageUrl" : "/images/title.png"
+			"imageUrl" : "/images/title.png",
+			"lead" : "Your open source collaboration tool.",
+			"features" : {
+				"group" : "You can create group and set security.\nAccount, Content, and Message can put to group.",
+				"message" : "Message, Chat in other word, do with Markdown. And keeps log and You can search it.",
+				"content" : "You can write Content, in other word Report, with Markdown. You can put Image, video, and any type of file." 
+			},
+			"opensource" : "Slite is open source product.We are waiting your join."
 		},
 		"menu" : {
 			"home" : "Home",
@@ -159,7 +166,14 @@
 		},
 		"app" : {
 			"title" : "Slite",
-			"imageUrl" : "/images/title.png"
+			"imageUrl" : "/images/title.png",
+			"lead" : "あなたのためのオープンソースなコラボレーションツール",
+			"features" : {
+				"group" : "Sliteではグループを作成でき、その中でアカウント管理、コンテンツ管理、メッセージ交換を行うことができます。",
+				"message" : "メッセージは、言い換えるとチャットです。Markdownで記載できるため、動画、画像、リンク、テーブル、色んな手段でコミュニケーションをすることができます。また、メッセージは保存され、検索可能です。",
+				"content" : "Markdownを使ってコンテンツを作成、公開することができます。コンテンツには動画、画像など、様々な形式のファイルを添付することができます。" 
+			},
+			"opensource" : "Sliteはオープンソースで作成されています。ソースはGithabにて管理されています。皆様のご協力をお待ちしております。"
 		},
 		"menu" : {
 			"home" : "Home",
