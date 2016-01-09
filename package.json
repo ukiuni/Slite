@@ -8,7 +8,8 @@
     "test": "./node_modules/nightwatch/bin/nightwatch -t tests/test*.js",
     "start": "node index.js",
     "devMain": "./node_modules/node-dev/bin/node-dev index.js",
-    "migrateDB": "./node_modules/sequelize-cli/bin/sequelize db:migrate"
+    "migrateDB": "./node_modules/sequelize-cli/bin/sequelize db:migrate",
+    "migrateProductionsDB": "./node_modules/sequelize-cli/bin/sequelize db:migrate --env production"
   },
   "author": "ukiuni",
   "license": "Apache-2.0",
