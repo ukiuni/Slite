@@ -460,7 +460,7 @@ router.put('/', function(req, res) {
 				res.status(200).send(account);
 			});
 		}
-		if (req.files.imageFile && req.files.imageFile[0] && req.files.imageFile[0].buffer) {
+		if (req.files.imageFile && req.files.imageFile[0]) {
 			return Random.createRandomBase62().then(function(imageFileKey) {
 				return Storage.store(imageFileKey, req.files.imageFile[0].mimetype, null, req.files.imageFile[0]);
 			}).then(function(url) {
