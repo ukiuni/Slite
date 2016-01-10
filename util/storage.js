@@ -200,14 +200,20 @@ if (serverConfig.dropbox) {
 		store : function(key, contentType, name, file) {
 			return new Promise(function(onFulfilled, onRejected) {
 				if (key.indexOf("/") > 0) {
-					try {
-						fs.mkdirSync(path.join(__dirname, STORAGE_PATH, key.split("/")[0]));
-					} catch (ignored) {
-					}
-					try {
-						fs.mkdirSync(path.join(__dirname, STORAGE_CONTENTTYPE_PATH, key.split("/")[0]));
-					} catch (ignored) {
-					}
+					var dir = "";
+					var dirs = key.split("/");
+					dirs.pop();
+					dirs.forEach(function(currentDir) {
+						try {
+							fs.mkdirSync(path.join(__dirname, STORAGE_PATH + dir, currentDir));
+						} catch (ignored) {
+						}
+						try {
+							fs.mkdirSync(path.join(__dirname, STORAGE_CONTENTTYPE_PATH + dir, currentDir));
+						} catch (ignored) {
+						}
+						dir = "/" + currentDir;
+					});
 				}
 				var writeToFile = function(error, data) {
 					fs.writeFile(path.join(__dirname, STORAGE_PATH, key), data, function() {

@@ -9,9 +9,10 @@ var Promise = require("bluebird");
 var Random = require(__dirname + "/../../util/random");
 var Storage = require(__dirname + "/../../util/storage");
 var ERROR_NOTACCESSIBLE = "ERROR_NOTACCESSIBLE";
+var ERROR_NOTFOUND = "ERROR_NOTFOUND";
 router.get('/:imageKey', function(req, res) {
 	if (!req.params.imageKey || req.params.imageKey.indexOf("/../") > -1) {
-		res.status(404).send();
+		res.status(404).end();
 		return;
 	}
 	Storage.load(req.params.imageKey).then(function(file) {
@@ -26,8 +27,91 @@ router.get('/:imageKey', function(req, res) {
 		console.log(error.stack);
 		res.status(404).send();
 	});
-})
-function getImage(req, res, name) {
+});
+function responseFile(res, name) {
+	return function(file) {
+		if (name && file.name == name) {
+			if (file.redirectUrl) {
+				res.set("Pragma", "no-cache");
+				res.redirect(302, file.redirectUrl);
+			} else {
+				res.set('Content-Type', "application/octet-stream");
+				res.set('Content-Disposition', 'attachment; filename="' + name + '"');
+				res.status(200).send(file.buffer);
+			}
+		} else if (!name) {
+			if (file.redirectUrl) {
+				res.set("Pragma", "no-cache");
+				res.redirect(302, file.redirectUrl);
+			} else {
+				res.set('Content-Type', file.contentType);
+				res.status(200).send(file.buffer);
+			}
+		} else {
+			res.status(404).end();
+		}
+	}
+}
+function getGroupImage(req, res, name) {
+	if (!req.params.groupAccessKey || !req.params.imageKey || req.params.imageKey.indexOf("/../") > -1) {
+		res.status(404).end();
+		return;
+	}
+	var accessKey = req.query.sessionKey || req.query.access_token || req.cookies["session_key"];
+	if (!accessKey) {
+		throw ERROR_NOTACCESSIBLE;
+	}
+	accessKey = accessKey.replace("\"", "").replace("\"", "");// for cookie;
+	Group.findAccessible(accessKey, req.params.groupAccessKey).then(function(result) {
+		Storage.load("groups/" + req.params.groupAccessKey + "/" + req.params.imageKey, name).then(responseFile(res, name));
+	})["catch"](function(error) {
+		if (ERROR_NOTACCESSIBLE == error) {
+			res.status(403).send();
+		} else if (ERROR_NOTFOUND == error) {
+			res.status(404).send();
+		} else {
+			console.log(error.stack);
+			res.status(500).send();
+		}
+	});
+}
+router.get("/groups/:groupAccessKey/:imageKey", function(req, res) {
+	getGroupImage(req, res)
+});
+router.get("/groups/:groupAccessKey/:imageKey/:name", function(req, res) {
+	getGroupImage(req, res, req.params.name)
+});
+router.post('/groups/:groupAccessKey', function(req, res) {
+	if (!req.params.groupAccessKey) {
+		res.status(404).end();
+		return;
+	}
+	var accessKey = req.body.sessionKey || req.body.access_token;
+	if (!accessKey) {
+		throw ERROR_NOTACCESSIBLE;
+	}
+	var accessAccount;
+	Group.findAccessible(accessKey, req.params.groupAccessKey).then(function(result) {
+		accessAccount = result.account;
+		return Random.createRandomBase62();
+	}).then(function(random) {
+		return Storage.store("groups/" + req.params.groupAccessKey + "/" + random, req.files.imageFile[0].mimetype, req.body.name, req.files.imageFile[0], accessAccount.id);
+	}).then(function(savedImageUrl) {
+		res.status(200).send({
+			url : savedImageUrl
+		});
+	})["catch"](function(error) {
+		if (ERROR_NOTACCESSIBLE == error) {
+			res.status(403).send();
+		} else if (ERROR_NOTFOUND == error) {
+			res.status(404).send();
+		} else {
+			console.log(error.stack);
+			res.status(500).send();
+		}
+	});
+});
+function getContentImage(req, res, name) {
 	if (!req.params.contentKey || !req.params.imageKey || req.params.imageKey.indexOf("/../") > -1) {
 		res.status(404).send();
 		return;
@@ -85,28 +169,7 @@ function getImage(req, res, name) {
 			});
 		}
 	}).then(function() {
-		Storage.load(req.params.contentKey + "/" + req.params.imageKey, name).then(function(file) {
-			if (name && file.name == name) {
-				if (file.redirectUrl) {
-					res.set("Pragma", "no-cache");
-					res.redirect(302, file.redirectUrl);
-				} else {
-					res.set('Content-Type', "application/octet-stream");
-					res.set('Content-Disposition', 'attachment; filename="' + name + '"');
-					res.status(200).send(file.buffer);
-				}
-			} else if (!name) {
-				if (file.redirectUrl) {
-					res.set("Pragma", "no-cache");
-					res.redirect(302, file.redirectUrl);
-				} else {
-					res.set('Content-Type', file.contentType);
-					res.status(200).send(file.buffer);
-				}
-			} else {
-				res.status(404).end();
-			}
-		})
+		Storage.load(req.params.contentKey + "/" + req.params.imageKey, name).then(responseFile(res, name));
 	})["catch"](function(error) {
 		if (ERROR_NOTACCESSIBLE == error) {
 			res.status(403).send();
@@ -117,10 +180,10 @@ function getImage(req, res, name) {
 	});
 }
 router.get('/:contentKey/:imageKey', function(req, res) {
-	getImage(req, res);
+	getContentImage(req, res);
 });
 router.get('/:contentKey/:imageKey/:fileName', function(req, res) {
-	getImage(req, res, req.params.fileName);
+	getContentImage(req, res, req.params.fileName);
 });
 router.post('/:contentKey', function(req, res) {
 	var accessKey = req.body.sessionKey || req.body.access_token;
@@ -128,6 +191,7 @@ router.post('/:contentKey', function(req, res) {
 		res.status(403).end();
 		return;
 	}
+	var accessAccount;
 	AccessKey.findBySessionKey(accessKey).then(function(accessKey) {
 		if (!accessKey) {
 			throw ERROR_NOTACCESSIBLE;
@@ -140,8 +204,7 @@ router.post('/:contentKey', function(req, res) {
 		accessAccount = account;
 		return Random.createRandomBase62();
 	}).then(function(random) {
-		imageFileKey = random;
-		return Storage.store(req.params.contentKey + "/" + imageFileKey, req.files.imageFile[0].mimetype, req.body.name, req.files.imageFile[0], accessAccount.id);
+		return Storage.store(req.params.contentKey + "/" + random, req.files.imageFile[0].mimetype, req.body.name, req.files.imageFile[0], accessAccount.id);
 	}).then(function(savedImageUrl) {
 		res.status(200).send({
 			url : savedImageUrl
