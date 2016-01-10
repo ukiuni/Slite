@@ -907,7 +907,7 @@ var manageKeyController = [ "$rootScope", "$scope", "$resource", "$location", "$
 			controller : dialogController
 		});
 		modalInstance.result.then(function() {
-			deleteKey();//TODO
+			deleteKey();
 		}, function() {
 		});
 	}
