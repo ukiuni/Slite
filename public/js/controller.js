@@ -2211,7 +2211,7 @@ var editGroupController = [ "$rootScope", "$scope", "$resource", "$location", "$
 		});
 	}
 } ];
-var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$http", "$routeParams", "$uibModal", function($rootScope, $scope, $resource, $location, $http, $routeParams, $modal) {
+var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$http", "$routeParams", "$uibModal", "Upload", function($rootScope, $scope, $resource, $location, $http, $routeParams, $modal, $uploader) {
 	$scope.noMarginTop = true;
 	$rootScope.nowInChannel = true;
 	var loadingHistory = false;
@@ -2610,6 +2610,34 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 			controller : dialogController
 		});
 	}
+	$scope.$watch("messageImage", function() {
+		if (!$scope.messageImage) {
+			return;
+		}
+		var messageInput = document.getElementById("messageInput");
+		var uploader = $uploader.upload({
+			url : '/api/image/groups/' + $scope.channel.Group.accessKey,
+			fields : {
+				sessionKey : $rootScope.getSessionKey(),
+				name : $scope.messageImage.name
+			},
+			file : $scope.messageImage,
+			fileFormDataName : "imageFile",
+			sendFieldsAs : "form",
+			method : "POST"
+		}).success(function(response) {
+			var isImage = $scope.messageImage.type && 0 == $scope.messageImage.type.indexOf("image");
+			var text = (isImage ? "!" : "") + "[" + $scope.messageImage.name + "](" + response.url + ")";
+			var index = messageInput.selectionStart;
+			if ($scope.text) {
+				$scope.text = $scope.text.substr(0, index) + text + $scope.text.substr(index);
+			} else {
+				$scope.text = text;
+			}
+		}).error(function(error) {
+			$rootScope.showErrorWithStatus(error.status);
+		});
+	});
 } ];
 var accountController = [ "$rootScope", "$scope", "$resource", "$location", "$http", "$uibModal", "$routeParams", function($rootScope, $scope, $resource, $location, $http, $modal, $routeParams) {
 	var id = $routeParams.id;
