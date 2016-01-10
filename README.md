@@ -2,7 +2,7 @@
 Persistable and searchable chat system.
 Markdown based CMS.
 Easy group managing.
-([Slite](https://en.wikipedia.org/wiki/Slite) is name of Sweden)
+([Slite](https://en.wikipedia.org/wiki/Slite) is a city in Sweden)
 [![Build Status](https://travis-ci.org/ukiuni/Slite.svg)](https://travis-ci.org/ukiuni/Slite)
 
 
