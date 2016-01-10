@@ -385,7 +385,11 @@ myapp.run([ "$rootScope", "$location", "$resource", "$cookies", "$route", "Uploa
 	$rootScope.socket.on("event", function(data) {
 		if ("systemUpdated" == data.type) {
 			$rootScope.showWarn($rootScope.messages.systemUpdatedReload, function() {
-				$route.reload();
+				if (isElectron) {
+					require("ipc").send("reload", location.href);
+				} else {
+					$route.reload();
+				}
 			});
 		}
 	})
