@@ -101,6 +101,7 @@ var socketIO = function(io) {
 			var channelAccessKey = requestParam.channelAccessKey;
 			var limit = requestParam.limit || 10;
 			var idBefore = requestParam.idBefore;
+			var idAfter = requestParam.idAfter;
 			loadAccessibleChannel(channelAccessKey).then(function(channel) {
 				var criteria = {
 					where : {
@@ -121,6 +122,12 @@ var socketIO = function(io) {
 					criteria.where.id = {
 						$lt : idBefore
 					}
+				}
+				if (idAfter) {
+					if (!criteria.where.id) {
+						criteria.where.id = {}
+					}
+					criteria.where.id["$gt"] = idAfter;
 				}
 				return Message.findAll(criteria);
 			}).then(function(messages) {
