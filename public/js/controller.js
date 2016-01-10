@@ -863,7 +863,7 @@ var editProfileController = [ "$rootScope", "$scope", "$resource", "$location", 
 		});
 	}
 } ];
-var manageKeyController = [ "$rootScope", "$scope", "$resource", "$location", "$http", "Upload", function($rootScope, $scope, $resource, $location, $http, $uploader) {
+var manageKeyController = [ "$rootScope", "$scope", "$resource", "$location", "$http", "$uibModal", function($rootScope, $scope, $resource, $location, $http, $modal) {
 	if (!$rootScope.myAccount) {
 		$location.path("/home");
 		return;
@@ -886,13 +886,29 @@ var manageKeyController = [ "$rootScope", "$scope", "$resource", "$location", "$
 		$rootScope.showError($rootScope.messages.error.withServer);
 	});
 	$scope.deleteKey = function(index, key) {
-		$resource('/api/account/keys')["delete"]({
-			sessionKey : $rootScope.getSessionKey(),
-			secret : key.secret
-		}, function(key) {
-			$scope.myKeys.splice(index, 1)
-		}, function(error) {
-			$rootScope.showError($rootScope.messages.error.withServer);
+		var deleteKey = function() {
+			$resource('/api/account/keys')["delete"]({
+				sessionKey : $rootScope.getSessionKey(),
+				secret : key.secret
+			}, function(key) {
+				$scope.myKeys.splice(index, 1)
+			}, function(error) {
+				$rootScope.showError($rootScope.messages.error.withServer);
+			});
+		}
+		var dialogController = [ "$scope", "$uibModalInstance", function($dialogScope, $modalInstance) {
+			$dialogScope["delete"] = function() {
+				$modalInstance.close();
+			};
+			$dialogScope.message = $rootScope.messages.confirmDelete + "\n\n";
+		} ];
+		var modalInstance = $modal.open({
+			templateUrl : 'template/confirmDialog.html',
+			controller : dialogController
+		});
+		modalInstance.result.then(function() {
+			deleteKey();//TODO
+		}, function() {
 		});
 	}
 	$scope.createKey = function() {
