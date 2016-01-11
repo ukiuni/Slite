@@ -2396,7 +2396,8 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 					bounce();
 				}
 				if (!document.hasFocus() && (!$rootScope.myAccount.config.notification || "all" == $rootScope.myAccount.config.notification || (hasStrongWord && "strongWordOnly" == $rootScope.myAccount.config.notification))) {
-					$rootScope.showNotification(message.owner.name + "@" + eventTargetChannel.name, message.body, {
+					var text = $(marked(message.body)).text();
+					$rootScope.showNotification(message.owner.name + "@" + eventTargetChannel.name, text, {
 						stay : hasStrongWord
 					});
 				}
