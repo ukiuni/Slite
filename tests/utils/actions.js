@@ -163,8 +163,8 @@ var self = {
 		var contentRandom = new Date().getTime();
 		var tagDescription = "contentComment" + contentRandom;
 		client.url(contentUrl);
-		client.waitForElementVisible('#tagArea', testWaitTime);
-		client.click('#tagArea > ul > li > a');
+		client.waitForElementVisible('#tagsArea', testWaitTime);
+		client.click('#tagsArea > ul > li > a');
 		client.waitForElementVisible("#editButton", testWaitTime);
 		client.click('#editButton');
 		client.waitForElementVisible('#saveButton', testWaitTime);
