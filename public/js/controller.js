@@ -215,10 +215,7 @@ myapp.run([ "$rootScope", "$location", "$resource", "$cookies", "$route", "Uploa
 	}, function() {
 		$rootScope.showError("Fail to load message resource.");
 	});
-	$rootScope.showError = function(message) {
-		toastr.error(message);
-	}
-	$rootScope.showWarn = function(message, onClick) {
+	$rootScope.showToastr = function(type, message, onClick) {
 		if (onClick) {
 			var timeOutOrg = toastr.options.timeOut;
 			var extendedTimeOutOrg = toastr.options.timeOut;
@@ -226,7 +223,7 @@ myapp.run([ "$rootScope", "$location", "$resource", "$cookies", "$route", "Uploa
 			toastr.options.extendedTimeOut = 0;
 			toastr.options.closeButton = true;
 		}
-		var toast = toastr.warning(message);
+		var toast = toastr[type](message);
 		if (onClick) {
 			toastr.options.timeOut = timeOutOrg;
 			toastr.options.extendedTimeOut = extendedTimeOutOrg;
@@ -234,8 +231,14 @@ myapp.run([ "$rootScope", "$location", "$resource", "$cookies", "$route", "Uploa
 			toast.click(onClick);
 		}
 	}
-	$rootScope.showToast = function(message) {
-		toastr.info(message);
+	$rootScope.showError = function(message, onClick) {
+		$rootScope.showToastr("error", message, onClick);
+	}
+	$rootScope.showWarn = function(message, onClick) {
+		$rootScope.showToastr("warning", message, onClick);
+	}
+	$rootScope.showInfo = function(message, onClick) {
+		$rootScope.showToastr("info", message, onClick);
 	}
 	$rootScope.showProgress = function(percent, message, type) {
 		$rootScope.progressing = true;
@@ -388,11 +391,47 @@ myapp.run([ "$rootScope", "$location", "$resource", "$cookies", "$route", "Uploa
 				if (isElectron) {
 					require("ipc").send("reload", location.href);
 				} else {
-					$route.reload();
+					$rootScope.$apply(function() {
+						$route.reload();
+					});
 				}
 			});
+		} else if ("join" == data.type) {
+			if (groupListeners[data.info.group.accessKey]) {
+				groupListeners[data.info.group.accessKey](data);
+			}
+			$rootScope.showInfo($rootScope.messages.groups.memberJoined + " : " + data.info.account.name + " => " + data.info.group.name, function() {
+				$rootScope.$apply(function() {
+					$location.path("/group/" + data.info.group.accessKey);
+				});
+			});
+		} else if ("invitationRequest" == data.type) {
+			if (groupListeners[data.info.group.accessKey]) {
+				groupListeners[data.info.group.accessKey](data);
+			}
+			$rootScope.showInfo($rootScope.messages.groups.invitationRequested + " : " + data.info.account.name + " => " + data.info.group.name, function() {
+				$rootScope.$apply(function() {
+					$location.path("/group/" + data.info.group.accessKey);
+				});
+			});
+		} else if ("invited" == data.type) {
+			if (groupListeners[data.info.group.accessKey]) {
+				groupListeners[data.info.group.accessKey](data);
+			}
+			$rootScope.showInfo($rootScope.messages.groups.invited + " : " + data.info.group.name, function() {
+				$rootScope.$apply(function() {
+					$location.path("/group/" + data.info.group.accessKey);
+				});
+			});
 		}
-	})
+	});
+	var groupListeners = [];
+	$rootScope.setGroupListener = function(groupAccessKey, listener) {
+		groupListeners[groupAccessKey] = listener;
+	}
+	$rootScope.removeGroupListener = function(groupAccessKey) {
+		delete groupListeners[groupAccessKey];
+	}
 	var initSocket = function() {
 		channelSocketListeners = new Map();
 		contentSocketListeners = new Map();
@@ -1161,7 +1200,7 @@ var editContentController = [ "$rootScope", "$scope", "$resource", "$location", 
 			// option
 			if (83 == event.which) {// s
 				$scope.save(null, function() {
-					$rootScope.showToast($rootScope.messages.contents.saved);
+					$rootScope.showInfo($rootScope.messages.contents.saved);
 				}, function() {
 					$rootScope.showError($rootScope.messages.contents.errors.failToSave);
 				});
@@ -1357,7 +1396,7 @@ var editCalendarAlbumController = [ "$rootScope", "$scope", "$resource", "$locat
 		delete $scope.editingDescription[keyDate];
 		changing = true;
 		$scope.save(null, function() {
-			$rootScope.showToast($rootScope.messages.contents.saved);
+			$rootScope.showInfo($rootScope.messages.contents.saved);
 			changing = false;
 		}, function() {
 			$rootScope.showError($rootScope.messages.contents.errors.failToSave);
@@ -1399,7 +1438,7 @@ var editCalendarAlbumController = [ "$rootScope", "$scope", "$resource", "$locat
 					$rootScope.showProgress(calcProgress());
 					if (uploadedFileLength && files.length <= uploadedFileLength) {
 						$scope.save(null, function() {
-							$rootScope.showToast($rootScope.messages.contents.saved);
+							$rootScope.showInfo($rootScope.messages.contents.saved);
 							changing = false;
 						}, function() {
 							$rootScope.showError($rootScope.messages.contents.errors.failToSave);
@@ -1510,7 +1549,7 @@ var editCalendarAlbumController = [ "$rootScope", "$scope", "$resource", "$locat
 			if (uploadedFileLength) {
 				if ($scope.autoDateSetImages.length <= uploadedFileLength) {
 					$scope.save(null, function() {
-						$rootScope.showToast($rootScope.messages.contents.saved);
+						$rootScope.showInfo($rootScope.messages.contents.saved);
 						changing = false;
 					}, function() {
 						$rootScope.showError($rootScope.messages.contents.errors.failToSave);
@@ -1647,7 +1686,7 @@ var contentController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 						mail : $scope.requestInvitationMail,
 						sessionKey : $rootScope.getSessionKey()
 					}).then(function(response) {
-						$rootScope.showToast($rootScope.messages.groups.invitationRequestSended);
+						$rootScope.showInfo($rootScope.messages.groups.invitationRequestSended);
 						delete $scope.groupAccessKey;
 					})["catch"](function(response) {
 						$rootScope.showErrorWithStatus(response.status, function(status) {
@@ -1859,7 +1898,7 @@ var groupsController = [ "$rootScope", "$scope", "$resource", "$location", "$htt
 		$location.path("/group/0/edit");
 	}
 } ];
-var groupController = [ "$rootScope", "$scope", "$resource", "$location", "$http", "$routeParams", "$uibModal", function($rootScope, $scope, $resource, $location, $http, $routeParams, $modal) {
+var groupController = [ "$rootScope", "$scope", "$resource", "$location", "$http", "$routeParams", "$uibModal", "$route", function($rootScope, $scope, $resource, $location, $http, $routeParams, $modal, $route) {
 	var initGroup = function(callback) {
 		$resource('/api/groups/:accessKey').get({
 			accessKey : $routeParams.accessKey,
@@ -1961,7 +2000,7 @@ var groupController = [ "$rootScope", "$scope", "$resource", "$location", "$http
 			}
 			$scope.group.Accounts.push(response.data);
 			$scope.currentInvited = true;
-			$rootScope.showToast($rootScope.messages.groups.invitationRequestSended);
+			$rootScope.showInfo($rootScope.messages.groups.invitationRequestSended);
 		})["catch"](function(response) {
 			$rootScope.showErrorWithStatus(response.status, function(status) {
 				if (409 == status) {
@@ -2100,6 +2139,24 @@ var groupController = [ "$rootScope", "$scope", "$resource", "$location", "$http
 		});
 	}
 	$scope.inviteUserAuthorization = $rootScope.groupAuthorizations[0];
+	var groupEventListener = function(data) {
+		if ("invited" == data.type) {
+			$route.reload();
+		}
+		$scope.$apply(function() {
+			for ( var i in $scope.group.Accounts) {
+				if ($scope.group.Accounts[i].id === data.info.account.id) {
+					$scope.group.Accounts[i] = data.info.account;
+					return true;
+				}
+			}
+			$scope.group.Accounts.push(data.info.account);
+		});
+	}
+	$rootScope.setGroupListener($routeParams.accessKey, groupEventListener);
+	$scope.$on('$destroy', function() {
+		$rootScope.removeGroupListener($routeParams.accessKey);
+	});
 } ];
 var messageLogController = [ "$rootScope", "$scope", "$resource", "$location", "$http", "$routeParams", "$uibModal", function($rootScope, $scope, $resource, $location, $http, $routeParams, $modal) {
 	$scope.from = $routeParams.from;
