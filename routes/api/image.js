@@ -63,7 +63,7 @@ function getGroupImage(req, res, name) {
 	}
 	accessKey = accessKey.replace("\"", "").replace("\"", "");// for cookie;
 	Group.findAccessible(accessKey, req.params.groupAccessKey).then(function(result) {
-		Storage.load("groups/" + req.params.groupAccessKey + "/" + req.params.imageKey, name).then(responseFile(res, name));
+		return Storage.load("groups/" + req.params.groupAccessKey + "/" + req.params.imageKey, name).then(responseFile(res, name));
 	})["catch"](function(error) {
 		if (ERROR_NOTACCESSIBLE == error) {
 			res.status(403).send();
@@ -169,7 +169,7 @@ function getContentImage(req, res, name) {
 			});
 		}
 	}).then(function() {
-		Storage.load(req.params.contentKey + "/" + req.params.imageKey, name).then(responseFile(res, name));
+		return Storage.load(req.params.contentKey + "/" + req.params.imageKey, name).then(responseFile(res, name));
 	})["catch"](function(error) {
 		if (ERROR_NOTACCESSIBLE == error) {
 			res.status(403).send();
