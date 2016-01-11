@@ -1,5 +1,12 @@
 @-moz-document url-prefix() {
-    #messageScrollInner{
-        padding-bottom:80px;
+    #messageScrollInner {
+        padding-bottom: 80px;
+    }
+    #contentImageButton {
+		margin-top: -50px;
+    }
+    #tagsArea {
+    	margin-top: -50px;
+    	margin-left: 66%;
     }
 }

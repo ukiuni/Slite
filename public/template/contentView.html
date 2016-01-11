@@ -10,7 +10,7 @@
 				<h2 class="col-sm-10 col-sm-offset-1 col-xs-12 contentTitle" ng-bind="content.ContentBodies[0].title"></h2>
 			</div>
 			<div class="row" style="margin-top: -50px;">
-				<div class="col-xs-4 col-xs-offset-8" id="tagArea">
+				<div class="col-xs-4 col-xs-offset-8" id="tagsArea">
 					<ul class="nav nav-pills" id="tags" style="height: 40px; overflow: scroll;">
 						<li role="presentation" ng-repeat="tag in content.Tags track by tag.id"><a class="tag" ng-href="/tag/{{tag.id}}" ng-bind="tag.name"></a></li>
 					</ul>
