@@ -466,6 +466,9 @@ router.get('/:accessKey', function(req, res) {
 					isMember = true;
 				}
 			}
+			if (isMember && Group.INVITING_REQUESTED == group.Accounts[i].AccountInGroup.inviting && (Group.VISIBILITY_OPEN != group.visibility)) {
+				throw ERROR_NOTACCESSIBLE;
+			}
 			if (!isMember && (Group.VISIBILITY_OPEN != group.visibility)) {
 				throw ERROR_NOTACCESSIBLE;
 			}
@@ -608,6 +611,8 @@ router.post('/:accessKey/invite', function(req, res) {
 			mail : targetAccount.mail,
 			AccountInGroup : createdAccountInGroup
 		});
+		targetAccount.dataValues.AccountInGroup = createdAccountInGroup;
+		socket.sendInvitationEvent(loadedGroup, targetAccount);
 	})["catch"](function(error) {
 		if (ERROR_NOTACCESSIBLE == error) {
 			res.status(403).end();
@@ -675,7 +680,7 @@ router.post('/:accessKey/invitaionRequest', function(req, res) {
 	}).then(function(accountInGroup) {
 		createdAccountInGroup = accountInGroup;
 		return loadedGroup.getAccounts({
-			where : [ "\"AccountInGroup\".\"authorization\" = " + Account.AUTHORIZATION_ADMIN ]
+			where : [ "\"AccountInGroup\".\"authorization\" = " + Account.AUTHORIZATION_ADMIN + " and \"AccountInGroup\".\"inviting\" = " + Group.INVITING_DONE ]
 		});
 	}).then(function(accounts) {
 		var dummyPromise = new Promise(function(success) {
@@ -693,6 +698,8 @@ router.post('/:accessKey/invitaionRequest', function(req, res) {
 				}
 			}
 			dummyPromise = dummyPromise.then(function() {
+				loadedAccount.dataValues.AccountInGroup = createdAccountInGroup[0][0];
+				socket.sendInvitationRequestEventToAccount(account, loadedGroup, loadedAccount);
 				return SendMail.send({
 					from : serverConfig.admin.mail,
 					to : account.mail,
@@ -731,6 +738,7 @@ router.put('/:accessKey/join', function(req, res) {
 	}
 	var loadedAccount;
 	var loadedGroup;
+	var updatedAccountInGroup;
 	AccessKey.findBySessionKey(accessKey).then(function(accessKey) {
 		if (!accessKey) {
 			throw ERROR_NOTACCESSIBLE;
@@ -747,6 +755,7 @@ router.put('/:accessKey/join', function(req, res) {
 		if (!group) {
 			throw ERROR_NOTACCESSIBLE;
 		}
+		loadedGroup = group
 		return AccountInGroup.find({
 			where : {
 				AccountId : loadedAccount.id,
@@ -762,6 +771,15 @@ router.put('/:accessKey/join', function(req, res) {
 		return accountInGroup.save();
 	}).then(function(accountInGroup) {
 		res.status(200).json(accountInGroup);
+		updatedAccountInGroup = accountInGroup;
+		return loadedGroup.getAccounts({
+			where : [ "\"AccountInGroup\".\"authorization\" = " + Account.AUTHORIZATION_ADMIN + " and \"AccountInGroup\".\"inviting\" = " + Group.INVITING_DONE ]
+		});
+	}).then(function(accounts) {
+		loadedAccount.dataValues.AccountInGroup = updatedAccountInGroup;
+		accounts.forEach(function(account) {
+			socket.sendJoinEventToAdmin(account, loadedGroup, loadedAccount);
+		})
 	})["catch"](function(error) {
 		if (ERROR_NOTACCESSIBLE == error) {
 			res.status(403).end();

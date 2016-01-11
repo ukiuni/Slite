@@ -186,6 +186,38 @@ var socketIO = function(io) {
 	self.sendToContent = function(contentKey, comment) {
 		io.to(contentKey).emit(contentKey, JSON.stringify(comment));
 	}
+	self.sendEventToGroup = function(groupAccessKey, type, info) {
+		io.to(groupAccessKey).emit(groupAccessKey, JSON.stringify({
+			type : type,
+			info : info
+		}));
+	}
+	self.sendJoinEventToAdmin = function(adminAccount, group, account) {
+		io.to(PRIVATE_ROOM_NAME_PREFIX + adminAccount.id).emit("event", {
+			type : "join",
+			info : {
+				group : group,
+				account : account
+			}
+		});
+	}
+	self.sendInvitationRequestEventToAccount = function(adminAccount, group, fromAccount) {
+		io.to(PRIVATE_ROOM_NAME_PREFIX + adminAccount.id).emit("event", {
+			type : "invitationRequest",
+			info : {
+				group : group,
+				account : fromAccount
+			}
+		});
+	}
+	self.sendInvitationEvent = function(group, targetAccount) {
+		io.to(PRIVATE_ROOM_NAME_PREFIX + targetAccount.id).emit("event", {
+			type : "invited",
+			info : {
+				group : group
+			}
+		});
+	}
 	self.sendToChannel = function(channelAccessKey, message) {
 		io.to(channelAccessKey).emit(channelAccessKey, JSON.stringify({
 			type : "message",

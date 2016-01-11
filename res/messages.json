@@ -62,6 +62,9 @@
 				"secretEvenMember" : "Secret Even Member"
 			},
 			"requestInvitements" : "Request invitation",
+			"memberJoined" : "Member joined to group.",
+			"invitationRequested" : "You have invitation request.",
+			"invited" : "You are invited to group.",
 			"invitationRequestSended" : "Invitation Requested",
 			"request" : "Request",
 			"thisGroupIsNotOpen" : "This group is not open.\n Request invitements to Admin.",
@@ -231,6 +234,9 @@
 				"secretEvenMember" : "メンバー非公開"
 			},
 			"requestInvitements" : "招待依頼",
+			"memberJoined" : "メンバーがグループに参加しました。",
+			"invitationRequested" : "参加依頼を受け取りました。",
+			"invited" : "グループに招待されました。",
 			"invitationRequestSended" : "招待依頼を行いました。",
 			"request" : "依頼",
 			"thisGroupIsNotOpen" : "このグループは公開されていません。\n参加するためには招待依頼を行ってください。",
