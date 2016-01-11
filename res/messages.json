@@ -94,6 +94,10 @@
 				"all" : "All"
 			}
 		},
+		"dragAndDrop" : "Drag & Drop",
+		"dragAndDrops" : {
+			"description" : "You can drag & drop file to message input area."
+		},
 		"markdown" : "Markdown",
 		"markdowns" : {
 			"info" : "You can use markdown to message",
@@ -258,6 +262,10 @@
 				"strongWordOnly" : "強調文字のみ",
 				"all" : "すべて"
 			}
+		},
+		"dragAndDrop" : "Drag & Drop",
+		"dragAndDrops" : {
+			"description" : "メッセージ入力エリアにファイルをドラッグアンドドロップすることができます。"
 		},
 		"markdown" : "Markdown",
 		"markdowns" : {

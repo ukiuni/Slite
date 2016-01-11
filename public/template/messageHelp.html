@@ -1,7 +1,15 @@
 <div class="modal-body" id="confirmDialog">
 	<div class="row">
-		<div class="col-xs-12">
-			<H4 ng-bind="messages.markdown"></H4>
+		<div class="col-xs-12" style="margin-bottom: 10px">
+			<ul class="nav nav-tabs">
+				<li role="presentation" ng-class="{'active' : is('markdown')}"><a href="#" ng-click="to('markdown')"><H4 ng-bind="messages.markdown"></H4></a></li>
+				<li role="presentation" ng-class="{'active' : is('dragAndDrop')}"><a href="#" ng-click="to('dragAndDrop')"><H4 ng-bind="messages.dragAndDrop"></H4></a></li>
+			</ul>
+		</div>
+		<div class="col-xs-12" ng-show="is('dragAndDrop')">
+			<div style="font-size: xx-small;" ng-bind="messages.dragAndDrops.description"></div>
+		</div>
+		<div class="col-xs-12" ng-show="is('markdown')">
 			<div style="font-size: xx-small;" ng-bind="messages.markdowns.info"></div>
 			<hr />
 			<div class="row helpOneColmn">

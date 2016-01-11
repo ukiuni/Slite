@@ -2620,7 +2620,14 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 		});
 	}
 	$scope.openHelp = function() {
+		var showingMenu = "markdown"
 		var dialogController = [ "$scope", "$uibModalInstance", function($dialogScope, $modalInstance) {
+			$dialogScope.is = function(type) {
+				return type == showingMenu;
+			}
+			$dialogScope.to = function(type) {
+				return showingMenu = type;
+			}
 		} ];
 		var modalInstance = $modal.open({
 			templateUrl : 'template/messageHelp.html',
