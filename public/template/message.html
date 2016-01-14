@@ -104,7 +104,7 @@
 					<div class="col-sm-12 col-xs-10" style="margin: 0; padding: 0; position: relative" ondragenter="document.getElementById('fileDropArea').style.display='table-cell'" ondrop="event.preventDefault();">
 						<textarea id="messageInput" class="form-control" rows="3" style="width: 80%; position: absolute; float: left; resize: none;" ng-keydown="handleKeydown($event)" ng-model="text" ondrop="event.preventDefault();"></textarea>
 						<div id="fileDropArea" class="messageFileDropArea" ng-model="messageImage" ngf-drop ngf-drag-over-class="'dragover'" ondragleave="document.getElementById('fileDropArea').style.display='none'" ondrop="document.getElementById('fileDropArea').style.display='none'"></div>
-						<div style="width: 18%; float: left; margin-left: 82%">
+						<div style="width: 18%; float: left; margin-left: 82%" class="ellipsis">
 							<div class="checkbox">
 								<label> <input type="checkbox" ng-model="sendWithEnter"> <span class="ellipsis" ng-bind="messages.sendWithEnter"></span>
 								</label>
