@@ -144,7 +144,7 @@ router.post('/:accessKey/channels/:channelAccessKey/messages', function(req, res
 			targetDate.setHours(parseInt(hour));
 			targetDate.setMinutes(parseInt(minutes));
 			if (targetDate < new Date()) {
-				var time = targetDate.getTime() + 24 * 60 * 60 + 1000;
+				var time = targetDate.getTime() + 24 * 60 * 60 * 1000;
 				targetDate = new Date(time);
 			}
 			return TimerTask.create({
