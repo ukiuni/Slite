@@ -136,7 +136,7 @@ router.post('/:accessKey/channels/:channelAccessKey/messages', function(req, res
 		return Random.createRandomBase62();
 	}).then(function(random) {
 		var matchToRemind;
-		if ((matchToRemind = req.body.body.match(/^\/remind[\p{blank}\s]+([0-2]?[0-9]):([0-5]?[0-9])[\p{blank}\s]+(.+)$/))) {
+		if ((matchToRemind = req.body.body.match(/^\/remind[\p{blank}\s]+([0-2]?[0-9]):([0-5]?[0-9])[\p{blank}\s]+([\s\S]+)$/))) {
 			var hour = matchToRemind[1];
 			var minutes = matchToRemind[2];
 			var message = matchToRemind[3];
