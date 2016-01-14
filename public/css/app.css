@@ -15,7 +15,12 @@ select {
 	margin-bottom: 10px;
 }
 
-.article {
+ul {
+	padding-top: 0;
+	padding-bottom: 0;
+}
+
+.article p {
 	white-space: pre;
 	white-space: pre-wrap;
 	white-space: pre-line;
@@ -90,7 +95,7 @@ select {
 	padding: 5px;
 }
 
-.message {
+.message p {
 	white-space: pre;
 	white-space: pre-wrap;
 	white-space: pre-line;
