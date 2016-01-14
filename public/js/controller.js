@@ -2511,7 +2511,7 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 			if ("" == $scope.text) {
 				return;
 			}
-			if ($scope.text.match(/^\/remind ([0-2][0-4]):([0-5][0-9]) (.+)$/)) {
+			if ($scope.text.match(/^\/remind[\p{blank}\s]+([0-2]?[0-4]):([0-5]?[0-9])[\p{blank}\s]+(.+)$/)) {
 				sendingMessage = $scope.text;
 				$scope.text = "";
 			} else {
