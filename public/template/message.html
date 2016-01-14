@@ -49,7 +49,7 @@
 						<div id="messageScrollInner" class="row">
 							<div ng-bind="messages.messages.loadHistory" style="width: 100%; margin-bottom: 3px; border: 1px solid white" class="btn btn-default" ng-click="loadHistory()" ng-hide="channel.noMoreHistory"></div>
 							<div class="col-xs-12 messageRow" ng-repeat="message in channel.messages track by message.id" ng-class-odd="'repeatOdd'">
-								<div class="row">
+								<div ng-show="!message.type || 'markdown' == message.type" class="row">
 									<div class="col-xs-1">
 										<img class="accountIcon" style="height: 40px" ng-src="{{message.Bot.iconUrl || message.owner.iconUrl}}" />
 									</div>
@@ -58,6 +58,21 @@
 											<div class="col-xs-3 ellipsis" title="{{message.Bot.name || message.owner.name}}" alt="{{message.Bot.name || message.owner.name}}" ng-bind="message.Bot.name || message.owner.name"></div>
 											<div class="ellipsis" ng-class="{'col-xs-5':message.Bot, 'col-xs-9':!message.Bot}" ng-bind="message.createdAt | date :'yyyy/MM/dd HH:mm:ss'"></div>
 											<div class="ellipsis col-xs-4" ng-show="message.Bot" ng-bind="'owner ' + message.owner.name"></div>
+										</div>
+										<div class="row">
+											<div class="col-xs-12 messageBody" marked="message.body"></div>
+										</div>
+									</div>
+								</div>
+								<div ng-show="'remind' == message.type" class="row">
+									<div class="col-xs-1">
+										<img class="accountIcon" style="height: 40px" src="/images/title2.png" />
+									</div>
+									<div class="col-xs-10">
+										<div class="row" style="color: #999; font-size: 10px; height: 20px">
+											<div class="col-xs-3 ellipsis" title="{{messages.app.title + ' reminder'}}" alt="{{messages.app.title + ' reminder'}}" ng-bind="messages.app.title + ' reminder'"></div>
+											<div class="ellipsis col-xs-5" ng-bind="message.createdAt | date :'yyyy/MM/dd HH:mm:ss'"></div>
+											<div class="ellipsis col-xs-4" ng-bind="'remind from ' + message.owner.name"></div>
 										</div>
 										<div class="row">
 											<div class="col-xs-12 messageBody" marked="message.body"></div>

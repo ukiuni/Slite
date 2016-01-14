@@ -30,6 +30,7 @@
 		"passwordResetRequestedInformation" : "Check your mail box. And put new password from URL in your mail.",
 		"passwordResetInformation": "For reset password, Put registed mail address, and receive URL to put new password.",
 		"passwordResetted" : "Password Resetted",
+		"remindAppended" : "Remind is appended",
 		"showKey" : "Show key",
 		"accounts" : {
 			"mail" : "mail",
@@ -201,6 +202,7 @@
 		"passwordResetRequestedInformation" : "受信したメールのURLから新しいパスワードを設定してください。",
 		"passwordResetInformation": "パスワードをリセットするためにはメールアドレスを入力して送られてきたメールのURLから新しいパスワードを設定してください。",
 		"passwordResetted" : "パスワードをリセットしました。",
+		"remindAppended" : "リマインドが登録されました。",
 		"showKey" : "鍵を表示",
 		"accounts" : {
 			"mail" : "mail",

@@ -6,6 +6,7 @@ var Account = global.db.Account;
 var Content = global.db.Content;
 var Channel = global.db.Channel;
 var Message = global.db.Message;
+var TimerTask = global.db.TimerTask;
 var NotificationTarget = global.db.NotificationTarget;
 var ContentBody = global.db.ContentBody;
 var Group = global.db.Group;
@@ -134,19 +135,46 @@ router.post('/:accessKey/channels/:channelAccessKey/messages', function(req, res
 		loadedChannel = resolved.loadedChannel;
 		return Random.createRandomBase62();
 	}).then(function(random) {
-		return Message.create({
-			body : req.body.body,
-			ownerId : loadedAccount.id,
-			channelId : loadedChannel.id,
-			accessKey : random,
-			type : Message.TYPE_MARKDOWN
-		});
-	}).then(function(message) {
-		message.dataValues.owner = loadedAccount;
-		message.owner = loadedAccount;
-		res.status(201).json(message);
-		socket.sendToChannel(loadedChannel.accessKey, message);
-		NotificationTarget.notifyToChannel(loadedChannel, message);
+		var matchToRemind;
+		if ((matchToRemind = req.body.body.match(/^\/remind ([0-2][0-4]):([0-5][0-9]) (.+)$/))) {
+			var hour = matchToRemind[1];
+			var minutes = matchToRemind[2];
+			var message = matchToRemind[3];
+			var targetDate = new Date();
+			targetDate.setHours(parseInt(hour));
+			targetDate.setMinutes(parseInt(minutes));
+			if (targetDate < new Date()) {
+				var time = targetDate.getTime() + 24 * 60 * 60 + 1000;
+				targetDate = new Date(time);
+			}
+			return TimerTask.create({
+				targetDate : targetDate,
+				config : JSON.stringify({
+					ownerId : loadedAccount.id,
+					channelId : loadedChannel.id,
+					message : message
+				}),
+				type : TimerTask.TYPE_REMIND,
+				repeatType : TimerTask.REPEAT_TYPE_NONE
+			}).then(function(timerTask) {
+				res.status(201).json(timerTask);
+				socket.sendRemindAppendedEventToAccount(loadedAccount.id, targetDate.getTime(), message);
+			})
+		} else {
+			return Message.create({
+				body : req.body.body,
+				ownerId : loadedAccount.id,
+				channelId : loadedChannel.id,
+				accessKey : random,
+				type : Message.TYPE_MARKDOWN
+			}).then(function(message) {
+				message.dataValues.owner = loadedAccount;
+				message.owner = loadedAccount;
+				res.status(201).json(message);
+				socket.sendToChannel(loadedChannel.accessKey, message);
+				NotificationTarget.notifyToChannel(loadedChannel, message);
+			});
+		}
 	})["catch"](function(error) {
 		if (ERROR_NOTACCESSIBLE == error) {
 			res.status(403).end();
