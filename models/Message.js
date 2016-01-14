@@ -1,3 +1,5 @@
+var Random = require(__dirname + "/../util/random");
+var Promise = require("bluebird");
 module.exports = function(sequelize, DataTypes) {
 	var Message = sequelize.define("Message", {
 		accessKey : DataTypes.TEXT,
@@ -21,5 +23,6 @@ module.exports = function(sequelize, DataTypes) {
 		});
 	}
 	Message.TYPE_MARKDOWN = "markdown";
+	Message.TYPE_REMIND = "remind";
 	return Message;
 };

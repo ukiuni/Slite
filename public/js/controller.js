@@ -423,6 +423,9 @@ myapp.run([ "$rootScope", "$location", "$resource", "$cookies", "$route", "Uploa
 					$location.path("/group/" + data.info.group.accessKey);
 				});
 			});
+		} else if ("remindAppended" == data.type) {
+			var targetDate = new Date(parseInt(data.info.time));
+			$rootScope.showInfo($rootScope.messages.remindAppended + " : [" + targetDate.getHours() + ":" + targetDate.getMinutes() + "]" + data.info.message);
 		}
 	});
 	var groupListeners = [];
@@ -2508,15 +2511,20 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 			if ("" == $scope.text) {
 				return;
 			}
-			sendingMessage = $scope.text;
-			$scope.sendingMessage = {};
-			$scope.sendingMessage.body = sendingMessage;
-			$scope.text = "";
-			setTimeout(function() {
-				jqScrollPane.animate({
-					scrollTop : jqScrollInner.height()
-				}, 50);
-			}, 0);
+			if ($scope.text.match(/^\/remind ([0-2][0-4]):([0-5][0-9]) (.+)$/)) {
+				sendingMessage = $scope.text;
+				$scope.text = "";
+			} else {
+				sendingMessage = $scope.text;
+				$scope.sendingMessage = {};
+				$scope.sendingMessage.body = sendingMessage;
+				$scope.text = "";
+				setTimeout(function() {
+					jqScrollPane.animate({
+						scrollTop : jqScrollInner.height()
+					}, 50);
+				}, 0);
+			}
 			post($http, '/api/groups/' + $scope.channel.Group.accessKey + "/channels/" + $scope.channel.accessKey + "/messages", {
 				sessionKey : $rootScope.getSessionKey(),
 				body : sendingMessage

@@ -9,6 +9,7 @@ var ECT = require('ect');
 var env = process.env.NODE_ENV || "development";
 var serverConfig = require(__dirname + "/config/server.json")[env];
 var Random = require(__dirname + "/util/random");
+var TimerTaskWorker = require(__dirname + "/util/TimerTaskWorker");
 var db = require('./models');
 var ectRenderer = ECT({
 	watch : true,
@@ -53,6 +54,7 @@ db.sequelize.sync().done(function(param) {
 		io.adapter(redis(serverConfig.redis));
 	}
 	global.socket = new require('./socket')(io);
+	TimerTaskWorker.start(serverConfig.redis);
 	require('./routes')(app);
 	server.listen(app.get('port'), function() {
 		http.createServer(function(req, res) {
@@ -63,6 +65,7 @@ db.sequelize.sync().done(function(param) {
 				});
 				console.log("====shutdown called...====");
 				res.write('shutdowning.');
+				TimerTaskWorker.stop();
 				server.close(function() {
 					console.log("====server closed...====");
 					res.write('.');

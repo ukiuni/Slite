@@ -201,6 +201,18 @@ var socketIO = function(io) {
 			}
 		});
 	}
+	self.sendEventToAccount = function(accountId, type, info) {
+		io.to(PRIVATE_ROOM_NAME_PREFIX + accountId).emit("event", {
+			type : type,
+			info : info
+		});
+	}
+	self.sendRemindAppendedEventToAccount = function(accountId, time, message) {
+		self.sendEventToAccount(accountId, "remindAppended", {
+			time : time,
+			message : message
+		});
+	}
 	self.sendInvitationRequestEventToAccount = function(adminAccount, group, fromAccount) {
 		io.to(PRIVATE_ROOM_NAME_PREFIX + adminAccount.id).emit("event", {
 			type : "invitationRequest",
