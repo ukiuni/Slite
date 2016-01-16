@@ -385,17 +385,20 @@ myapp.run([ "$rootScope", "$location", "$resource", "$cookies", "$route", "Uploa
 		return _targetGroupId;
 	}
 	$rootScope.socket = io.connect();
+	var showSystemUpdateWarn = function() {
+		$rootScope.showWarn($rootScope.messages.systemUpdatedReload, function() {
+			if (isElectron) {
+				require("ipc").send("reload", location.href);
+			} else {
+				$rootScope.$apply(function() {
+					$route.reload();
+				});
+			}
+		});
+	}
 	$rootScope.socket.on("event", function(data) {
 		if ("systemUpdated" == data.type) {
-			$rootScope.showWarn($rootScope.messages.systemUpdatedReload, function() {
-				if (isElectron) {
-					require("ipc").send("reload", location.href);
-				} else {
-					$rootScope.$apply(function() {
-						$route.reload();
-					});
-				}
-			});
+			showSystemUpdateWarn();
 		} else if ("join" == data.type) {
 			if (groupListeners[data.info.group.accessKey]) {
 				groupListeners[data.info.group.accessKey](data);
@@ -427,6 +430,13 @@ myapp.run([ "$rootScope", "$location", "$resource", "$cookies", "$route", "Uploa
 			var targetDate = new Date(parseInt(data.info.time));
 			$rootScope.showInfo($rootScope.messages.remindAppended + " : [" + targetDate.getHours() + ":" + targetDate.getMinutes() + "]" + data.info.message);
 		}
+	});
+	var currentVersion;
+	$rootScope.socket.on("informVersion", function(data) {
+		if (currentVersion && currentVersion != data.hostVersion) {
+			showSystemUpdateWarn();
+		}
+		currentVersion = data.hostVersion;
 	});
 	var groupListeners = [];
 	$rootScope.setGroupListener = function(groupAccessKey, listener) {

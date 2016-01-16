@@ -1,4 +1,5 @@
 var EventEmitter = require('events').EventEmitter;
+var packageInfo = require(__dirname + '/../package.json');
 var ev = new EventEmitter();
 var Account = global.db.Account;
 var Bot = global.db.Bot;
@@ -182,6 +183,9 @@ var socketIO = function(io) {
 		socket.on("pongListening", function(accessKey) {
 			self.pongListening(socket.client.account, accessKey);
 		})
+		socket.emit("informVersion", {
+			hostVersion : packageInfo.version
+		});
 	});
 	self.sendToContent = function(contentKey, comment) {
 		io.to(contentKey).emit(contentKey, JSON.stringify(comment));
