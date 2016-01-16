@@ -1,4 +1,5 @@
 var request = require('request');
+var Promise = require('bluebird');
 var gcm = require(__dirname + "/../util/gcm");
 module.exports = function(sequelize, DataTypes) {
 	var NotificationTarget = sequelize.define("NotificationTarget", {
@@ -54,20 +55,48 @@ module.exports = function(sequelize, DataTypes) {
 		});
 	}
 	NotificationTarget.notifyToChannel = function(channel, message) {
-		return global.db.AccountInGroup.findAll({
-			where : {
-				GroupId : channel.GroupId,
-				inviting : global.db.Group.INVITING_DONE
-			},
-			attributes : [ "AccountId" ]
-		}).then(function(accountInGroups) {
-			var ids = accountInGroups.map(function(accountInGroup) {
-				return accountInGroup.AccountId;
-			});
+		var loadTarget;
+		if (channel.GroupId && 0 != channel.GroupId) {
+			loadTarget = function() {
+				return global.db.AccountInGroup.findAll({
+					where : {
+						GroupId : channel.GroupId,
+						inviting : global.db.Group.INVITING_DONE
+					},
+					attributes : [ "AccountId" ]
+				}).then(function(accountInGroups) {
+					return new Promise(function(success) {
+						var ids = accountInGroups.map(function(accountInGroup) {
+							return accountInGroup.AccountId;
+						});
+						success(ids)
+					})
+				})
+			}
+		} else {
+			loadTarget = function() {
+				return global.db.AccountInChannel.findAll({
+					where : {
+						ChannelId : channel.id,
+					// inviting : global.db.AccountInChannel.INVITING_DONE
+					// TODO for security
+					},
+					attributes : [ "AccountId" ]
+				}).then(function(accountInChannels) {
+					return new Promise(function(success) {
+						var ids = accountInChannels.map(function(accountInChannel) {
+							return accountInChannel.AccountId;
+						});
+						success(ids)
+					})
+				})
+			}
+		}
+		return loadTarget().then(function(accountIds) {
 			return global.db.NotificationTarget.findAll({
 				where : {
 					ownerId : {
-						$in : ids
+						$in : accountIds
 					}
 				}
 			})

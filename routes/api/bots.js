@@ -14,7 +14,7 @@ router.post('/', function(req, res) {
 	}
 	var loadedAccount;
 	var loadedChannel;
-	Channel.resolveChannel(sessionKey, req.body.channelAccessKey).then(function(result) {
+	Channel.resolveChannelInGroup(sessionKey, req.body.channelAccessKey).then(function(result) {
 		loadedAccount = result.loadedAccount;
 		loadedChannel = result.loadedChannel;
 		return Random.createRandomBase62();

@@ -17,6 +17,7 @@
   "repository": "https://github.com/ukiuni/Slite.git",
   "dependencies": {
     "angular": "^1.4.3",
+    "angular-bootstrap-contextmenu": "^0.9.6",
     "angular-marked": "0.0.18",
     "aws-sdk": "^2.2.18",
     "bluebird": "^2.9.34",

@@ -20,8 +20,11 @@ module.exports = function(sequelize, DataTypes) {
 			foreignKey : "channelId"
 		});
 		Channel.hasMany(sequelize.Bot);
+		Channel.belongsToMany(sequelize.Account, {
+			through : sequelize.AccountInChannel
+		});
 	}
-	Channel.resolveChannel = function(sessionKey, channelAccessKey) {
+	Channel.resolveChannelInGroup = function(sessionKey, channelAccessKey) {
 		var loadedAccount;
 		var loadedChannel;
 		var createdMessage;
@@ -72,5 +75,6 @@ module.exports = function(sequelize, DataTypes) {
 			});
 		})
 	}
+	Channel.TYPE_PRIVATE = "private";
 	return Channel;
 };

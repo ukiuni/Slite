@@ -79,6 +79,7 @@
 		},
 		"channels" : {
 			"new" : "New channel",
+			"newPrivate" : "New private channel",
 			"name" : "Name",
 			"connectedToGitlab": "Connected to Gitlab",
 			"connectedToGithub": "Connected to Github"
@@ -96,7 +97,8 @@
 				"none" : "none",
 				"strongWordOnly" : "Strong word only",
 				"all" : "All"
-			}
+			},
+			"createPrivateChannel" : "Start Talk"
 		},
 		"dragAndDrop" : "Drag & Drop",
 		"dragAndDrops" : {
@@ -252,6 +254,7 @@
 		},
 		"channels" : {
 			"new" : "新規チャネル",
+			"newPrivate" : "新規プライベートチャネル",
 			"name" : "チャネル名",
 			"connectedToGitlab": "Gitlabに接続されています",
 			"connectedToGithub": "Githubに接続されています"
@@ -269,7 +272,8 @@
 				"none" : "なし",
 				"strongWordOnly" : "強調文字のみ",
 				"all" : "すべて"
-			}
+			},
+			"createPrivateChannel" : "トーク開始"
 		},
 		"dragAndDrop" : "Drag & Drop",
 		"dragAndDrops" : {

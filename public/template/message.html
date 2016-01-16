@@ -15,7 +15,7 @@
 						<div class="row marginForChannelName"></div>
 						<div class="row">
 							<div class="col-sm-12 col-xs-1" ng-repeat="account in channel.Group.Accounts track by account.id">
-								<div class="row messageAccountArea" ng-class="{'messageAccountAreaNow' : account.now}">
+								<div class="row messageAccountArea" ng-class="{'messageAccountAreaNow' : account.now}" context-menu="accountMenuOptions" model="account">
 									<div class="hidden-sm hidden-md hidden-lg col-xs-12">
 										<img class="accountIcon" style="height: 20px" ng-src="{{account.iconUrl}}" />
 									</div>

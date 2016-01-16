@@ -2,6 +2,7 @@ var Account = global.db.Account;
 var AccessKey = global.db.AccessKey;
 var Group = global.db.Group;
 var AccountInGroup = global.db.AccountInGroup;
+var AccountInChannel = global.db.AccountInChannel;
 var AccountConfig = global.db.AccountConfig;
 var Channel = global.db.Channel;
 var Content = global.db.Content;
@@ -604,6 +605,8 @@ router.get("/channels/accessible", function(req, res) {
 		res.status(400).end();
 		return;
 	}
+	var loadedAccount;
+	var loadedPrivateChannels;
 	AccessKey.findBySessionKey(req.query.sessionKey).then(function(accessKey) {
 		if (!accessKey) {
 			throw ERROR_NOTACCESSIBLE;
@@ -613,20 +616,44 @@ router.get("/channels/accessible", function(req, res) {
 		if (!account) {
 			throw ERROR_NOTACCESSIBLE;
 		}
-		return account.getGroups();
+		loadedAccount = account;
+		return account.getChannels({
+			include : [ {
+				model : Bot,
+				attribute : [ "id", "name", "iconUrl" ]
+			} ]
+		});
+	}).then(function(privateChannels) {
+		loadedPrivateChannels = privateChannels;
+		return loadedAccount.getGroups();
 	}).then(function(groups) {
 		if (!groups) {
-			res.status(200).json([]);
+			res.status(200).json(loadedPrivateChannels.filter(function(channel) {
+				return AccountInChannel.TYPE_JOIN == channel.AccountInChannel.type;
+			}));
 		} else {
 			var groupIds = groups.map(function(group) {
 				return group.id
 			});
-			Channel.findAll({
-				where : {
+			var notInChannelIds = loadedPrivateChannels.filter(function(channel) {
+				return AccountInChannel.TYPE_REAVE == channel.AccountInChannel.type;
+			}).map(function(accountInChannel) {
+				return accountInChannel.Channel.id;
+			})
+			var where = {
+				$and : {
 					GroupId : {
 						$in : groupIds
 					}
-				},
+				}
+			}
+			if (0 < notInChannelIds.length) {
+				where.$and.id = {
+					$notIn : notInChannelIds
+				}
+			}
+			Channel.findAll({
+				where : where,
 				include : [ {
 					model : Group,
 					include : [ {
@@ -637,7 +664,10 @@ router.get("/channels/accessible", function(req, res) {
 					attribute : [ "id", "name", "iconUrl" ]
 				} ]
 			}).then(function(channels) {
-				res.status(200).json(channels);
+				var privateChannels = loadedPrivateChannels.filter(function(channel) {
+					return AccountInChannel.TYPE_JOIN == channel.AccountInChannel.type;
+				});
+				res.status(200).json(channels.concat(privateChannels));
 			});
 		}
 	})["catch"](function(error) {
