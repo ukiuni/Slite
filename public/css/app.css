@@ -85,6 +85,14 @@ ul {
 	text-overflow: ellipsis;
 }
 
+.linebreak {
+	white-space: pre;
+	white-space: pre-wrap;
+	white-space: pre-line;
+	white-space: -hp-pre-line;
+	word-wrap: break-word;
+}
+
 .repeatOdd {
 	background-color: #FAFAFA;
 }
