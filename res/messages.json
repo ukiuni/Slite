@@ -12,7 +12,7 @@
 				"message" : "Message, Chat in other word, do with Markdown. And keeps log and You can search it.",
 				"content" : "You can write Content, in other word Report, with Markdown. You can put Image, video, and any type of file." 
 			},
-			"opensource" : "Slite is open source product.We are waiting your join."
+			"opensource" : "Platform must be opened.\nSlite is open source product.\nWe are waiting your join."
 		},
 		"menu" : {
 			"home" : "Home",
@@ -184,7 +184,7 @@
 				"message" : "メッセージは、言い換えるとチャットです。Markdownで記載できるため、動画、画像、リンク、テーブル、色んな手段でコミュニケーションをすることができます。また、メッセージは保存され、検索可能です。",
 				"content" : "Markdownを使ってコンテンツを作成、公開することができます。コンテンツには動画、画像など、様々な形式のファイルを添付することができます。" 
 			},
-			"opensource" : "Sliteはオープンソースで作成されています。ソースはGithabにて管理されています。皆様のご協力をお待ちしております。"
+			"opensource" : "プラットフォームは誰かの手に独占されるべきではないと考えます。\nSliteはオープンソースで作成されています。ソースはGithabにて管理されています。\n皆様のご参加をお待ちしております。"
 		},
 		"menu" : {
 			"home" : "Home",
