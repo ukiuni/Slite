@@ -9,6 +9,7 @@ var ContentBody = global.db.ContentBody;
 var Group = global.db.Group;
 var Message = global.db.Message;
 var AccountInGroup = global.db.AccountInGroup;
+var AccountInChannel = global.db.AccountInChannel;
 var Channel = global.db.Channel;
 var ERROR_NOTACCESSIBLE = "ERROR_NOTACCESSIBLE";
 var PRIVATE_ROOM_NAME_PREFIX = "accountId:";
@@ -66,13 +67,23 @@ var socketIO = function(io) {
 					throw ERROR_NOTACCESSIBLE;
 				}
 				loadedChannel = channel;
-				return AccountInGroup.find({
-					where : {
-						AccountId : socket.client.accountId,
-						GroupId : channel.GroupId,
-						inviting : Group.INVITING_DONE
-					}
-				});
+				if (channel.GroupId && 0 != channel.GroupId) {
+					return AccountInGroup.find({
+						where : {
+							AccountId : socket.client.accountId,
+							GroupId : channel.GroupId,
+							inviting : Group.INVITING_DONE
+						}
+					});
+				} else {
+					return AccountInChannel.find({
+						where : {
+							AccountId : socket.client.accountId,
+							ChannelId : channel.id,
+						// TODO inviting : AccountInChannel.INVITING_DONE
+						}
+					});
+				}
 			}).then(function(accountInGroup) {
 				if (!accountInGroup) {
 					throw ERROR_NOTACCESSIBLE;

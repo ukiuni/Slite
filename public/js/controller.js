@@ -22,7 +22,7 @@ function bounce() {
 toastr.options = {
 	"positionClass" : "toast-bottom-right"
 }
-var myapp = angular.module("app", [ "ui.bootstrap", "ngRoute", "ngResource", "ngCookies", "ngFileUpload", "ngTagsInput", "hc.marked" ]);
+var myapp = angular.module("app", [ "ui.bootstrap", "ngRoute", "ngResource", "ngCookies", "ngFileUpload", "ngTagsInput", "hc.marked", 'ui.bootstrap.contextMenu' ]);
 myapp.config([ "$locationProvider", "$httpProvider", "$routeProvider", "markedProvider", function($locationProvider, $httpProvider, $routeProvider, $markedProvider) {
 	$locationProvider.html5Mode(true);
 	$httpProvider.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded;charset=utf-8';
@@ -428,7 +428,7 @@ myapp.run([ "$rootScope", "$location", "$resource", "$cookies", "$route", "Uploa
 			});
 		} else if ("remindAppended" == data.type) {
 			var targetDate = new Date(parseInt(data.info.time));
-			$rootScope.showInfo($rootScope.messages.remindAppended + " : [" + targetDate.getHours() + ":" + targetDate.getMinutes() + "]" + data.info.message);
+			$rootScope.showInfo($rootScope.messages.remindAppended + " : [" + targetDate.getHours() + ":" + targetDate.getMinutes() + "] " + data.info.message);
 		}
 	});
 	var currentVersion;
@@ -2301,6 +2301,38 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 	$scope.noMarginTop = true;
 	$rootScope.nowInChannel = true;
 	var loadingHistory = false;
+	$scope.accountMenuOptions = [ [ $rootScope.messages.messages.createPrivateChannel, function($itemScope, $event, account) {
+		var dialogController = [ "$scope", "$uibModalInstance", function($dialogScope, $modalInstance) {
+			$dialogScope.create = function() {
+				if ("" == $dialogScope.text) {
+					return;
+				}
+				$modalInstance.close($dialogScope.text);
+			};
+			$dialogScope.text = $rootScope.myAccount.name + "-" + account.name;
+			$dialogScope.message = $rootScope.messages.channels.newPrivate;
+			$dialogScope.placeholder = $rootScope.messages.channels.name;
+			$dialogScope.onCompleteButtonMessage = $rootScope.messages.channels["new"];
+		} ];
+		var modalInstance = $modal.open({
+			templateUrl : 'template/confirmWithTextDialog.html',
+			controller : dialogController
+		});
+		modalInstance.result.then(function(channelName) {
+			post($http, "/api/channels", {
+				sessionKey : $rootScope.getSessionKey(),
+				name : channelName,
+				targetAccountId : account.id
+			}).then(function(response) {
+				$scope.joiningChannels.push(response.data);
+				prepareChannel(response.data)
+			})["catch"](function(response) {
+				$rootScope.showErrorWithStatus(response.status);
+				sendingMessage = null;
+			});
+		}, function() {
+		});
+	} ] ]
 	$scope.loadHistory = function() {
 		if ((!$scope.channel.messages[0]) || loadingHistory) {
 			return;
@@ -2312,13 +2344,9 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 			idBefore : lastLoadId
 		});
 	}
-	var channelMap = [];
-	$resource('/api/account/channels/accessible').query({
-		sessionKey : $rootScope.getSessionKey()
-	}, function(channels) {
-		$scope.joiningChannels = channels;
-		$scope.joiningChannels.forEach(function(channel) {
-			channel.messages = [];
+	var prepareChannel = function(channel) {
+		channel.messages = [];
+		if (channel.Bots) {
 			channel.Bots.forEach(function(bot) {
 				if (1 == bot.type) {
 					channel.hasGitlabBot = true;
@@ -2326,10 +2354,22 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 					channel.hasGithubBot = true;
 				}
 			})
-			channel.unreadCount = 0;
-			$rootScope.listenChannel(channel.accessKey, listenComment);
-			channelMap[channel.accessKey] = channel;
-		});
+		}
+		channel.unreadCount = 0;
+		if (!channel.Group) {
+			channel.Group = {};
+			channel.Group.isTemporary = true;
+			channel.Group.Accounts = [];
+		}
+		$rootScope.listenChannel(channel.accessKey, listenComment);
+		channelMap[channel.accessKey] = channel;
+	}
+	var channelMap = [];
+	$resource('/api/account/channels/accessible').query({
+		sessionKey : $rootScope.getSessionKey()
+	}, function(channels) {
+		$scope.joiningChannels = channels;
+		$scope.joiningChannels.forEach(prepareChannel);
 		$scope.$on('$destroy', function() {
 			$scope.joiningChannels.forEach(function(channel) {
 				$rootScope.unListenChannel(channel.accessKey, listenComment);
@@ -2358,7 +2398,9 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 			}
 		}
 		delete $scope.channel.notify;
-		$scope.channel.Group.visibility = $rootScope.groupVisibilities[$scope.channel.Group.visibility - 1];
+		if ($scope.channel.Group) {
+			$scope.channel.Group.visibility = $rootScope.groupVisibilities[$scope.channel.Group.visibility - 1];
+		}
 		if (0 == $scope.channel.messages.length) {
 			$rootScope.requestMessage({
 				channelAccessKey : channelAccessKey
@@ -2535,7 +2577,13 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 					}, 50);
 				}, 0);
 			}
-			post($http, '/api/groups/' + $scope.channel.Group.accessKey + "/channels/" + $scope.channel.accessKey + "/messages", {
+			var postUrl;
+			if ($scope.channel.Group.isTemporary) {
+				postUrl = "/api/channels/" + $scope.channel.accessKey + "/messages";
+			} else {
+				postUrl = "/api/groups/" + $scope.channel.Group.accessKey + "/channels/" + $scope.channel.accessKey + "/messages"
+			}
+			post($http, postUrl, {
 				sessionKey : $rootScope.getSessionKey(),
 				body : sendingMessage
 			}).then(function(response) {
@@ -2690,7 +2738,7 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 			templateUrl : 'template/confirmWithTextDialog.html',
 			controller : dialogController
 		});
-		modalInstance.result.then(function(channelName) {
+		modalInstance.result.then(function() {
 		}, function() {
 		});
 	}

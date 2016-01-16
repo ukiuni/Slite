@@ -164,6 +164,9 @@ module.exports = function(sequelize, DataTypes) {
 		Account.belongsToMany(sequelize.Group, {
 			through : sequelize.AccountInGroup
 		});
+		Account.belongsToMany(sequelize.Channel, {
+			through : sequelize.AccountInChannel
+		});
 		Account.hasMany(sequelize.NotificationTarget, {
 			foreignKey : "ownerId"
 		});

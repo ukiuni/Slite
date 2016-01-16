@@ -29,6 +29,7 @@
 <script src="assets/angular-marked.min.js"></script>
 <script src="assets/ng-file-upload.min.js"></script>
 <script src="assets/ui-bootstrap-tpls-0.14.3.min.js"></script>
+<script src="assets/contextMenu.js"></script>
 
 <link href="assets/toastr/toastr.min.css" rel="stylesheet" />
 <script src="assets/toastr/toastr.min.js"></script>
@@ -104,8 +105,7 @@
 		</div>
 	</nav>
 	<div ng-view ng-class="{marginTop10: !noMarginTop }"></div>
-	<uib-progressbar id="progressArea" ng-show="progressing" class="progressAbsolute progress-striped active" value="progress.value" type="progress.type">
-	<b>{{progress.message + progress.value}}%</b></uib-progressbar>
+	<uib-progressbar id="progressArea" ng-show="progressing" class="progressAbsolute progress-striped active" value="progress.value" type="progress.type"> <b>{{progress.message + progress.value}}%</b></uib-progressbar>
 </body>
 </html>
 
