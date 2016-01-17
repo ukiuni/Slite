@@ -12,7 +12,7 @@ module.exports = function(sequelize, DataTypes) {
 		});
 	};
 	AccountInChannel.TYPE_JOIN = 1;
-	AccountInChannel.TYPE_REAVE = 2;
+	AccountInChannel.TYPE_AWAY = 2;
 	AccountInChannel.INVITING_START = 1;
 	AccountInChannel.INVITING_REQUESTED = 2;
 	AccountInChannel.INVITING_DONE = 3;

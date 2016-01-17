@@ -61,7 +61,8 @@ router.post('/', function(req, res) {
 		return Channel.create({
 			ownerId : loadedAccount.id,
 			accessKey : random,
-			name : req.body.name
+			name : req.body.name,
+			type : Channel.TYPE_PRIVATE
 		});
 	}).then(function(channel) {
 		createdChannel = channel;
@@ -133,6 +134,73 @@ router.post('/:channelAccessKey/messages', function(req, res) {
 		return Message.handleMessage(loadedAccount, loadedChannel, req.body.body);
 	}).then(function(result) {
 		res.status(201).json(result);
+	})["catch"](function(error) {
+		if (ERROR_NOTACCESSIBLE == error) {
+			res.status(403).end();
+		} else if (ERROR_NOTFOUND == error) {
+			res.status(404).end();
+		} else {
+			console.log(error.stack);
+			res.status(500).end();
+		}
+	});
+});
+router.put('/:channelAccessKey/away', function(req, res) {
+	var sessionKey = req.body.sessionKey;
+	if (!sessionKey) {
+		res.status(400).end();
+		return;
+	}
+	if (!req.params.channelAccessKey) {
+		res.status(400).end();
+		return;
+	}
+	var loadedAccount;
+	var loadedChannel;
+	AccessKey.findBySessionKey(sessionKey).then(function(accessKey) {
+		if (!accessKey) {
+			throw ERROR_NOTACCESSIBLE;
+		}
+		return Account.findById(accessKey.AccountId);
+	}).then(function(account) {
+		if (!account) {
+			throw ERROR_NOTACCESSIBLE;
+		}
+		loadedAccount = account;
+		return Channel.find({
+			where : {
+				accessKey : req.params.channelAccessKey
+			}
+		});
+	}).then(function(channel) {
+		if (!channel) {
+			throw ERROR_NOTFOUND;
+		}
+		loadedChannel = channel;
+		return AccountInChannel.find({
+			where : {
+				ChannelId : loadedChannel.id,
+				AccountId : loadedAccount.id
+			}
+		})
+	}).then(function(accountInChannel) {
+		if (Channel.TYPE_PRIVATE == loadedChannel.type) {
+			if (!accountInChannel) {
+				throw ERROR_NOTFOUND;
+			}
+			return accountInChannel.destroy();
+		} else {
+			if (accountInChannel && AccountInChannel.TYPE_AWAY == accountInChannel.type) {
+				throw ERROR_NOTACCESSIBLE;
+			}
+			return AccountInChannel.create({
+				AccountId : loadedAccount.id,
+				ChannelId : loadedChannel.id,
+				type : AccountInChannel.TYPE_AWAY
+			});
+		}
+	}).then(function() {
+		res.status(200).end();
 	})["catch"](function(error) {
 		if (ERROR_NOTACCESSIBLE == error) {
 			res.status(403).end();

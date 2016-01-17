@@ -32,8 +32,8 @@
 				</div>
 				<div id="messageChannelsArea" class="row hidden-xs" ng-show="joiningChannels.length > 1">
 					<div class="col-xs-12" ng-repeat="channel in joiningChannels track by channel.id">
-						<div class="otherChannel" ng-click="changeChannel(channel)" ng-class="{'brink':channel.notify}">
-							{{channel.name}}/{{channel.Group.name}}<span ng-show="channel.unreadCount" class="badge" style="margin-left: 10px" ng-bind="channel.unreadCount"></span>
+						<div class="otherChannel" ng-click="changeChannel(channel)" ng-class="{'brink':channel.notify}" context-menu="channelMenuOptions" model="channel">
+							<span ng-show="channel.Group.isTemporary" class="glyphicon glyphicon-envelope" style="margin-right: 5px"></span>{{channel.name}}<span ng-show="channel.Group.name">/</span>{{channel.Group.name}}<span ng-show="channel.unreadCount" class="badge" style="margin-left: 10px" ng-bind="channel.unreadCount"></span>
 						</div>
 					</div>
 				</div>
