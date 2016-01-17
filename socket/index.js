@@ -233,7 +233,11 @@ var socketIO = function(io) {
 			type : "invitationRequest",
 			info : {
 				group : group,
-				account : fromAccount
+				account : {
+					id : fromAccount.id,
+					name : fromAccount.name,
+					iconUrl : fromAccount.iconUrl
+				}
 			}
 		});
 	}
@@ -242,6 +246,19 @@ var socketIO = function(io) {
 			type : "invited",
 			info : {
 				group : group
+			}
+		});
+	}
+	self.sendAppendsChannelEvent = function(targetAccountId, fromAccount, channel) {
+		io.to(PRIVATE_ROOM_NAME_PREFIX + targetAccountId).emit("channelEvent", {
+			type : "appendsChannel",
+			info : {
+				channel : channel,
+				fromAccount : {
+					id : fromAccount.id,
+					name : fromAccount.name,
+					iconUrl : fromAccount.iconUrl
+				}
 			}
 		});
 	}
