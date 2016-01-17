@@ -98,7 +98,9 @@
 				"strongWordOnly" : "Strong word only",
 				"all" : "All"
 			},
-			"createPrivateChannel" : "Start Talk"
+			"createPrivateChannel" : "Start Talk",
+			"awayFromchannel" : "Away",
+			"confirmAwayFromChannel" : "Away from channel?"
 		},
 		"dragAndDrop" : "Drag & Drop",
 		"dragAndDrops" : {
@@ -273,7 +275,9 @@
 				"strongWordOnly" : "強調文字のみ",
 				"all" : "すべて"
 			},
-			"createPrivateChannel" : "トーク開始"
+			"createPrivateChannel" : "トーク開始",
+			"awayFromchannel" : "チャネル離脱",
+			"confirmAwayFromChannel" : "このチャネルを離脱しますか?"
 		},
 		"dragAndDrop" : "Drag & Drop",
 		"dragAndDrops" : {

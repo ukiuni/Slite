@@ -2328,10 +2328,44 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 				prepareChannel(response.data)
 			})["catch"](function(response) {
 				$rootScope.showErrorWithStatus(response.status);
-				sendingMessage = null;
 			});
 		}, function() {
 		});
+	}, function($itemScope, $event, account) {
+		return account.id != $rootScope.myAccount.id;
+	} ] ]
+	$scope.channelMenuOptions = [ [ $rootScope.messages.messages.awayFromchannel, function($itemScope, $event, channel) {
+		var dialogController = [ "$scope", "$uibModalInstance", function($dialogScope, $modalInstance) {
+			$dialogScope["delete"] = function() {
+				$modalInstance.close();
+			};
+			$dialogScope.message = $rootScope.messages.messages.confirmAwayFromChannel + "\n\n" + channel.name;
+		} ];
+		var modalInstance = $modal.open({
+			templateUrl : 'template/confirmDialog.html',
+			controller : dialogController
+		});
+		modalInstance.result.then(function() {
+			put($http, "/api/channels/" + channel.accessKey + "/away", {
+				accessKey : channel.accessKey,
+				sessionKey : $rootScope.getSessionKey()
+			}).then(function() {
+				for ( var i in $scope.joiningChannels) {
+					if ($scope.joiningChannels[i].accessKey == channel.accessKey) {
+						$scope.joiningChannels.splice(i, 1);
+						var selectToChannel = $scope.joiningChannels[i - 1] || $scope.joiningChannels[0];
+						if (selectToChannel) {
+							selectChannel(selectToChannel.accessKey);
+						}
+						break;
+					}
+				}
+			})["catch"](function(response) {
+				$rootScope.showErrorWithStatus(response.status);
+			});
+		});
+	}, function($itemScope, $event, channel) {
+		return "private" == channel.type;
 	} ] ]
 	$scope.loadHistory = function() {
 		if ((!$scope.channel.messages[0]) || loadingHistory) {

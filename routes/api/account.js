@@ -636,7 +636,7 @@ router.get("/channels/accessible", function(req, res) {
 				return group.id
 			});
 			var notInChannelIds = loadedPrivateChannels.filter(function(channel) {
-				return AccountInChannel.TYPE_REAVE == channel.AccountInChannel.type;
+				return AccountInChannel.TYPE_AWAY == channel.AccountInChannel.type;
 			}).map(function(accountInChannel) {
 				return accountInChannel.Channel.id;
 			})
