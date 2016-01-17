@@ -82,7 +82,9 @@
 			"newPrivate" : "New private channel",
 			"name" : "Name",
 			"connectedToGitlab": "Connected to Gitlab",
-			"connectedToGithub": "Connected to Github"
+			"connectedToGithub": "Connected to Github",
+			"invited": "You are invited to channel",
+			"from": "from"
 		},
 		"message" : "message",
 		"messages" : {
@@ -259,7 +261,9 @@
 			"newPrivate" : "新規プライベートチャネル",
 			"name" : "チャネル名",
 			"connectedToGitlab": "Gitlabに接続されています",
-			"connectedToGithub": "Githubに接続されています"
+			"connectedToGithub": "Githubに接続されています",
+			"invited": "チャンネルに招待されました。",
+			"from": "招待者"
 		},
 		"message" : "メッセージ",
 		"messages" : {

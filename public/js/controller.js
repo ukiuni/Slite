@@ -474,6 +474,18 @@ myapp.run([ "$rootScope", "$location", "$resource", "$cookies", "$route", "Uploa
 				$rootScope.socket.emit('pongListening', data);
 			}
 		});
+		$rootScope.socket.on('channelEvent', function(data) {
+			if (channelEventListener) {
+				channelEventListener(data);
+			}
+		});
+	}
+	var channelEventListener;
+	$rootScope.setChannelEventListener = function(listener) {
+		channelEventListener = listener;
+	}
+	$rootScope.removeChannelEventListener = function() {
+		channelEventListener = null;
 	}
 	initSocket();
 	var authorizationImageUrls = [ "", "/images/viewer.png", "/images/editor.png", "/images/admin.png" ];
@@ -2301,6 +2313,23 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 	$scope.noMarginTop = true;
 	$rootScope.nowInChannel = true;
 	var loadingHistory = false;
+	var channelsEventListener = function(event) {
+		if ("appendsChannel" == event.type) {
+			$scope.joiningChannels.push(event.info.channel);
+			prepareChannel(event.info.channel);
+			var toastMessage = $rootScope.messages.channels.invited + "[" + event.info.channel.name;
+			toastMessage = toastMessage + "]" + $rootScope.messages.channels.inviter + " " + event.info.fromAccount.name;
+			$rootScope.showInfo(toastMessage, function() {
+				$rootScope.$apply(function() {
+					$location.path("/messages");
+				});
+			});
+		}
+	}
+	$rootScope.setChannelEventListener(channelsEventListener);
+	$scope.$on('$destroy', function() {
+		$rootScope.removeChannelEventListener(channelsEventListener);
+	})
 	$scope.accountMenuOptions = [ [ $rootScope.messages.messages.createPrivateChannel, function($itemScope, $event, account) {
 		var dialogController = [ "$scope", "$uibModalInstance", function($dialogScope, $modalInstance) {
 			$dialogScope.create = function() {

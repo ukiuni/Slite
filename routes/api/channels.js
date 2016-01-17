@@ -7,6 +7,7 @@ var Message = global.db.Message;
 var AccountInGroup = global.db.AccountInGroup;
 var AccountInChannel = global.db.AccountInChannel;
 var Random = require(__dirname + "/../../util/random");
+var socket = global.socket;
 var ERROR_NOTACCESSIBLE = "ERROR_NOTACCESSIBLE";
 var ERROR_NOTFOUND = "ERROR_NOTFOUND";
 var ERROR_DUPLICATED = "ERROR_DUPLICATED";
@@ -80,6 +81,7 @@ router.post('/', function(req, res) {
 		});
 	}).then(function() {
 		res.status(201).json(createdChannel);
+		socket.sendAppendsChannelEvent(req.body.targetAccountId, loadedAccount, createdChannel);
 	})["catch"](function(error) {
 		if (ERROR_NOTACCESSIBLE == error) {
 			res.status(403).end();
