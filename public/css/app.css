@@ -193,6 +193,10 @@ ul {
 /* Message */
 .messageAccountArea {
 	opacity: 0.5;
+	cursor: pointer;
+}
+.messageAccountArea:HOVER {
+	cursor: pointer;
 }
 
 @media ( min-width : 768px) {
