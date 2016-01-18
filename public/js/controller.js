@@ -2626,8 +2626,19 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 			if ("" == $scope.text) {
 				return;
 			}
-			if ($scope.text.match(/^\/remind[\p{blank}\s]+([0-2]?[0-9]):([0-5]?[0-9])[\p{blank}\s]+([\s\S]+)$/)) {
-				sendingMessage = $scope.text;
+			var matchToRemind;
+			if (matchToRemind = $scope.text.match(/^\/remind[\p{blank}\s]+([0-2]?[0-9]):([0-5]?[0-9])[\p{blank}\s]+([\s\S]+)$/)) {
+				var hour = matchToRemind[1];
+				var minutes = matchToRemind[2];
+				var message = matchToRemind[3];
+				var dateToEpoc = new Date();
+				dateToEpoc.setHours(parseInt(hour));
+				dateToEpoc.setMinutes(parseInt(minutes));
+				if (dateToEpoc < new Date()) {
+					var time = dateToEpoc.getTime() + 24 * 60 * 60 * 1000;
+					dateToEpoc = new Date(time);
+				}
+				sendingMessage = "/remind " + dateToEpoc.getTime() + " " + message;
 				$scope.text = "";
 			} else {
 				sendingMessage = $scope.text;
