@@ -233,11 +233,7 @@ var socketIO = function(io) {
 			type : "invitationRequest",
 			info : {
 				group : group,
-				account : {
-					id : fromAccount.id,
-					name : fromAccount.name,
-					iconUrl : fromAccount.iconUrl
-				}
+				account : fromAccount
 			}
 		});
 	}

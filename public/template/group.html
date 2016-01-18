@@ -85,6 +85,8 @@
 										<ul class="dropdown-menu" aria-labelledby="memberEditDropdown">
 											<li class="dropdown-header" ng-bind="messages.groups.invite"></li>
 											<li ng-repeat="auth in groupAuthorizations track by auth.keyNumber"><a href ng-click="inviteWithRequest(account.mail, auth.keyNumber)" ng-bind="auth.message"></a></li>
+											<li role="separator" class="divider"></li>
+											<li><a href ng-click="strike(account)" ng-bind="messages.groups.strike"></a></li>
 										</ul>
 									</div>
 								</div>

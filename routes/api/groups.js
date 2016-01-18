@@ -847,13 +847,37 @@ router.put('/:accessKey/authorization', function(req, res) {
 	});
 });
 router.put('/:accessKey/strike', function(req, res) {
-	var accessKey = req.body.sessionKey || req.body.access_token;
-	if (!accessKey || !req.body.targetId) {
+	if (!req.body.sessionKey || !req.params.accessKey || !req.body.targetId) {
 		res.status(400).end();
 		return;
 	}
-	loadTargetAccountIngroupAsAdmin(accessKey, req.params.accessKey, req.body.targetId).then(function(accountInGroup) {
-		return accountInGroup.destroy();
+	AccessKey.findBySessionKey(req.body.sessionKey).then(function(accessKey) {
+		if (accessKey.AccountId == req.body.targetId) {
+			Group.find({
+				where : {
+					accessKey : req.params.accessKey
+				}
+			}).then(function(group) {
+				if (!group) {
+					throw ERROR_NOTFOUND;
+				}
+				return AccountInGroup.find({
+					where : {
+						AccountId : accessKey.AccountId,
+						GroupId : group.id
+					}
+				})
+			}).then(function(accountInGroup) {
+				if (!accountInGroup) {
+					throw ERROR_NOTFOUND;
+				}
+				return accountInGroup.destroy();
+			})
+		} else {
+			return loadTargetAccountIngroupAsAdmin(req.body.sessionKey, req.params.accessKey, req.body.targetId).then(function(accountInGroup) {
+				return accountInGroup.destroy();
+			})
+		}
 	}).then(function(accountInGroup) {
 		res.status(200).json(accountInGroup);
 	})["catch"](function(error) {

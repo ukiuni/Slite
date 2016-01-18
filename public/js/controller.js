@@ -174,7 +174,7 @@ myapp.config([ "$locationProvider", "$httpProvider", "$routeProvider", "markedPr
 		controller : "indexController"
 	});
 } ]);
-myapp.run([ "$rootScope", "$location", "$resource", "$cookies", "$route", "Upload", function($rootScope, $location, $resource, $cookies, $route, $uploader) {
+myapp.run([ "$rootScope", "$location", "$resource", "$cookies", "$route", "$http", "$uibModal", "Upload", function($rootScope, $location, $resource, $cookies, $route, $http, $modal, $uploader) {
 	$resource('/api/resource/messages').get({
 		lang : ((navigator.languages && navigator.languages[0]) || navigator.browserLanguage || navigator.language || navigator.userLanguage).substr(0, 2)
 	}, function(messages) {
@@ -674,6 +674,34 @@ myapp.run([ "$rootScope", "$location", "$resource", "$cookies", "$route", "Uploa
 		}
 	}
 	$rootScope.openWithBrowser = openWithBrowser;
+	$rootScope.strike = function(groupAccessKey, account, onSuccess) {
+		var strikeAccount = function() {
+			put($http, '/api/groups/' + groupAccessKey + "/strike", {
+				sessionKey : $rootScope.getSessionKey(),
+				targetId : account.id
+			}).then(function(response) {
+				if (onSuccess) {
+					onSuccess(response)
+				}
+			})["catch"](function(response) {
+				$rootScope.showErrorWithStatus(response.status);
+			});
+		}
+		var dialogController = [ "$scope", "$uibModalInstance", function($dialogScope, $modalInstance) {
+			$dialogScope["delete"] = function() {
+				$modalInstance.close();
+			};
+			$dialogScope.message = $rootScope.messages.groups.confirmStrike + "\n\n" + account.name;
+		} ];
+		var modalInstance = $modal.open({
+			templateUrl : 'template/confirmDialog.html',
+			controller : dialogController
+		});
+		modalInstance.result.then(function() {
+			strikeAccount();
+		}, function() {
+		});
+	}
 } ]);
 var openWithBrowser = function(url, event) {
 	if (isElectron) {
@@ -2182,6 +2210,16 @@ var groupController = [ "$rootScope", "$scope", "$resource", "$location", "$http
 	$scope.$on('$destroy', function() {
 		$rootScope.removeGroupListener($routeParams.accessKey);
 	});
+	$scope.strike = function(account) {
+		$rootScope.strike($routeParams.accessKey, account, function(response) {
+			for ( var i in $scope.group.Accounts) {
+				if ($scope.group.Accounts[i].id == response.data.AccountId) {
+					$scope.group.Accounts.splice(i, 1);
+					return;
+				}
+			}
+		})
+	}
 } ];
 var messageLogController = [ "$rootScope", "$scope", "$resource", "$location", "$http", "$routeParams", "$uibModal", function($rootScope, $scope, $resource, $location, $http, $routeParams, $modal) {
 	$scope.from = $routeParams.from;
@@ -2278,35 +2316,14 @@ var editGroupController = [ "$rootScope", "$scope", "$resource", "$location", "$
 		});
 	}
 	$scope.strike = function(account) {
-		var strikeAccount = function() {
-			put($http, '/api/groups/' + $routeParams.accessKey + "/strike", {
-				sessionKey : $rootScope.getSessionKey(),
-				targetId : account.id
-			}).then(function(response) {
-				for ( var i in $scope.group.Accounts) {
-					if ($scope.group.Accounts[i].id == response.data.AccountId) {
-						$scope.group.Accounts.splice(i, 1);
-						return;
-					}
+		$rootScope.strike($routeParams.accessKey, account, function(response) {
+			for ( var i in $scope.group.Accounts) {
+				if ($scope.group.Accounts[i].id == response.data.AccountId) {
+					$scope.group.Accounts.splice(i, 1);
+					return;
 				}
-			})["catch"](function(response) {
-				$rootScope.showErrorWithStatus(response.status);
-			});
-		}
-		var dialogController = [ "$scope", "$uibModalInstance", function($dialogScope, $modalInstance) {
-			$dialogScope["delete"] = function() {
-				$modalInstance.close();
-			};
-			$dialogScope.message = $rootScope.messages.groups.confirmStrike + "\n\n" + account.name;
-		} ];
-		var modalInstance = $modal.open({
-			templateUrl : 'template/confirmDialog.html',
-			controller : dialogController
-		});
-		modalInstance.result.then(function() {
-			strikeAccount();
-		}, function() {
-		});
+			}
+		})
 	}
 } ];
 var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$http", "$routeParams", "$uibModal", "Upload", function($rootScope, $scope, $resource, $location, $http, $routeParams, $modal, $uploader) {
