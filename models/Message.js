@@ -49,6 +49,23 @@ module.exports = function(sequelize, DataTypes) {
 					success(timerTask);
 					global.socket.sendRemindAppendedEventToAccount(account.id, targetDate.getTime(), message);
 				})["catch"](fail)
+			} else if ((matchToRemind = body.match(/^\/remind[\p{blank}\s]+([0-9]+)[\p{blank}\s]+([\s\S]+)$/))) {
+				var epoc = matchToRemind[1];
+				var message = matchToRemind[2];
+				var targetDate = new Date(parseInt(epoc));
+				global.db.TimerTask.create({
+					targetDate : targetDate,
+					config : JSON.stringify({
+						ownerId : account.id,
+						channelId : channel.id,
+						message : message
+					}),
+					type : global.db.TimerTask.TYPE_REMIND,
+					repeatType : global.db.TimerTask.REPEAT_TYPE_NONE
+				}).then(function(timerTask) {
+					success(timerTask);
+					global.socket.sendRemindAppendedEventToAccount(account.id, targetDate.getTime(), message);
+				})["catch"](fail)
 			} else {
 				Random.createRandomBase62().then(function(random) {
 					return global.db.Message.create({
