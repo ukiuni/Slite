@@ -112,7 +112,7 @@ if (require.main !== module) {
 		global.db.TimerTask.findAll({
 			where : {
 				targetDate : {
-					$lt : new Date()
+					$lt : new Date(new Date().getTime() + 30000)//To reduce the error from work interval.
 				}
 			}
 		}).then(function(timerTasks) {
