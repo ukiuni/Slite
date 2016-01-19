@@ -137,7 +137,7 @@
 		"confirmDelete" : "Delete it?",
 		"createdDate" : "Created date",
 		"hide" : "hide",
-		"systemUpdatedReload" : "Sytem is updated\nClick to reload",
+		"systemUpdatedReload" : "Slite is updated\nClick to reload",
 		"content" : "content",
 		"contents" : {
 			"self" : "content",
@@ -316,7 +316,7 @@
 		"confirmDelete" : "削除しますか？",
 		"createdDate" : "作成日",
 		"hide" : "非表示",
-		"systemUpdatedReload" : "システムが更新されました。\n反映のためにクリックしてください。",
+		"systemUpdatedReload" : "Sliteが更新されました。\n反映のためにクリックしてください。",
 		"content" : "投稿",
 		"contents" : {
 			"self" : "自分の投稿",
