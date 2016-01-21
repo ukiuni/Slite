@@ -54,7 +54,7 @@
 										<img class="accountIcon" style="height: 40px" ng-src="{{message.Bot.iconUrl || message.owner.iconUrl}}" />
 									</div>
 									<div class="col-xs-10">
-										<div class="row" style="color: #999; font-size: 10px; height: 20px">
+										<div class="row" style="color: #999; font-size: 10px;">
 											<div class="col-xs-3 ellipsis" title="{{message.Bot.name || message.owner.name}}" alt="{{message.Bot.name || message.owner.name}}" ng-bind="message.Bot.name || message.owner.name"></div>
 											<div class="ellipsis" ng-class="{'col-xs-5':message.Bot, 'col-xs-9':!message.Bot}" ng-bind="message.createdAt | date :'yyyy/MM/dd HH:mm:ss'"></div>
 											<div class="ellipsis col-xs-4" ng-show="message.Bot" ng-bind="'owner ' + message.owner.name"></div>
@@ -69,7 +69,7 @@
 										<img class="accountIcon" style="height: 40px" src="/images/timer.png" />
 									</div>
 									<div class="col-xs-10">
-										<div class="row" style="color: #999; font-size: 10px; height: 20px">
+										<div class="row" style="color: #999; font-size: 10px;">
 											<div class="col-xs-3 ellipsis" title="{{messages.app.title + ' reminder'}}" alt="{{messages.app.title + ' reminder'}}" ng-bind="messages.app.title + ' reminder'"></div>
 											<div class="ellipsis col-xs-5" ng-bind="message.createdAt | date :'yyyy/MM/dd HH:mm:ss'"></div>
 											<div class="ellipsis col-xs-4" ng-bind="'remind from ' + message.owner.name"></div>
