@@ -48,7 +48,7 @@
   },
   "devDependencies": {
     "chromedriver": "^2.16.0",
-    "nightwatch": "^0.7.11",
+    "nightwatch": "^0.8.15",
     "node-dev": "^2.6.2",
     "selenium-standalone": "^4.5.3"
   }

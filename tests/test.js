@@ -93,10 +93,10 @@ var tests = {
 			Actions.signin(client, account);
 			client.url(groupUrl);
 			client.waitForElementVisible('#memberArea', 1000);
-			client.waitForElementVisible("#memberArea > div > div:last-child > div > div > div:last-child > div > a", 1000);
-			client.click("#memberArea > div > div:last-child > div > div > div:last-child > div > a");
-			client.waitForElementVisible("#memberArea > div > div:last-child > div > div > div:last-child > div > ul > li:last-child", 10000);
-			client.click("#memberArea > div > div:last-child > div > div > div:last-child > div > ul > li:last-child");
+			client.waitForElementVisible("#memberArea > div > div:last-child > div > div > div:last-child > div:last-child > a", 10000);
+			client.click("#memberArea > div > div:last-child > div > div > div:last-child > div:last-child > a");
+			client.waitForElementVisible("#memberArea > div > div:last-child > div > div > div:last-child > div:last-child > ul > li:nth-last-child(3)", 10000);
+			client.click("#memberArea > div > div:last-child > div > div > div:last-child > div:last-child > ul > li:nth-last-child(3)");
 			Actions.signout(client);
 			Actions.signin(client, account2);
 			client.url(groupUrl);
@@ -134,10 +134,10 @@ var tests = {
 			Actions.signin(client, account);
 			client.url(groupUrl);
 			client.waitForElementVisible('#memberArea', 1000);
-			client.waitForElementVisible("#memberArea > div > div:last-child > div > div > div:last-child > div > a", 10000);
-			client.click("#memberArea > div > div:last-child > div > div > div:last-child > div > a");
-			client.waitForElementVisible("#memberArea > div > div:last-child > div > div > div:last-child > div > ul > li:last-child > a", 10000);
-			client.click("#memberArea > div > div:last-child > div > div > div:last-child > div > ul > li:last-child > a");
+			client.waitForElementVisible("#memberArea > div > div:last-child > div > div > div:last-child > div:last-child > a", 10000);
+			client.click("#memberArea > div > div:last-child > div > div > div:last-child > div:last-child > a");
+			client.waitForElementVisible("#memberArea > div > div:last-child > div > div > div:last-child > div:last-child > ul > li:nth-last-child(3) > a", 10000);
+			client.click("#memberArea > div > div:last-child > div > div > div:last-child > div:last-child > ul > li:nth-last-child(3) > a");
 			client.pause(1000);
 			Actions.signout(client);
 			Actions.createAccountAndSignin(client, account2);
@@ -190,18 +190,20 @@ var tests = {
 				client.waitForElementVisible('#requestInvitationButtonOnSecret', 1000);
 				client.click("#requestInvitationButtonOnSecret");
 				client.waitForElementVisible('.toast', 1000);
-				client.click(".toast");//For hide toast caz it hides sign out button 
+				client.click(".toast");// For hide toast caz it hides sign out
+				// button
 				client.waitForElementVisible('.toast', 1000);
-				client.click(".toast");//For hide toast caz it hides sign out button 
-				client.waitForElementNotVisible('.toast', 10000);
+				client.click(".toast");// For hide toast caz it hides sign out
+				// button
+				client.waitForElementNotPresent('.toast', 10000);
 				Actions.signout(client);
 				Actions.signin(client, account);
 				client.url(groupUrl);
 				client.waitForElementVisible('#memberArea', 1000);
-				client.waitForElementVisible("#memberArea > div > div:last-child > div > div > div:last-child > div > a", 10000);
-				client.click("#memberArea > div > div:last-child > div > div > div:last-child > div > a");
-				client.waitForElementVisible("#memberArea > div > div:last-child > div > div > div:last-child > div > ul > li:last-child > a", 10000);
-				client.click("#memberArea > div > div:last-child > div > div > div:last-child > div > ul > li:last-child > a");
+				client.waitForElementVisible("#memberArea > div > div:last-child > div > div > div:last-child >  div:last-child > a", 10000);
+				client.click("#memberArea > div > div:last-child > div > div > div:last-child >  div:last-child > a");
+				client.waitForElementVisible("#memberArea > div > div:last-child > div > div > div:last-child >  div:last-child > ul > li:nth-last-child(3) > a", 10000);
+				client.click("#memberArea > div > div:last-child > div > div > div:last-child >  div:last-child > ul > li:nth-last-child(3) > a");
 				client.pause(1000);
 				Actions.signout(client);
 				Actions.signin(client, account2);

@@ -195,6 +195,7 @@ ul {
 	opacity: 0.5;
 	cursor: pointer;
 }
+
 .messageAccountArea:HOVER {
 	cursor: pointer;
 }
@@ -351,6 +352,7 @@ ul {
 	white-space: pre-line;
 	white-space: -hp-pre-line;
 	word-wrap: break-word;
+	margin-bottom: 0px;
 }
 
 .messageBody img {
