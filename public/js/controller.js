@@ -2213,7 +2213,7 @@ var groupController = [ "$rootScope", "$scope", "$resource", "$location", "$http
 	$scope.strike = function(account) {
 		$rootScope.strike($routeParams.accessKey, account, function(response) {
 			for ( var i in $scope.group.Accounts) {
-				if ($scope.group.Accounts[i].id == response.data.AccountId) {
+				if ($scope.group.Accounts[i].id == account.id) {
 					$scope.group.Accounts.splice(i, 1);
 					return;
 				}
@@ -2318,7 +2318,7 @@ var editGroupController = [ "$rootScope", "$scope", "$resource", "$location", "$
 	$scope.strike = function(account) {
 		$rootScope.strike($routeParams.accessKey, account, function(response) {
 			for ( var i in $scope.group.Accounts) {
-				if ($scope.group.Accounts[i].id == response.data.AccountId) {
+				if ($scope.group.Accounts[i].id == account.id) {
 					$scope.group.Accounts.splice(i, 1);
 					return;
 				}

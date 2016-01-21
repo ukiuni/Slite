@@ -35,7 +35,7 @@ var self = {
 		client.setValue('#inputMail', account.mail);
 		client.setValue('#inputPassword', account.password);
 		client.click('#signinButton');
-		client.waitForElementVisible('#groupArea', testWaitTime);
+		client.waitForElementVisible('#createContentButton', 10000);
 		client.assert.containsText("p", "Hi");
 		return account;
 	},
@@ -142,7 +142,7 @@ var self = {
 		client.click('.deleteButton');
 		client.waitForElementVisible('#confirmDialog', testWaitTime);
 		client.click('#deleteButton');
-		client.assert.elementNotPresent('.contentListTitle');
+		client.waitForElementNotPresent('.contentListTitle',10000);
 		if (done) {
 			done();
 		}
