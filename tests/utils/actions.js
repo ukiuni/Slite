@@ -142,7 +142,7 @@ var self = {
 		client.click('.deleteButton');
 		client.waitForElementVisible('#confirmDialog', testWaitTime);
 		client.click('#deleteButton');
-		client.waitForElementNotPresent('.contentListTitle',10000);
+		client.waitForElementNotPresent('.contentListTitle', 10000);
 		if (done) {
 			done();
 		}
@@ -152,7 +152,7 @@ var self = {
 		var contentComment = "contentComment" + contentRandom;
 		var article = "article" + contentRandom;
 		client.url(contentUrl);
-		client.waitForElementVisible('textarea', testWaitTime);
+		client.waitForElementVisible('textarea', testWaitTime, "goto " + contentUrl);
 		client.setValue('textarea', contentComment);
 		client.click('.btn-primary');
 		client.waitForElementVisible(".commentName", testWaitTime);
