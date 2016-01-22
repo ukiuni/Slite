@@ -9,7 +9,7 @@ module.exports = {
 		var mail = "test" + contentRandom + "@example.com";
 		var password = contentRandom;
 		request.post({
-			uri : url + "/api/account",
+			uri : url + "/api/accounts",
 			form : {
 				name : name,
 				mail : mail,
@@ -31,7 +31,7 @@ module.exports = {
 	},
 	signin : function(assert, account, done) {
 		request.get({
-			uri : url + "/api/account/signin",
+			uri : url + "/api/accounts/signin",
 			qs : {
 				mail : account.mail,
 				password : account.password
@@ -56,7 +56,7 @@ module.exports = {
 		var topImageUrl = "topImageUrl" + contentRandom;
 		var status = 2;
 		request.post({
-			uri : url + "/api/content",
+			uri : url + "/api/contents",
 			form : {
 				title : contentTitle,
 				article : article,
@@ -83,7 +83,7 @@ module.exports = {
 	},
 	getContent : function(assert, sessionKey, content, done) {
 		request.get({
-			uri : url + "/api/content/" + content.accessKey,
+			uri : url + "/api/contents/" + content.accessKey,
 			qs : {
 				accessKey : content.accessKey,
 				sessionKey : sessionKey
@@ -112,7 +112,7 @@ module.exports = {
 		var topImageUrl = "topImageUrlUpdated" + contentRandom;
 		var status = 1;
 		request.put({
-			uri : url + "/api/content/" + content.accessKey,
+			uri : url + "/api/contents/" + content.accessKey,
 			form : {
 				title : contentTitle,
 				article : article,
@@ -148,7 +148,7 @@ module.exports = {
 		var contentRandom = new Date().getTime();
 		var article = "articleUpdated" + contentRandom + "\n## test";
 		request.put({
-			uri : url + "/api/content/" + content.accessKey,
+			uri : url + "/api/contents/" + content.accessKey,
 			form : {
 				article : article,
 				appends : appends,
