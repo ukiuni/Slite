@@ -306,7 +306,7 @@ myapp.run([ "$rootScope", "$location", "$resource", "$cookies", "$route", "$http
 		return sessionKey;
 	}
 	$rootScope.signout = function() {
-		$resource('/api/account/accessKey').remove({
+		$resource('/api/accounts/accessKey').remove({
 			key : $rootScope.getSessionKey()
 		}, function() {
 			$rootScope.removeSessionKey();
@@ -323,7 +323,7 @@ myapp.run([ "$rootScope", "$location", "$resource", "$cookies", "$route", "$http
 	}
 	var sessionKey = $rootScope.getSessionKey();
 	if (!$rootScope.myAccount && sessionKey) {
-		$resource('/api/account').get({
+		$resource('/api/accounts').get({
 			sessionKey : sessionKey
 		}, function(account) {
 			$rootScope.myAccount = account;
@@ -736,7 +736,7 @@ var indexController = [ "$rootScope", "$scope", "$uibModal", "$location", "$http
 			$dialogScope.isNameDuplicateName = false;
 			$dialogScope.$watch("name", function() {
 				if ($dialogScope.name && $dialogScope.name.length >= 4) {
-					$resource("/api/account/nameNotDuplicate").get({
+					$resource("/api/accounts/nameNotDuplicate").get({
 						name : $dialogScope.name
 					}, function(contents) {
 						$dialogScope.isNameDuplicateName = false;
@@ -758,7 +758,7 @@ var indexController = [ "$rootScope", "$scope", "$uibModal", "$location", "$http
 		});
 	};
 	$scope.createAccount = function(account, callback) {
-		post($http, '/api/account', account).then(function(data, status, headers, config) {
+		post($http, '/api/accounts', account).then(function(data, status, headers, config) {
 			if (callback) {
 				callback();
 			}
@@ -779,7 +779,7 @@ var indexController = [ "$rootScope", "$scope", "$uibModal", "$location", "$http
 	}
 } ];
 var contentsController = [ "$rootScope", "$scope", "$uibModal", "$location", "$http", "$window", "$resource", "$routeParams", function($rootScope, $scope, $modal, $location, $http, $window, $resource, $routeParams) {
-	$resource("/api/content/").query({
+	$resource("/api/contents/").query({
 		page : $routeParams.page
 	}, function(contents) {
 		$scope.contents = contents;
@@ -804,7 +804,7 @@ var httpRequest = function($http, method, url, object) {
 }
 var activationController = [ "$rootScope", "$scope", "$resource", "$location", function($rootScope, $scope, $resource, $location) {
 	var activationKey = $location.search()["key"];
-	var Account = $resource('/api/account/activation?key=:activationKey');
+	var Account = $resource('/api/accounts/activation?key=:activationKey');
 	Account.get({
 		activationKey : activationKey
 	}, function(account) {
@@ -819,7 +819,7 @@ var activationController = [ "$rootScope", "$scope", "$resource", "$location", f
 var signinController = [ "$rootScope", "$scope", "$resource", "$location", function($rootScope, $scope, $resource, $location) {
 	$scope.signinAccount = {}
 	$scope.signin = function() {
-		var Signin = $resource('/api/account/signin');
+		var Signin = $resource('/api/accounts/signin');
 		Signin.get({
 			mail : $scope.signinAccount.mail,
 			password : $scope.signinAccount.password
@@ -840,7 +840,7 @@ var signinController = [ "$rootScope", "$scope", "$resource", "$location", funct
 } ];
 var invitationController = [ "$rootScope", "$scope", "$resource", "$location", "$http", function($rootScope, $scope, $resource, $location, $http) {
 	var invitationKey = $location.search()["key"];
-	var Invitation = $resource('/api/account/invitation?key=:key');
+	var Invitation = $resource('/api/accounts/invitation?key=:key');
 	Invitation.get({
 		key : invitationKey
 	}, function(account) {
@@ -852,7 +852,7 @@ var invitationController = [ "$rootScope", "$scope", "$resource", "$location", "
 	});
 	$scope.signinAccount = {}
 	$scope.signin = function() {
-		var Signin = $resource('/api/account/signin');
+		var Signin = $resource('/api/accounts/signin');
 		Signin.get({
 			mail : $scope.signinAccount.mail,
 			password : $scope.signinAccount.password,
@@ -874,7 +874,7 @@ var invitationController = [ "$rootScope", "$scope", "$resource", "$location", "
 	$scope.signupAccount = {}
 	$scope.signup = function() {
 		$scope.signupAccount.invitationKey = invitationKey;
-		post($http, '/api/account', $scope.signupAccount).then(function(data, status, headers, config) {
+		post($http, '/api/accounts', $scope.signupAccount).then(function(data, status, headers, config) {
 			$location.path("/signin");
 		})["catch"](function(response) {
 			$rootScope.showErrorWithStatus(response.status, function(status) {
@@ -890,7 +890,7 @@ var invitationController = [ "$rootScope", "$scope", "$resource", "$location", "
 var requestResetPasswordController = [ "$rootScope", "$scope", "$resource", "$location", "$http", function($rootScope, $scope, $resource, $location, $http) {
 	$scope.requestResetPasswordAccount = {}
 	$scope.requestResetPassword = function() {
-		post($http, '/api/account/sendResetpasswordMail', {
+		post($http, '/api/accounts/sendResetpasswordMail', {
 			mail : $scope.requestResetPasswordAccount.mail
 		}).then(function(account) {
 			$location.path("/resetPasswordRequested");
@@ -903,7 +903,7 @@ var resetPasswordController = [ "$rootScope", "$scope", "$resource", "$location"
 	var passwordResetKey = $location.search()["key"];
 	$scope.resetPasswordAccount = {}
 	$scope.resetPassword = function() {
-		put($http, '/api/account/password', {
+		put($http, '/api/accounts/password', {
 			password : $scope.resetPasswordAccount.password,
 			key : passwordResetKey
 		}).success(function(account) {
@@ -915,7 +915,7 @@ var resetPasswordController = [ "$rootScope", "$scope", "$resource", "$location"
 } ];
 var changePasswordController = [ "$rootScope", "$scope", "$resource", "$location", "$http", function($rootScope, $scope, $resource, $location, $http) {
 	$scope.changePassword = function() {
-		put($http, '/api/account/password', {
+		put($http, '/api/accounts/password', {
 			password : $scope.password,
 			key : $rootScope.getSessionKey()
 		}).success(function(account) {
@@ -940,7 +940,7 @@ var editProfileController = [ "$rootScope", "$scope", "$resource", "$location", 
 	});
 	$scope.save = function() {
 		$uploader.upload({
-			url : '/api/account',
+			url : '/api/accounts',
 			fields : {
 				name : $scope.settingAccount.name,
 				information : $scope.settingAccount.information,
@@ -963,7 +963,7 @@ var manageKeyController = [ "$rootScope", "$scope", "$resource", "$location", "$
 		$location.path("/home");
 		return;
 	}
-	$resource('/api/account/keys').query({
+	$resource('/api/accounts/keys').query({
 		sessionKey : $rootScope.getSessionKey()
 	}, function(keys) {
 		$scope.myKeys = keys;
@@ -982,7 +982,7 @@ var manageKeyController = [ "$rootScope", "$scope", "$resource", "$location", "$
 	});
 	$scope.deleteKey = function(index, key) {
 		var deleteKey = function() {
-			$resource('/api/account/keys')["delete"]({
+			$resource('/api/accounts/keys')["delete"]({
 				sessionKey : $rootScope.getSessionKey(),
 				secret : key.secret
 			}, function(key) {
@@ -1007,7 +1007,7 @@ var manageKeyController = [ "$rootScope", "$scope", "$resource", "$location", "$
 		});
 	}
 	$scope.createKey = function() {
-		post($http, '/api/account/keys', {
+		post($http, '/api/accounts/keys', {
 			sessionKey : $rootScope.getSessionKey(),
 		}).success(function(key) {
 			$scope.myKeys.unshift(key);
@@ -1026,11 +1026,11 @@ var editContentController = [ "$rootScope", "$scope", "$resource", "$location", 
 		var url;
 		if (!func) {
 			func = put;
-			url = '/api/content/' + $scope.editingContent.contentKey
+			url = '/api/contents/' + $scope.editingContent.contentKey
 		}
 		if (!$scope.editingContent.contentKey) {
 			func = post;
-			url = '/api/content';
+			url = '/api/contents';
 		}
 		var tags
 		if ($scope.editingContent.tags) {
@@ -1090,7 +1090,7 @@ var editContentController = [ "$rootScope", "$scope", "$resource", "$location", 
 	}
 	$scope.currentTime = new Date().getTime();
 	if ($routeParams.contentKey) {
-		$resource('/api/content/:contentKey?sessionKey=:sessionKey').get({
+		$resource('/api/contents/:contentKey?sessionKey=:sessionKey').get({
 			contentKey : $routeParams.contentKey,
 			sessionKey : $rootScope.getSessionKey()
 		}, function(content) {
@@ -1364,11 +1364,11 @@ var editCalendarAlbumController = [ "$rootScope", "$scope", "$resource", "$locat
 		var url;
 		if (!func) {
 			func = put;
-			url = '/api/content/' + $scope.editingContent.contentKey
+			url = '/api/contents/' + $scope.editingContent.contentKey
 		}
 		if (!$scope.editingContent.contentKey) {
 			func = post;
-			url = '/api/content';
+			url = '/api/contents';
 		}
 		var tags
 		if ($scope.editingContent.tags) {
@@ -1408,7 +1408,7 @@ var editCalendarAlbumController = [ "$rootScope", "$scope", "$resource", "$locat
 		});
 	}
 	if ($scope.contentKey) {
-		$resource('/api/content/:contentKey?sessionKey=:sessionKey').get({
+		$resource('/api/contents/:contentKey?sessionKey=:sessionKey').get({
 			contentKey : $routeParams.contentKey,
 			sessionKey : $rootScope.getSessionKey()
 		}, function(content) {
@@ -1702,7 +1702,7 @@ var editCalendarAlbumController = [ "$rootScope", "$scope", "$resource", "$locat
 	});
 } ]
 var contentController = [ "$rootScope", "$scope", "$resource", "$location", "$http", "$routeParams", function($rootScope, $scope, $resource, $location, $http, $routeParams) {
-	$resource('/api/content/:contentKey?sessionKey=:sessionKey').get({
+	$resource('/api/contents/:contentKey?sessionKey=:sessionKey').get({
 		contentKey : $routeParams.contentKey,
 		sessionKey : $rootScope.getSessionKey()
 	}, function(content) {
@@ -1722,7 +1722,7 @@ var contentController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 					}).then(function(response) {
 						delete $scope.accountInGroup;
 						delete $scope.groupAccessKey;
-						$resource('/api/content/:contentKey?sessionKey=:sessionKey').get({
+						$resource('/api/contents/:contentKey?sessionKey=:sessionKey').get({
 							contentKey : $routeParams.contentKey,
 							sessionKey : $rootScope.getSessionKey()
 						}, function(content) {
@@ -1765,7 +1765,7 @@ var contentController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 	$scope.$on('$routeChangeStart', function(ev, current) {
 		$rootScope.title = null;
 	});
-	$resource('/api/content/comment/:contentKey?sessionKey=:sessionKey').query({
+	$resource('/api/contents/comment/:contentKey?sessionKey=:sessionKey').query({
 		contentKey : $routeParams.contentKey,
 		sessionKey : $rootScope.getSessionKey()
 	}, function(comments) {
@@ -1857,7 +1857,7 @@ var contentController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 		if (!$scope.newComment || null == $scope.newComment.message || "" == $scope.newComment.message) {
 			return;
 		}
-		post($http, '/api/content/comment', {
+		post($http, '/api/contents/comment', {
 			contentKey : $routeParams.contentKey,
 			sessionKey : $rootScope.getSessionKey(),
 			message : $scope.newComment.message
@@ -2185,7 +2185,7 @@ var groupController = [ "$rootScope", "$scope", "$resource", "$location", "$http
 			controller : dialogController
 		});
 		modalInstance.result.then(function() {
-			$resource("/api/content/:accessKey").remove({
+			$resource("/api/contents/:accessKey").remove({
 				accessKey : accessKey,
 				sessionKey : $rootScope.getSessionKey()
 			}, function() {
@@ -2448,7 +2448,7 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 		channelMap[channel.accessKey] = channel;
 	}
 	var channelMap = [];
-	$resource('/api/account/channels/accessible').query({
+	$resource('/api/accounts/channels/accessible').query({
 		sessionKey : $rootScope.getSessionKey()
 	}, function(channels) {
 		$scope.joiningChannels = channels;
@@ -2788,7 +2788,7 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 		});
 		modalInstance.result.then(function(complete) {
 			if ("strongWords" == complete.type) {
-				put($http, '/api/account/config', {
+				put($http, '/api/accounts/config', {
 					sessionKey : $rootScope.getSessionKey(),
 					key : "strongWords",
 					value : complete.value
@@ -2816,7 +2816,7 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 				});
 			}
 			if (complete.notification && complete.notification != $rootScope.myAccount.config.notification) {
-				put($http, '/api/account/config', {
+				put($http, '/api/accounts/config', {
 					sessionKey : $rootScope.getSessionKey(),
 					key : "notification",
 					value : complete.notification
@@ -2891,7 +2891,7 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 } ];
 var accountController = [ "$rootScope", "$scope", "$resource", "$location", "$http", "$uibModal", "$routeParams", function($rootScope, $scope, $resource, $location, $http, $modal, $routeParams) {
 	var id = $routeParams.id;
-	$resource("/api/account/:id").get({
+	$resource("/api/accounts/:id").get({
 		id : id
 	}, function(account) {
 		$scope.account = account;
@@ -2904,7 +2904,7 @@ var homeController = [ "$rootScope", "$scope", "$resource", "$location", "$http"
 		$location.path("/");
 		return;
 	}
-	$resource("/api/content/").query({
+	$resource("/api/contents/").query({
 		sessionKey : $rootScope.getSessionKey()
 	}, function(contents) {
 		$scope.myContents = contents;
@@ -2933,7 +2933,7 @@ var homeController = [ "$rootScope", "$scope", "$resource", "$location", "$http"
 			controller : dialogController
 		});
 		modalInstance.result.then(function() {
-			$resource("/api/content/:accessKey").remove({
+			$resource("/api/contents/:accessKey").remove({
 				accessKey : accessKey,
 				sessionKey : $rootScope.getSessionKey()
 			}, function() {
