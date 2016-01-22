@@ -11,7 +11,7 @@
 			</div>
 			<div class="row" style="margin-top: -50px;">
 				<div class="col-xs-4 col-xs-offset-8" id="tagsArea">
-					<ul class="nav nav-pills" id="tags" style="height: 40px; overflow: scroll;">
+					<ul ng-hide="0 == tags.length" class="nav nav-pills" id="tags" style="height: 40px; overflow: scroll;">
 						<li role="presentation" ng-repeat="tag in content.Tags track by tag.id"><a class="tag" ng-href="/tag/{{tag.id}}" ng-bind="tag.name"></a></li>
 					</ul>
 				</div>
