@@ -3,11 +3,12 @@ var Promise = require("bluebird");
 var namespace = "rsmq";
 var queueName = "taskQueue";
 var workerTimerHandler;
+var rsmq;
 var worker = {
 	start : function(redis, timer) {
 		if (redis) {
 			console.log("--------redis task seeker--------");
-			var rsmq = new RedisSMQ({
+			rsmq = rsmq || new RedisSMQ({
 				host : redis.host,
 				port : redis.port,
 				ns : namespace
