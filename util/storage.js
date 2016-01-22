@@ -197,7 +197,7 @@ if (serverConfig.dropbox) {
 	} catch (e) {
 	}
 	module.exports = {
-		store : function(key, contentType, name, file) {
+		store : function(key, contentType, name, file, ownerId) {
 			return new Promise(function(onFulfilled, onRejected) {
 				if (key.indexOf("/") > 0) {
 					var dir = "";
@@ -219,7 +219,8 @@ if (serverConfig.dropbox) {
 					fs.writeFile(path.join(__dirname, STORAGE_PATH, key), data, function() {
 						var paramData = {
 							name : name,
-							contentType : contentType
+							contentType : contentType,
+							ownerId : ownerId
 						}
 						fs.writeFile(path.join(__dirname, STORAGE_CONTENTTYPE_PATH, key), JSON.stringify(paramData), {
 							encoding : "utf8"
