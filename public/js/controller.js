@@ -634,7 +634,7 @@ myapp.run([ "$rootScope", "$location", "$resource", "$cookies", "$route", "$http
 	$rootScope.contentIcon["calendar"] = "/images/calendar_icon.png";
 	$rootScope.contentIcon["markdown"] = "/images/article_icon.png";
 	var notifications = []
-	$rootScope.showNotification = function(title, body, param) {
+	$rootScope.showNotification = function(title, body, param, onclickFunc) {
 		if (!param) {
 			param = {};
 		}
@@ -654,6 +654,9 @@ myapp.run([ "$rootScope", "$location", "$resource", "$cookies", "$route", "$http
 			$("#messageInput").focus();
 			window.focus();
 			notification.close();
+			if (onclickFunc) {
+				onclickFunc();
+			}
 		};
 		notification.stay = param.stay;
 		if (!notification.stay) {
@@ -2591,6 +2594,15 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 					var text = $(marked(message.body)).text();
 					$rootScope.showNotification(message.owner.name + "@" + eventTargetChannel.name, text, {
 						stay : hasStrongWord
+					}, function() {
+						$scope.$apply(function() {
+							selectChannel(eventTargetChannel.accessKey);
+							setTimeout(function() {
+								jqScrollPane.animate({
+									scrollTop : jqScrollInner.height()
+								}, 50);
+							}, 0)
+						})
 					});
 				}
 				highlightStrongWords();
