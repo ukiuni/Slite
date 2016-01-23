@@ -71,15 +71,13 @@ var self = {
 		client.setValue('#contentTitle', contentTitle);
 		client.setValue('tags-input > div > div > input', tags);
 		client.setValue('#article', article);
-		client.click('#selectStatus');
-		client.waitForElementVisible('#selectStatus > ' + (optionStatus ? optionStatus : "option:first-child"), testWaitTime);
-		client.click('#selectStatus > ' + (optionStatus ? optionStatus : "option:first-child"));
-		client.sendKeys('#selectStatus', client.Keys.ENTER);
+		client.click('#selectStatusButton');
+		client.waitForElementVisible('#statusUl > ' + (optionStatus ? optionStatus : "li:first-child"), testWaitTime);
+		client.click('#statusUl > ' + (optionStatus ? optionStatus : "li:first-child"));
 		if (optionGroup) {
-			client.click('#selectGroup');
-			client.waitForElementVisible('#selectGroup > ' + optionGroup, testWaitTime);
-			client.click('#selectGroup > ' + optionGroup);
-			client.sendKeys('#selectGroup', client.Keys.ENTER);
+			client.click('#selectGroupButton');
+			client.waitForElementVisible('#groupUl > ' + optionGroup, testWaitTime);
+			client.click('#groupUl > ' + optionGroup);
 		}
 		client.click('.btn-primary');
 		client.waitForElementVisible(".contentListColmun", testWaitTime);
@@ -117,10 +115,9 @@ var self = {
 		client.setValue('#contentTitle', contentTitle);
 		client.setValue('tags-input > div > div > input', tags);
 		client.setValue('#article', article);
-		client.click('select');
-		client.waitForElementVisible('option:first-child', testWaitTime);
-		client.click('option:first-child');
-		client.sendKeys('select', client.Keys.ENTER);
+		client.click('#selectStatusButton');
+		client.waitForElementVisible("#statusUl >li:first-child", testWaitTime);
+		client.click("#statusUl >li:first-child");
 		client.click('.btn-primary');
 		client.waitForElementVisible(".contentListColmun", testWaitTime);
 		client.assert.containsText("div > div > a > div", contentTitle);
@@ -188,10 +185,9 @@ var self = {
 		client.waitForElementVisible("#saveButton", testWaitTime);
 		client.setValue('#groupName', groupName);
 		client.setValue('textarea', groupDescription);
-		client.click('select');
-		client.waitForElementVisible('option:first-child', testWaitTime);
-		client.click(openStatusCursor ? openStatusCursor : 'option:first-child');
-		client.sendKeys('select', client.Keys.ENTER);
+		client.click('#visibilityButton');
+		client.waitForElementVisible('#visibilityUl > li:first-child', testWaitTime);
+		client.click("#visibilityUl > " + (openStatusCursor ? openStatusCursor : 'li:first-child'));
 		client.click('#saveButton');
 		client.waitForElementVisible('div#groupName', testWaitTime);
 		client.assert.containsText("#groupName", groupName);
@@ -258,10 +254,9 @@ var self = {
 	},
 	inviteAccountAfterCreateGroupAndCheckExists : function(client, account, callback) {
 		client.setValue('#inviteUserMailInput', account.mail);
-		client.click('select');
-		client.waitForElementVisible('option:first-child', testWaitTime);
-		client.click('option:first-child');
-		client.sendKeys('select', client.Keys.ENTER);
+		client.click('#inviteUserAuthorizationButton');
+		client.waitForElementVisible('#authorizationUl > li:first-child', testWaitTime);
+		client.click('#authorizationUl > li:first-child');
 		client.click("#inviteButton");
 		client.pause(1000);
 		client.assert.containsText("#memberArea", account.name);

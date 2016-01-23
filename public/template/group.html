@@ -110,7 +110,14 @@
 					</form>
 				</div>
 				<div class="col-sm-2 col-xs-4">
-					<select ng-model="inviteUserAuthorization" ng-options="authorization as authorization.message for authorization in groupAuthorizations"></select>
+					<div class="btn-group" uib-dropdown uib-keyboard-nav>
+						<button id="inviteUserAuthorizationButton" type="button" class="btn btn-default" uib-dropdown-toggle>
+							<span ng-bind="inviteUserAuthorization.message"></span><span class="caret"></span>
+						</button>
+						<ul id="authorizationUl" class="dropdown-menu" uib-dropdown-menu role="menu" aria-labelledby="inviteUserAuthorizationButton">
+							<li role="menuitem" ng-repeat="authorization in groupAuthorizations track by $index"><a href ng-click="selectInviteUserAuthorization(authorization)" ng-bind="authorization.message"></a></li>
+						</ul>
+					</div>
 				</div>
 				<div class="col-sm-2 col-xs-12">
 					<button id="inviteButton" style="width: 100%" class="btn btn-default" ng-bind="messages.groups.invite" ng-disabled="addMemberForm.mail.$error.email || addMemberForm.mail.$error.required" ng-click="invite()"></button>

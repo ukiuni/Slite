@@ -94,7 +94,7 @@ var tests = {
 			if (!inviteButtonId) {
 				inviteButtonId = "#requestInvitationButtonOnOpen";
 			}
-			client.waitForElementVisible(inviteButtonId, 1000);
+			client.waitForElementVisible(inviteButtonId, 10000);
 			client.click(inviteButtonId);
 			Actions.signout(client);
 			Actions.signin(client, account);
@@ -117,7 +117,7 @@ var tests = {
 		}, groupVisiblity);
 	},
 	'Request Invitation from Exists Account To Group(secret)' : function(client) {
-		tests['Request Invitation from Exists Account To Group'](client, 'option:last-child', "#requestInvitationButtonOnSecret")
+		tests['Request Invitation from Exists Account To Group'](client, 'li:last-child', "#requestInvitationButtonOnSecret")
 	},
 	'Request Invitation from Not Exists Account To Group' : function(client, groupVisiblity, inviteInputId, inviteButtonId, onComplete) {
 		var account = Actions.createAccountAndSignin(client);
@@ -159,7 +159,7 @@ var tests = {
 		}, groupVisiblity);
 	},
 	'Strike from group' : function(client) {
-		tests['Request Invitation from Exists Account To Group'](client, 'option:last-child', "#requestInvitationButtonOnSecret", function(account, account2, groupUrl) {
+		tests['Request Invitation from Exists Account To Group'](client, 'li:last-child', "#requestInvitationButtonOnSecret", function(account, account2, groupUrl) {
 			Actions.signout(client);
 			Actions.signin(client, account);
 			client.url(groupUrl);
@@ -180,7 +180,7 @@ var tests = {
 		});
 	},
 	'Request Invitation from Not Exists Account To Group(secret)' : function(client) {
-		tests['Request Invitation from Not Exists Account To Group'](client, 'option:last-child', "#requestInvitationMailInputOnSecret", "#requestInvitationButtonOnSecret")
+		tests['Request Invitation from Not Exists Account To Group'](client, 'li:last-child', "#requestInvitationMailInputOnSecret", "#requestInvitationButtonOnSecret")
 	},
 	'Request Invite from Content' : function(client) {
 		var account = Actions.createAccountAndSignin(client);
@@ -220,7 +220,7 @@ var tests = {
 				client.waitForElementVisible(".contentTitle", 10000);
 				client.assert.containsText(".contentTitle", content.title);
 				client.end();
-			}, "option:last-child", "option:last-child");
+			}, "li:last-child", "li:last-child");
 		});
 	},
 	'Invite Not Exists Account To Group and Signin' : function(client) {
@@ -253,7 +253,7 @@ var tests = {
 			Actions.createAccountAndSignin(client, newAccount);
 			Actions.visitGroupAndNotVisible(client, groupUrl);
 			client.end();
-		}, 'option:last-child');
+		}, 'li:last-child');
 	},
 	'Goto Account Page' : function(client) {
 		Actions.createAccountAndSignin(client);
@@ -356,7 +356,7 @@ var tests = {
 };
 var testModule = {};
 var appended = false;
-['Private account not visible'].forEach(function(arg) {
+[].forEach(function(arg) {
 	if (tests[arg]) {
 		testModule[arg] = tests[arg];
 		appended = true;
