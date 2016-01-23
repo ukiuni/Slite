@@ -76,7 +76,9 @@
 			},
 			"authority" : "authority",
 			"strike" : "Strike",
-			"confirmStrike" : "Are you sure to strike from group?"
+			"confirmStrike" : "Are you sure to strike from group?",
+			"away" : "away",
+			"confirmAway" : "Are you sure to away from group?"
 		},
 		"channels" : {
 			"new" : "New channel",
@@ -256,7 +258,9 @@
 			},
 			"authority" : "権限",
 			"strike" : "除名",
-			"confirmStrike" : "グループから除名してよいですか?"
+			"confirmStrike" : "グループから除名してよいですか?",
+			"away" : "脱退",
+			"confirmAway" : "グループから脱退しますか?"
 		},
 		"channels" : {
 			"new" : "新規チャネル",

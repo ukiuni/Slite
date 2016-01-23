@@ -83,7 +83,7 @@
 									<div ng-show="myAccount && account.id == myAccount.id" class="dropdown memberEditArea" is-open="false">
 										<a href class="dropdown-toggle" data-toggle="dropdown" id="memberEditDropdown"> <img style="width: 20px; height: 20px" ng-src="{{getAccountImageUrlInGroup(account.AccountInGroup)}}" /> <span class="caret"></span></a>
 										<ul class="dropdown-menu" aria-labelledby="memberEditDropdown">
-											<li><a href ng-click="strike(account)" ng-bind="messages.groups.strike"></a></li>
+											<li><a href ng-click="strike(account, true)" ng-bind="messages.groups.away"></a></li>
 										</ul>
 									</div>
 									<img ng-show="isAdmin() && myAccount && account.id != myAccount.id && 1 == account.AccountInGroup.inviting" style="width: 20px; height: 20px" ng-src="{{getAccountImageUrlInGroup(account.AccountInGroup)}}" />

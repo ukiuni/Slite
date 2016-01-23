@@ -46,13 +46,14 @@
 						<img style="height: 20px; margin-rignt: 5px" ng-src="{{account.iconUrl}}" /><a ng-href="/account/{{account.id}}"><span ng-bind="account.name ? account.name : account.mail "></span></a>
 					</div>
 					<div class="col-xs-6">
-						<div ng-show="true || isAdmin() && (myAccount && account.id != myAccount.id) && 2 == account.AccountInGroup.inviting" class="dropdown memberEditArea" is-open="false">
+						<div class="dropdown memberEditArea" is-open="false">
 							<a href ng-class="dropdown-toggle" data-toggle="dropdown" id="memberEditDropdown"> <img style="width: 20px; height: 20px" ng-src="{{getAccountImageUrlInGroup(account.AccountInGroup)}}" /> <span class="caret" ng-show="2 != account.AccountInGroup.inviting"></span></a>
 							<ul class="dropdown-menu" aria-labelledby="memberEditDropdown" ng-show="2 != account.AccountInGroup.inviting">
 								<li class="dropdown-header" ng-bind="messages.groups.authority"></li>
 								<li ng-repeat="auth in groupAuthorizations track by auth.keyNumber"><a href ng-click="changeAuthrozation(account.id, auth.keyNumber)" ng-bind="auth.message"></a></li>
 								<li role="separator" class="divider"></li>
-								<li><a href ng-click="strike(account)" ng-bind="messages.groups.strike"></a></li>
+								<li ng-show="myAccount.id != account.id"><a href ng-click="strike(account)" ng-bind="messages.groups.strike"></a></li>
+								<li ng-show="myAccount.id == account.id"><a href ng-click="strike(account, true)" ng-bind="messages.groups.away"></a></li>
 							</ul>
 						</div>
 					</div>
