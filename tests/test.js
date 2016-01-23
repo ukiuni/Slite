@@ -167,8 +167,8 @@ var tests = {
 			client.click("#editButton");
 			client.waitForElementVisible('#saveButton', 1000);
 			client.click("#memberArea > div:last-child > div > div:last-child > div > a");
-			client.waitForElementVisible("#memberArea > div:last-child > div > div:last-child > div > ul > li:last-child > a", 1000);
-			client.click("#memberArea > div:last-child > div > div:last-child > div > ul > li:last-child > a");
+			client.waitForElementVisible("#memberArea > div:last-child > div > div:last-child > div > ul > li:nth-last-child(2) > a", 1000);
+			client.click("#memberArea > div:last-child > div > div:last-child > div > ul > li:nth-last-child(2) > a");
 			client.waitForElementVisible('#deleteButton', 1000);
 			client.click("#deleteButton");
 			client.pause(1000);
