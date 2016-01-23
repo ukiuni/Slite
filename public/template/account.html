@@ -1,12 +1,12 @@
 <div style="height: 100%;">
 	<div class="row">
-		<div class="col-xs-10 col-xs-offset-1">
+		<div class="col-xs-10 col-xs-offset-1" ng-show="account">
 			<div class="row">
 				<div class="col-xs-12">
 					<img class="circle" style="float: left; height: 30px" ng-src="{{account.iconUrl}}" />
 					<h2 style="float: left;" ng-bind="account.name"></h2>
 					<br style="clear: both" />
-					<p marked="account.information"></p>
+					<p id="accountInformation" marked="account.information"></p>
 				</div>
 			</div>
 			<div class="row">

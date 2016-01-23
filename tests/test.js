@@ -38,6 +38,13 @@ var tests = {
 			client.end();
 		});
 	},
+	'Private account not visible' : function(client) {
+		var account = Actions.createAccountAndSignin(client);
+		Actions.signout(client);
+		Actions.createAccountAndSignin(client);
+		Actions.gotoAccountUrlAndNotVisible(client, account.id);
+		client.end();
+	},
 	'Create Tag' : function(client) {
 		Actions.createAccountAndSignin(client);
 		Actions.createContentAndCheckExists(client, function(contentUrl) {
@@ -349,7 +356,7 @@ var tests = {
 };
 var testModule = {};
 var appended = false;
-[].forEach(function(arg) {
+['Private account not visible'].forEach(function(arg) {
 	if (tests[arg]) {
 		testModule[arg] = tests[arg];
 		appended = true;
