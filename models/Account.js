@@ -6,20 +6,24 @@ module.exports = function(sequelize, DataTypes) {
 			type : DataTypes.TEXT,
 			unique : true,
 			valiate : {
-				isEmail: true
+				isEmail : true
 			}
 		},
 		name : {
 			type : DataTypes.TEXT,
 			unique : true,
 			validate : {
-				is : ["^[a-zA-Z0-9][a-zA-Z0-9][a-zA-Z0-9][a-zA-Z0-9]+$", "i"]
+				is : [ "^[a-zA-Z0-9][a-zA-Z0-9][a-zA-Z0-9][a-zA-Z0-9]+$", "i" ]
 			}
 		},
 		information : DataTypes.TEXT,
 		iconUrl : DataTypes.TEXT,
 		language : DataTypes.TEXT,
-		status : DataTypes.INTEGER
+		status : DataTypes.INTEGER,
+		private : {
+			type : DataTypes.INTEGER,
+			defaultValue : true
+		}
 	}, {
 		paranoid : true,
 		classMethods : {},

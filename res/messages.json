@@ -47,7 +47,8 @@
 			"signup" : "Sign up",
 			"signin" : "Sign in",
 			"yourMailAddress" : "Your Mail Address",
-			"nameIsAlphanumericOver5" : "Name must be alphanumeric and length over 4."
+			"nameIsAlphanumericOver5" : "Name must be alphanumeric and length over 4.",
+			"private" : "private"
 		},
 		"group" : "Group",
 		"groups" : {
@@ -225,7 +226,8 @@
 			"signup" : "アカウント登録",
 			"signin" : "サインイン",
 			"yourMailAddress" : "あなたのメールアドレス",
-			"nameIsAlphanumericOver5" : "名前は4文字以上の英数字で入力してください。"
+			"nameIsAlphanumericOver5" : "名前は4文字以上の英数字で入力してください。",
+			"private" : "非公開"
 		},
 		"group" : "グループ",
 		"groups" : {

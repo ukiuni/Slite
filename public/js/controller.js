@@ -931,8 +931,9 @@ var editProfileController = [ "$rootScope", "$scope", "$resource", "$location", 
 		return;
 	}
 	$scope.settingAccount = {}
-	$scope.settingAccount.name = $rootScope.myAccount.name
-	$scope.settingAccount.information = $rootScope.myAccount.information
+	$scope.settingAccount.name = $rootScope.myAccount.name;
+	$scope.settingAccount.information = $rootScope.myAccount.information;
+	$scope.settingAccount.private = !!$rootScope.myAccount.private;
 	$scope.$watch('imageFile', function() {
 		if ($scope.imageFile) {
 			$scope.fileName = $scope.imageFile.name;
@@ -944,6 +945,7 @@ var editProfileController = [ "$rootScope", "$scope", "$resource", "$location", 
 			fields : {
 				name : $scope.settingAccount.name,
 				information : $scope.settingAccount.information,
+				private : $scope.settingAccount.private,
 				key : $rootScope.getSessionKey()
 			},
 			file : $scope.imageFile,
@@ -2892,7 +2894,8 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 var accountController = [ "$rootScope", "$scope", "$resource", "$location", "$http", "$uibModal", "$routeParams", function($rootScope, $scope, $resource, $location, $http, $modal, $routeParams) {
 	var id = $routeParams.id;
 	$resource("/api/accounts/:id").get({
-		id : id
+		id : id,
+		sessionKey : $rootScope.getSessionKey()
 	}, function(account) {
 		$scope.account = account;
 	}, function(error) {
