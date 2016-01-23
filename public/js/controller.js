@@ -677,7 +677,7 @@ myapp.run([ "$rootScope", "$location", "$resource", "$cookies", "$route", "$http
 		}
 	}
 	$rootScope.openWithBrowser = openWithBrowser;
-	$rootScope.strike = function(groupAccessKey, account, onSuccess) {
+	$rootScope.strike = function(groupAccessKey, account, onSuccess, away) {
 		var strikeAccount = function() {
 			put($http, '/api/groups/' + groupAccessKey + "/strike", {
 				sessionKey : $rootScope.getSessionKey(),
@@ -694,7 +694,11 @@ myapp.run([ "$rootScope", "$location", "$resource", "$cookies", "$route", "$http
 			$dialogScope["delete"] = function() {
 				$modalInstance.close();
 			};
-			$dialogScope.message = $rootScope.messages.groups.confirmStrike + "\n\n" + account.name;
+			if (away) {
+				$dialogScope.message = $rootScope.messages.groups.confirmAway + "\n\n" + account.name;
+			} else {
+				$dialogScope.message = $rootScope.messages.groups.confirmStrike + "\n\n" + account.name;
+			}
 		} ];
 		var modalInstance = $modal.open({
 			templateUrl : 'template/confirmDialog.html',
@@ -2224,7 +2228,7 @@ var groupController = [ "$rootScope", "$scope", "$resource", "$location", "$http
 	$scope.$on('$destroy', function() {
 		$rootScope.removeGroupListener($routeParams.accessKey);
 	});
-	$scope.strike = function(account) {
+	$scope.strike = function(account, away) {
 		$rootScope.strike($routeParams.accessKey, account, function(response) {
 			for ( var i in $scope.group.Accounts) {
 				if ($scope.group.Accounts[i].id == account.id) {
@@ -2232,7 +2236,7 @@ var groupController = [ "$rootScope", "$scope", "$resource", "$location", "$http
 					return;
 				}
 			}
-		})
+		}, away);
 	}
 } ];
 var messageLogController = [ "$rootScope", "$scope", "$resource", "$location", "$http", "$routeParams", "$uibModal", function($rootScope, $scope, $resource, $location, $http, $routeParams, $modal) {
@@ -2332,7 +2336,7 @@ var editGroupController = [ "$rootScope", "$scope", "$resource", "$location", "$
 	$scope.setVisibility = function(visibility) {
 		$scope.group.visibility = visibility;
 	}
-	$scope.strike = function(account) {
+	$scope.strike = function(account, away) {
 		$rootScope.strike($routeParams.accessKey, account, function(response) {
 			for ( var i in $scope.group.Accounts) {
 				if ($scope.group.Accounts[i].id == account.id) {
@@ -2340,7 +2344,7 @@ var editGroupController = [ "$rootScope", "$scope", "$resource", "$location", "$
 					return;
 				}
 			}
-		})
+		}, away)
 	}
 } ];
 var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$http", "$routeParams", "$uibModal", "Upload", function($rootScope, $scope, $resource, $location, $http, $routeParams, $modal, $uploader) {
