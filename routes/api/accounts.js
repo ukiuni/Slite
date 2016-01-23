@@ -454,6 +454,9 @@ router.put('/', function(req, res) {
 			if (req.body.information) {
 				account.information = req.body.information;
 			}
+			if (req.body.private) {
+				account.private = req.body.private;
+			}
 			if (iconUrl) {
 				account.iconUrl = iconUrl;
 			}
@@ -714,7 +717,7 @@ router.get("/:id", function(req, res) {
 		where : {
 			id : req.params.id
 		},
-		attributes : [ "id", "name", "iconUrl", "information" ],
+		attributes : [ "id", "name", "iconUrl", "information", "private" ],
 		include : [ {
 			model : Content,
 			include : [ {
@@ -728,7 +731,28 @@ router.get("/:id", function(req, res) {
 			throw ERROR_NOTFOUND;
 		}
 		loadedAccount = account;
-		return account.getGroups({
+		if (account.private) {
+			if (!req.query.sessionKey) {
+				throw ERROR_NOTFOUND;
+			}
+			return AccessKey.findBySessionKey(req.query.sessionKey).then(function(accessKey) {
+				if (!accessKey) {
+					throw ERROR_NOTACCESSIBLE;
+				}
+				if (account.id != accessKey.AccountId) {
+					throw ERROR_NOTFOUND;
+				}
+				return new Promise(function(success) {
+					success()
+				});
+			})
+		} else {
+			return new Promise(function(success) {
+				success()
+			});
+		}
+	}).then(function() {
+		return loadedAccount.getGroups({
 			where : {
 				visibility : Group.VISIBILITY_OPEN
 			}

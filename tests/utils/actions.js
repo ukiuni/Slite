@@ -100,6 +100,10 @@ var self = {
 			}
 		});
 	},
+	gotoAccountUrlAndNotVisible : function(client, accountId) {
+		client.url(url + "/account/" + accountId);
+		client.waitForElementNotVisible('#accountInformation', testWaitTime);
+	},
 	updateContentAndCheckUpdated : function(client, done) {
 		var contentRandom = new Date().getTime();
 		var contentTitle = "contentTitle_updated" + contentRandom;
