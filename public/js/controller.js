@@ -1131,6 +1131,12 @@ var editContentController = [ "$rootScope", "$scope", "$resource", "$location", 
 			$scope.editingContent.article = $scope.editingContent.article.substr(0, index) + text + $scope.editingContent.article.substr(index);
 		}
 	}
+	$scope.selectStatus = function(status) {
+		$scope.editingContent.status = status;
+	}
+	$scope.selectGroup = function(group) {
+		$scope.contentGroup = group;
+	}
 	$scope.$watch('articleAppendsImage', function() {
 		if (!$scope.articleAppendsImage || !$scope.articleAppendsImage.length) {
 			return;
@@ -2041,6 +2047,9 @@ var groupController = [ "$rootScope", "$scope", "$resource", "$location", "$http
 			$rootScope.showErrorWithStatus(response.status);
 		});
 	}
+	$scope.selectInviteUserAuthorization = function(authorization) {
+		$scope.inviteUserAuthorization = authorization
+	}
 	$rootScope.$watch("myAccount", function(oldValue, newValue) {
 		$scope.requestInvitationMail = $rootScope.myAccount ? $rootScope.myAccount.mail : "";
 		if ($scope.group) {
@@ -2319,6 +2328,9 @@ var editGroupController = [ "$rootScope", "$scope", "$resource", "$location", "$
 				return false;
 			});
 		});
+	}
+	$scope.setVisibility = function(visibility) {
+		$scope.group.visibility = visibility;
 	}
 	$scope.strike = function(account) {
 		$rootScope.strike($routeParams.accessKey, account, function(response) {

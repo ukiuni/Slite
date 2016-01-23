@@ -40,14 +40,25 @@
 			<div style="height: 10px"></div>
 			<div class="form-group col-sm-6">
 				<label for="status" class="col-sm-4 control-label" ng-bind="messages.contents.accessibility"></label>
-				<div>
-					<select id="selectStatus" ng-model="editingContent.status" ng-options="status as status.message for status in statuses"></select>
+				<div class="btn-group" uib-dropdown uib-keyboard-nav>
+					<button id="selectStatusButton" type="button" class="btn btn-default" uib-dropdown-toggle>
+						<span ng-bind="editingContent.status.message || ' '"></span><span class="caret"></span>
+					</button>
+					<ul id="statusUl" class="dropdown-menu" uib-dropdown-menu role="menu" aria-labelledby="selectStatusButton">
+						<li role="menuitem" ng-repeat="status in statuses track by $index"><a href ng-click="selectStatus(status)" ng-bind="status.message"></a></li>
+					</ul>
 				</div>
 			</div>
 			<div class="form-group col-sm-6" ng-show="myGroups[1]">
 				<label for="contentGroup" class="col-sm-4 control-label" ng-bind="messages.group"></label>
-				<div>
-					<select id="selectGroup" ng-model="contentGroup" ng-options="group as group.name for group in myGroups"></select>
+				<div class="btn-group" uib-dropdown uib-keyboard-nav>
+					<button id="selectGroupButton" type="button" class="btn btn-default" uib-dropdown-toggle>
+						<span ng-bind="contentGroup.name || ' '"></span><span class="caret"></span>
+					</button>
+					<ul id="groupUl" class="dropdown-menu" uib-dropdown-menu role="menu" aria-labelledby="selectGroupButton">
+						<li role="menuitem"><a href ng-click="selectGroup(null)">&nbsp;</a></li>
+						<li role="menuitem" ng-repeat="group in myGroups track by group.id"><a href ng-click="selectGroup(group)" ng-bind="group.name"></a></li>
+					</ul>
 				</div>
 			</div>
 			<div style="height: 10px"></div>

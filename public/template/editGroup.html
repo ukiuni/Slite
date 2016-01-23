@@ -9,8 +9,14 @@
 							<span class="error" ng-show="groupForm.groupName.$error.minlength">&lt; 2</span>
 						</div>
 						<div class="col-sm-4 col-xs-12" style="margin-top: 5px">
-							<select ng-model=" group.visibility" ng-options="visibility as visibility.message for visibility in groupVisibilities">
-							</select>
+							<div class="btn-group" uib-dropdown uib-keyboard-nav>
+								<button id="visibilityButton" type="button" class="btn btn-default" uib-dropdown-toggle>
+									<span ng-bind="group.visibility.message"></span><span class="caret"></span>
+								</button>
+								<ul id="visibilityUl" class="dropdown-menu" uib-dropdown-menu role="menu" aria-labelledby="visibilityButton">
+									<li role="menuitem" ng-repeat="visibility in groupVisibilities track by $index"><a href ng-click="setVisibility(visibility)" ng-bind="visibility.message"></a></li>
+								</ul>
+							</div>
 						</div>
 					</form>
 				</div>
