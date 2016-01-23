@@ -80,7 +80,7 @@
 								</div>
 								<div class="col-xs-3">
 									<img ng-show="myAccount && account.id != myAccount.id && 3 == account.AccountInGroup.inviting" style="width: 20px; height: 20px" ng-src="{{getAccountImageUrlInGroup(account.AccountInGroup)}}" />
-									<div ng-show="myAccount && account.id == myAccount.id &&(3 == account.AccountInGroup.inviting ||  1 == account.AccountInGroup.inviting)" class="dropdown memberEditArea" is-open="false">
+									<div ng-show="myAccount && account.id == myAccount.id" class="dropdown memberEditArea" is-open="false">
 										<a href class="dropdown-toggle" data-toggle="dropdown" id="memberEditDropdown"> <img style="width: 20px; height: 20px" ng-src="{{getAccountImageUrlInGroup(account.AccountInGroup)}}" /> <span class="caret"></span></a>
 										<ul class="dropdown-menu" aria-labelledby="memberEditDropdown">
 											<li><a href ng-click="strike(account)" ng-bind="messages.groups.strike"></a></li>
