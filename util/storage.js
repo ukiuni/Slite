@@ -17,7 +17,6 @@ if (serverConfig.dropbox) {
 				if (name) {
 					serviceKey = key + "/" + encodeURIComponent(name);
 				}
-				serviceKey = serviceKey.replace(/\//g, "_");
 				if (file.buffer) {
 					request.post({
 						url : 'https://content.dropboxapi.com/1/files_put/auto/SliteStore/' + serviceKey,
