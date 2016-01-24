@@ -2883,8 +2883,14 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 			return;
 		}
 		var messageInput = document.getElementById("messageInput");
+		var uploadApi;
+		if ($scope.channel.Group.isTemporary) {
+			uploadApi = '/api/image/channels/' + $scope.channel.accessKey;
+		} else {
+			uploadApi = '/api/image/groups/' + $scope.channel.Group.accessKey;
+		}
 		var uploader = $uploader.upload({
-			url : '/api/image/groups/' + $scope.channel.Group.accessKey,
+			url : uploadApi,
 			fields : {
 				sessionKey : $rootScope.getSessionKey(),
 				name : $scope.messageImage.name

@@ -5,6 +5,7 @@ var Content = global.db.Content;
 var ContentBody = global.db.ContentBody;
 var Group = global.db.Group;
 var AccountInGroup = global.db.AccountInGroup;
+var Channel = global.db.Channel;
 var Promise = require("bluebird");
 var Random = require(__dirname + "/../../util/random");
 var Storage = require(__dirname + "/../../util/storage");
@@ -96,6 +97,65 @@ router.post('/groups/:groupAccessKey', function(req, res) {
 		return Random.createRandomBase62();
 	}).then(function(random) {
 		return Storage.store("groups/" + req.params.groupAccessKey + "/" + random, req.files.imageFile[0].mimetype, req.body.name, req.files.imageFile[0], accessAccount.id);
+	}).then(function(savedImageUrl) {
+		res.status(200).send({
+			url : savedImageUrl
+		});
+	})["catch"](function(error) {
+		if (ERROR_NOTACCESSIBLE == error) {
+			res.status(403).send();
+		} else if (ERROR_NOTFOUND == error) {
+			res.status(404).send();
+		} else {
+			console.log(error.stack);
+			res.status(500).send();
+		}
+	});
+});
+function getChannelImage(req, res, name) {
+	if (!req.params.channelAccessKey || !req.params.imageKey || req.params.imageKey.indexOf("/../") > -1) {
+		res.status(404).end();
+		return;
+	}
+	var accessKey = req.query.sessionKey || req.query.access_token || req.cookies["session_key"];
+	if (!accessKey) {
+		throw ERROR_NOTACCESSIBLE;
+	}
+	accessKey = accessKey.replace("\"", "").replace("\"", "");// for cookie;
+	Channel.getAccessiblePrivateChannel(accessKey, req.params.channelAccessKey).then(function(result) {
+		return Storage.load("channels/" + req.params.channelAccessKey + "/" + req.params.imageKey, name).then(responseFile(res, name));
+	})["catch"](function(error) {
+		if (ERROR_NOTACCESSIBLE == error) {
+			res.status(403).send();
+		} else if (ERROR_NOTFOUND == error) {
+			res.status(404).send();
+		} else {
+			console.log(error.stack);
+			res.status(500).send();
+		}
+	});
+}
+router.get("/channels/:channelAccessKey/:imageKey", function(req, res) {
+	getChannelImage(req, res)
+});
+router.get("/channels/:channelAccessKey/:imageKey/:name", function(req, res) {
+	getChannelImage(req, res, req.params.name)
+});
+router.post('/channels/:channelAccessKey', function(req, res) {
+	if (!req.params.channelAccessKey) {
+		res.status(404).end();
+		return;
+	}
+	var accessKey = req.body.sessionKey || req.body.access_token;
+	if (!accessKey) {
+		throw ERROR_NOTACCESSIBLE;
+	}
+	var accessAccountId;
+	Channel.getAccessiblePrivateChannel(accessKey, req.params.channelAccessKey).then(function(result) {
+		accessAccountId = result.AccountId;
+		return Random.createRandomBase62();
+	}).then(function(random) {
+		return Storage.store("channels/" + req.params.channelAccessKey + "/" + random, req.files.imageFile[0].mimetype, req.body.name, req.files.imageFile[0], accessAccountId);
 	}).then(function(savedImageUrl) {
 		res.status(200).send({
 			url : savedImageUrl
