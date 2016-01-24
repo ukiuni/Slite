@@ -1,3 +1,6 @@
+var Promise = require("bluebird");
+var ERROR_NOTACCESSIBLE = "ERROR_NOTACCESSIBLE";
+var ERROR_NOTFOUND = "ERROR_NOTFOUND";
 module.exports = function(sequelize, DataTypes) {
 	var Channel = sequelize.define("Channel", {
 		accessKey : DataTypes.TEXT,
@@ -73,6 +76,43 @@ module.exports = function(sequelize, DataTypes) {
 					loadedChannel : loadedChannel
 				});
 			});
+		})
+	}
+	Channel.getAccessiblePrivateChannel = function(sessionKey, channelAccessKey) {
+		var accountId;
+		var loadedChannel;
+		return global.db.AccessKey.findBySessionKey(sessionKey).then(function(accessKey) {
+			if (!accessKey) {
+				throw ERROR_NOTACCESSIBLE;
+			}
+			accountId = accessKey.AccountId;
+			return global.db.Channel.find({
+				where : {
+					accessKey : channelAccessKey
+				}
+			})
+		}).then(function(channel) {
+			if (!channel) {
+				throw ERROR_NOTFOUND;
+			}
+			loadedChannel = channel;
+			return global.db.AccountInChannel.find({
+				where : {
+					ChannelId : loadedChannel.id,
+					AccountId : accountId
+					//,type : global.db.Channel.TYPE_PRIVATE
+				}
+			})
+		}).then(function(accountInChannel) {
+			if (!accountInChannel) {
+				throw ERROR_NOTACCESSIBLE;
+			}
+			return new Promise(function(success) {
+				success({
+					channel : loadedChannel,
+					AccountId : accountInChannel.AccountId
+				});
+			})
 		})
 	}
 	Channel.TYPE_PRIVATE = "private";
