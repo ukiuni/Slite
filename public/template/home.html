@@ -2,20 +2,19 @@
 	<div class="row">
 		<div class="col-xs-10 col-xs-offset-1">
 			<div class="row">
-				<div>Home</div>
-				<div>
-					<div class="container" ng-show="myAccount">
-						<p>
-							Hi, &nbsp;<span ng-bind="myAccount.name"></span>.
-						</p>
-					</div>
+				<div class="col-xs-12" ng-show="myAccount">
+					<p>
+						Hi, &nbsp;<span ng-bind="myAccount.name"></span>.
+					</p>
 				</div>
 			</div>
 			<div class="row">
 				<div class="col-sm-7">
 					<div class="row" style="margin-bottom: 10px">
-						<h2 class="col-sm-10 col-xs-12" ng-bind="messages.contents.self"></h2>
-						<button id="createContentButton" ng-show="myAccount" class="col-sm-2 col-xs-12 btn btn-default" ng-bind="messages.menu.newContent" ng-click="createNewContent()"></button>
+						<h3 class="col-xs-10" ng-bind="messages.contents.self"></h3>
+						<div class="col-xs-2" align="right">
+							<button id="createContentButton" ng-show="myAccount" class="btn btn-default glyphicon glyphicon-plus" ng-click="createNewContent()"></button>
+						</div>
 					</div>
 					<div class="row" ng-repeat="content in myContents track by content.id">
 						<div class="col-xs-12 contentListColmun">
@@ -40,9 +39,9 @@
 				</div>
 				<div id="groupArea" class="col-sm-4 col-sm-offset-1">
 					<div class="row">
-						<h3 ng-bind="messages.group" class="col-sm-7 col-xs-12"></h3>
-						<div class="col-sm-5 col-xs-12">
-							<button class="btn btn-default" style="width: 100%" ng-click="goto('/group/0/edit')" ng-bind="messages.groups.newGroup"></button>
+						<h3 ng-bind="messages.group" class="col-xs-9"></h3>
+						<div class="col-xs-3" align="right">
+							<button class="btn btn-default glyphicon glyphicon-plus" ng-click="goto('/group/0/edit')"></button>
 						</div>
 					</div>
 					<div class="row" ng-repeat="group in myGroups track by group.id">
