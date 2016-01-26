@@ -2491,6 +2491,7 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 	var selectChannel = function(channelAccessKey) {
 		if ($scope.channel) {
 			$scope.channel.scrollTop = jqScrollPane.scrollTop();
+			sendStopTalking();
 		}
 		for ( var i in $scope.joiningChannels) {
 			if ($scope.joiningChannels[i].accessKey == channelAccessKey) {
@@ -2515,6 +2516,9 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 			}
 		});
 		delete $scope.sendingMessage;
+		if ($scope.text && "" != $scope.text) {
+			sendStartTalking();
+		}
 	}
 	$scope.changeChannel = function(channel) {
 		selectChannel(channel.accessKey);
@@ -2528,6 +2532,17 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 					scrollTop : jqScrollInner.height()
 				}, 50);
 			}, 0);
+		}
+	}
+	var removeTalking = function(eventTargetChannel, accountId) {
+		for ( var i in eventTargetChannel.talkings) {
+			if (eventTargetChannel.talkings[i].account.id == accountId) {
+				$scope["$apply"](function() {
+					eventTargetChannel.talkings.splice(i, 1);
+					scrollBottomIfShowingBottom();
+				});
+				return;
+			}
 		}
 	}
 	var strongWordsParsed;
@@ -2669,6 +2684,7 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 					channelAccessKey : eventTargetChannel.accessKey
 				})
 			}
+			removeTalking(eventTargetChannel, event.account.id);
 		} else if ("startTalking" == event.type) {
 			if ($rootScope.myAccount.id == event.account.id) {
 				return;
@@ -2681,38 +2697,33 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 			});
 			scrollBottomIfShowingBottom();
 		} else if ("stopTalking" == event.type) {
-			var reaveAccount = event.account;
-			for ( var i in eventTargetChannel.talkings) {
-				if (eventTargetChannel.talkings[i].account.id == reaveAccount.id) {
-					$scope["$apply"](function() {
-						eventTargetChannel.talkings.splice(i, 1);
-						scrollBottomIfShowingBottom();
-					});
-				}
-			}
+			removeTalking(eventTargetChannel, event.account.id)
 		}
+	}
+	var sendStartTalking = function() {
+		changeTalking(true);
+	}
+	var sendStopTalking = function() {
+		changeTalking(false);
+	}
+	var changeTalking = function(start) {
+		api = start ? "startTalking" : "stopTalking";
+		if ($scope.channel.Group.isTemporary) {
+			postUrl = "/api/channels/" + $scope.channel.accessKey + "/messages/" + api;
+		} else {
+			postUrl = "/api/groups/" + $scope.channel.Group.accessKey + "/channels/" + $scope.channel.accessKey + "/messages/" + api;
+		}
+		put($http, postUrl, {
+			sessionKey : $rootScope.getSessionKey()
+		})
 	}
 	var talking = false;
 	$scope.$watch("text", function() {
 		currentTalking = $scope.text && "" != $scope.text;
 		if (!talking && currentTalking) {
-			if ($scope.channel.Group.isTemporary) {
-				postUrl = "/api/channels/" + $scope.channel.accessKey + "/messages/startTalking";
-			} else {
-				postUrl = "/api/groups/" + $scope.channel.Group.accessKey + "/channels/" + $scope.channel.accessKey + "/messages/startTalking"
-			}
-			put($http, postUrl, {
-				sessionKey : $rootScope.getSessionKey()
-			})
+			sendStartTalking();
 		} else if (talking && !currentTalking) {
-			if ($scope.channel.Group.isTemporary) {
-				postUrl = "/api/channels/" + $scope.channel.accessKey + "/messages/stopTalking";
-			} else {
-				postUrl = "/api/groups/" + $scope.channel.Group.accessKey + "/channels/" + $scope.channel.accessKey + "/messages/stopTalking"
-			}
-			put($http, postUrl, {
-				sessionKey : $rootScope.getSessionKey()
-			})
+			sendStopTalking();
 		}
 		talking = currentTalking;
 	})
