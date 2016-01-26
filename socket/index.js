@@ -276,6 +276,12 @@ var socketIO = function(io) {
 			channelAccessKey : channelAccessKey
 		}));
 	}
+	self.sendStartTalking = function(channelAccessKey, account) {
+		self.sendAccountEvent(channelAccessKey, account, "startTalking");
+	}
+	self.sendStopTalking = function(channelAccessKey, account) {
+		self.sendAccountEvent(channelAccessKey, account, "stopTalking");
+	}
 	self.sendJoinToChannelEvent = function(channelAccessKey, account) {
 		self.sendAccountEvent(channelAccessKey, account, "join");
 	}

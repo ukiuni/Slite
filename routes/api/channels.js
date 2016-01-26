@@ -91,19 +91,10 @@ router.post('/', function(req, res) {
 		}
 	});
 });
-router.post('/:channelAccessKey/messages', function(req, res) {
-	var sessionKey = req.body.sessionKey || req.body.access_token;
-	if (!sessionKey) {
-		res.status(400).end();
-		return;
-	}
-	if (!req.params.channelAccessKey || !req.body.body) {
-		res.status(400).end();
-		return;
-	}
+var loadAccessibleChannel = function(sessionKey, channelAccessKey) {
 	var loadedAccount;
 	var loadedChannel;
-	AccessKey.findBySessionKey(sessionKey).then(function(accessKey) {
+	return AccessKey.findBySessionKey(sessionKey).then(function(accessKey) {
 		if (!accessKey) {
 			throw ERROR_NOTACCESSIBLE;
 		}
@@ -115,7 +106,7 @@ router.post('/:channelAccessKey/messages', function(req, res) {
 		loadedAccount = account;
 		return Channel.find({
 			where : {
-				accessKey : req.params.channelAccessKey
+				accessKey : channelAccessKey
 			}
 		});
 	}).then(function(channel) {
@@ -133,7 +124,26 @@ router.post('/:channelAccessKey/messages', function(req, res) {
 		if (!accountInChannel) {
 			throw ERROR_NOTACCESSIBLE;
 		}
-		return Message.handleMessage(loadedAccount, loadedChannel, req.body.body);
+		return new Promise(function(success) {
+			success({
+				account : loadedAccount,
+				channel : loadedChannel
+			});
+		});
+	})
+}
+router.post('/:channelAccessKey/messages', function(req, res) {
+	var sessionKey = req.body.sessionKey || req.body.access_token;
+	if (!sessionKey) {
+		res.status(400).end();
+		return;
+	}
+	if (!req.params.channelAccessKey || !req.body.body) {
+		res.status(400).end();
+		return;
+	}
+	loadAccessibleChannel(sessionKey, req.params.channelAccessKey).then(function(result) {
+		return Message.handleMessage(result.account, result.channel, req.body.body);
 	}).then(function(result) {
 		res.status(201).json(result);
 	})["catch"](function(error) {
@@ -147,6 +157,36 @@ router.post('/:channelAccessKey/messages', function(req, res) {
 		}
 	});
 });
+var startOrStopTalking = function(req, res, start) {
+	var sendFunc = start ? "sendStartTalking" : "sendStopTalking";
+	var sessionKey = req.body.sessionKey || req.body.access_token;
+	if (!sessionKey) {
+		res.status(400).end();
+		return;
+	}
+	if (!req.params.channelAccessKey) {
+		res.status(400).end();
+		return;
+	}
+	loadAccessibleChannel(sessionKey, req.params.channelAccessKey).then(function(result) {
+		return socket[sendFunc](result.channel.accessKey, result.account);
+	}).then(function(result) {
+		res.status(201).json(result);
+	})["catch"](function(error) {
+		if (ERROR_NOTACCESSIBLE == error) {
+			res.status(403).end();
+		} else if (ERROR_NOTFOUND == error) {
+			res.status(404).end();
+		} else {
+			console.log(error.stack);
+			res.status(500).end();
+		}
+	});
+}
+router.post('/:channelAccessKey/messages/startTalking', function(req, res) {
+})
+router.post('/:channelAccessKey/messages/stopTalking', function(req, res) {
+})
 router.put('/:channelAccessKey/away', function(req, res) {
 	var sessionKey = req.body.sessionKey;
 	if (!sessionKey) {

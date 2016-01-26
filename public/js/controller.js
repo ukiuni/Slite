@@ -2447,6 +2447,7 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 	}
 	var prepareChannel = function(channel) {
 		channel.messages = [];
+		channel.talkings = [];
 		if (channel.Bots) {
 			channel.Bots.forEach(function(bot) {
 				if (1 == bot.type) {
@@ -2520,6 +2521,15 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 	}
 	var jqScrollPane = $("#messageScrollPane");
 	var jqScrollInner = $("#messageScrollInner");
+	var scrollBottomIfShowingBottom = function() {
+		if (jqScrollPane.scrollTop() > jqScrollInner.height() - jqScrollPane.height() - 30) {
+			setTimeout(function() {
+				jqScrollPane.animate({
+					scrollTop : jqScrollInner.height()
+				}, 50);
+			}, 0);
+		}
+	}
 	var strongWordsParsed;
 	var parseStrongWords = function() {
 		var strongWordArray
@@ -2577,13 +2587,7 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 						eventTargetChannel.messages.unshift(message);
 					}
 					if (eventTargetChannel.accessKey == $scope.channel.accessKey) {
-						if (jqScrollPane.scrollTop() > jqScrollInner.height() - jqScrollPane.height() - 30) {
-							setTimeout(function() {
-								jqScrollPane.animate({
-									scrollTop : jqScrollInner.height()
-								}, 50);
-							}, 0);
-						}
+						scrollBottomIfShowingBottom();
 					} else {
 						eventTargetChannel.unreadCount++;
 					}
@@ -2665,8 +2669,53 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 					channelAccessKey : eventTargetChannel.accessKey
 				})
 			}
+		} else if ("startTalking" == event.type) {
+			if ($rootScope.myAccount.id == event.account.id) {
+				return;
+			}
+			$scope["$apply"](function() {
+				eventTargetChannel.talkings.push({
+					account : event.account,
+					time : new Date()
+				});
+			});
+			scrollBottomIfShowingBottom();
+		} else if ("stopTalking" == event.type) {
+			var reaveAccount = event.account;
+			for ( var i in eventTargetChannel.talkings) {
+				if (eventTargetChannel.talkings[i].account.id == reaveAccount.id) {
+					$scope["$apply"](function() {
+						eventTargetChannel.talkings.splice(i, 1);
+						scrollBottomIfShowingBottom();
+					});
+				}
+			}
 		}
 	}
+	var talking = false;
+	$scope.$watch("text", function() {
+		currentTalking = $scope.text && "" != $scope.text;
+		if (!talking && currentTalking) {
+			if ($scope.channel.Group.isTemporary) {
+				postUrl = "/api/channels/" + $scope.channel.accessKey + "/messages/startTalking";
+			} else {
+				postUrl = "/api/groups/" + $scope.channel.Group.accessKey + "/channels/" + $scope.channel.accessKey + "/messages/startTalking"
+			}
+			put($http, postUrl, {
+				sessionKey : $rootScope.getSessionKey()
+			})
+		} else if (talking && !currentTalking) {
+			if ($scope.channel.Group.isTemporary) {
+				postUrl = "/api/channels/" + $scope.channel.accessKey + "/messages/stopTalking";
+			} else {
+				postUrl = "/api/groups/" + $scope.channel.Group.accessKey + "/channels/" + $scope.channel.accessKey + "/messages/stopTalking"
+			}
+			put($http, postUrl, {
+				sessionKey : $rootScope.getSessionKey()
+			})
+		}
+		talking = currentTalking;
+	})
 	var sendingMessage;
 	$scope.sendMessage = function() {
 		if (sendingMessage != $scope.text) {
