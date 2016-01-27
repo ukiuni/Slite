@@ -2526,7 +2526,7 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 	var jqScrollPane = $("#messageScrollPane");
 	var jqScrollInner = $("#messageScrollInner");
 	var scrollBottomIfShowingBottom = function() {
-		if (jqScrollPane.scrollTop() > jqScrollInner.height() - jqScrollPane.height() - 30) {
+		if (jqScrollPane.scrollTop() > jqScrollInner.height() - jqScrollPane.height() - 50) {
 			setTimeout(function() {
 				jqScrollPane.animate({
 					scrollTop : jqScrollInner.height()
@@ -2689,7 +2689,7 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 			if ($rootScope.myAccount.id == event.account.id) {
 				return;
 			}
-			$scope["$apply"](function() {
+			$scope.$apply(function() {
 				eventTargetChannel.talkings.push({
 					account : event.account,
 					time : new Date()
