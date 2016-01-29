@@ -899,7 +899,13 @@ var requestResetPasswordController = [ "$rootScope", "$scope", "$resource", "$lo
 		}).then(function(account) {
 			$location.path("/resetPasswordRequested");
 		})["catch"](function(error) {
-			$rootScope.showErrorWithStatus(error.status);
+			$rootScope.showErrorWithStatus(error.status, function(status) {
+				if (404 == status) {
+					$rootScope.showError($rootScope.messages.accounts.error.mailNotRegisted);
+					return true;
+				}
+				return false;
+			});
 		});
 	}
 } ];
