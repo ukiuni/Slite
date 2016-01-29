@@ -36,7 +36,8 @@
 			"mail" : "mail",
 			"error" : {
 				"aleadyHaveAccount" : "You aleady have a account",
-				"duplicatedName" : "The name is duplicated"
+				"duplicatedName" : "The name is duplicated",
+				"mailNotRegisted" : "Account have this mail addres is not found."
 			},
 			"authorization" : {
 				"viewer" : "viewer",
@@ -217,7 +218,8 @@
 			"mail" : "mail",
 			"error" : {
 				"aleadyHaveAccount" : "すでにアカウントをお持ちです。",
-				"duplicatedName" : "アカウント名が重複しています。"
+				"duplicatedName" : "アカウント名が重複しています。",
+				"mailNotRegisted" : "このメールアドレスは登録されていません。"
 			},
 			"authorization" : {
 				"viewer" : "閲覧者",

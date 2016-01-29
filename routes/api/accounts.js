@@ -390,7 +390,7 @@ router.post('/sendResetpasswordMail', function(req, res) {
 		}
 	}).then(function(account) {
 		if (!account) {
-			throw ERROR_WRONG_ACCESS;
+			throw ERROR_NOTFOUND;
 		}
 		createdAccount = account
 		return Random.createRandomBase62();
@@ -419,9 +419,7 @@ router.post('/sendResetpasswordMail', function(req, res) {
 	}).then(function(activationKey) {
 		res.status(200).json(activationKey);
 	})["catch"](function(error) {
-		if (ERROR_WRONG_ACCESS == error) {
-			res.status(400).end();
-		} else if (ERROR_NOTFOUND == error) {
+		if (ERROR_NOTFOUND == error) {
 			res.status(404).end();
 		} else {
 			console.log(error.stack);
