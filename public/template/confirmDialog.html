@@ -5,5 +5,5 @@
 </div>
 <div class="modal-footer">
 	<button type="button" id="closeButton" class="btn btn-default" ng-click="$dismiss()" ng-bind="messages.cancel"></button>
-	<button type="button" id="deleteButton" class="btn btn-primary" ng-click="delete()" ng-bind="messages.delete"></button>
+	<button type="button" id="deleteButton" class="btn btn-primary" ng-click="delete()" ng-bind="completeMessage||messages.delete"></button>
 </div>

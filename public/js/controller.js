@@ -2434,6 +2434,7 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 				$modalInstance.close();
 			};
 			$dialogScope.message = $rootScope.messages.messages.confirmAwayFromChannel + "\n\n" + channel.name;
+			$dialogScope.completeMessage = $rootScope.messages.channels.away;
 		} ];
 		var modalInstance = $modal.open({
 			templateUrl : 'template/confirmDialog.html',

@@ -88,7 +88,8 @@
 			"connectedToGitlab": "Connected to Gitlab",
 			"connectedToGithub": "Connected to Github",
 			"invited": "You are invited to channel",
-			"from": "from"
+			"from": "from",
+			"away" : "away"
 		},
 		"message" : "message",
 		"messages" : {
@@ -271,7 +272,8 @@
 			"connectedToGitlab": "Gitlabに接続されています",
 			"connectedToGithub": "Githubに接続されています",
 			"invited": "チャンネルに招待されました。",
-			"from": "招待者"
+			"from": "招待者",
+			"away" : "離脱"
 		},
 		"message" : "メッセージ",
 		"messages" : {
