@@ -462,7 +462,7 @@ myapp.run([ "$rootScope", "$location", "$resource", "$cookies", "$route", "$http
 				});
 				channelSocketListeners.forEach(function(value, key) {
 					$rootScope.socket.emit('listenChannel', key);
-				})
+				});
 			};
 			$rootScope.socket.on('authorized', reconnectFunction);
 		});
@@ -479,6 +479,13 @@ myapp.run([ "$rootScope", "$location", "$resource", "$cookies", "$route", "$http
 				channelEventListener(data);
 			}
 		});
+	}
+	var onConnectListener;
+	$rootScope.setOnConnectionListener = function(listener) {
+		onConnectListener = listener;
+	}
+	$rootScope.removeOnConnectionListener = function() {
+		onConnectListener = null;
 	}
 	var channelEventListener;
 	$rootScope.setChannelEventListener = function(listener) {
@@ -2370,9 +2377,23 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 			});
 		}
 	}
+	var onConnectionListener = function() {
+		$scope.joiningChannels.forEach(function(channel) {
+			if (0 == channel.messages.length) {
+				return;
+			}
+			var lastLoadId = channel.messages[channel.messages.length - 1].id;
+			$rootScope.requestMessage({
+				channelAccessKey : channel.accessKey,
+				idAfter : lastLoadId
+			});
+		});
+	}
+	$rootScope.setOnConnectionListener(onConnectionListener);
 	$rootScope.setChannelEventListener(channelsEventListener);
 	$scope.$on('$destroy', function() {
-		$rootScope.removeChannelEventListener(channelsEventListener);
+		$rootScope.removeChannelEventListener();
+		$rootScope.removeOnConnectionListener();
 	})
 	$scope.accountMenuOptions = [ [ $rootScope.messages.messages.createPrivateChannel, function($itemScope, $event, account) {
 		var dialogController = [ "$scope", "$uibModalInstance", function($dialogScope, $modalInstance) {
