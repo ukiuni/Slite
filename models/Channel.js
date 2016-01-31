@@ -100,7 +100,7 @@ module.exports = function(sequelize, DataTypes) {
 				where : {
 					ChannelId : loadedChannel.id,
 					AccountId : accountId
-					//,type : global.db.Channel.TYPE_PRIVATE
+				// ,type : global.db.Channel.TYPE_PRIVATE
 				}
 			})
 		}).then(function(accountInChannel) {
@@ -113,6 +113,71 @@ module.exports = function(sequelize, DataTypes) {
 					AccountId : accountInChannel.AccountId
 				});
 			})
+		})
+	}
+	Channel.loadAccessibleChannel = function(sessionKeyOrAccountId, channelAccessKey) {
+		if (!sessionKeyOrAccountId || !channelAccessKey) {
+			throw ERROR_NOTACCESSIBLE;
+		}
+		var loadedAccount;
+		var loadedChannel;
+		return new Promise(function(success) {
+			success()
+		}).then(function() {
+			if (Math.round(sessionKeyOrAccountId) === sessionKeyOrAccountId) {
+				return new Promise(function(success) {
+					success({
+						AccountId : sessionKeyOrAccountId
+					})
+				});
+			} else {
+				return global.db.AccessKey.findBySessionKey(sessionKeyOrAccountId);
+			}
+		}).then(function(accessKey) {
+			if (!accessKey) {
+				throw ERROR_NOTACCESSIBLE;
+			}
+			return global.db.Account.findById(accessKey.AccountId);
+		}).then(function(account) {
+			if (!account) {
+				throw ERROR_NOTACCESSIBLE;
+			}
+			loadedAccount = account;
+			return global.db.Channel.find({
+				where : {
+					accessKey : channelAccessKey
+				}
+			});
+		}).then(function(channel) {
+			if (!channel) {
+				throw ERROR_NOTFOUND;
+			}
+			loadedChannel = channel;
+			if (Channel.TYPE_PRIVATE == channel.type) {
+				return global.db.AccountInChannel.find({
+					where : {
+						ChannelId : channel.id,
+						AccountId : loadedAccount.id
+					}
+				});
+			} else {
+				return global.db.AccountInGroup.find({
+					where : {
+						GroupId : channel.GroupId,
+						AccountId : loadedAccount.id
+					}
+				})
+			}
+		}).then(function(accountInChannel) {
+			if (!accountInChannel) {
+				throw ERROR_NOTACCESSIBLE;
+			}
+			return new Promise(function(success) {
+				success({
+					account : loadedAccount,
+					channel : loadedChannel
+				});
+			});
 		})
 	}
 	Channel.TYPE_PRIVATE = "private";

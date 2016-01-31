@@ -1,7 +1,8 @@
 <div class="modal-body" id="confirmDialog">
 	<div class="row">
 		<div class="col-xs-12">
-			<div class="input-group">
+			<div style="font-size: xx-small;" align="left" ng-bind="messages.messages.strongWords"></div>
+			<div class="input-group" style="padding: 0 15px;">
 				<span class="input-group-addon" id="basic-addon3" ng-bind="messages.messages.strongWords"></span> <input type="text" class="form-control" id="basic-url" aria-describedby="basic-addon3" ng-model="strongWords">
 			</div>
 			<div style="font-size: xx-small;" align="right" ng-bind="messages.messages.strongWordsDescription"></div>
@@ -27,6 +28,17 @@
 				<button class="btn btn-default" style="width: 100%" ng-click="createWebhookUrl('github')">
 					<img src="/images/github_bw.png" style="height: 15px; margin-top: -3px; margin-left: 10px"> <span ng-bind="messages.messages.forGithub"></span>
 				</button>
+			</div>
+		</div>
+	</div>
+	<div class="row" style="margin-top: 10px">
+		<div class="col-xs-12">
+			<div style="font-size: xx-small;" align="left" ng-bind="messages.bots.create"></div>
+			<div class="col-xs-12" style="padding: 0 15px;">
+				<button class="btn btn-default" style="width: 100%" ng-bind="messages.create" ng-click="createBot()"></button>
+			</div>
+			<div style="font-size: xx-small;" align="right">
+				<a href="https://github.com/ukiuni/SliteBotbase" target="_blank"><span class="glyphicon glyphicon-question-sign"></span></a>
 			</div>
 		</div>
 	</div>

@@ -91,47 +91,7 @@ router.post('/', function(req, res) {
 		}
 	});
 });
-var loadAccessibleChannel = function(sessionKey, channelAccessKey) {
-	var loadedAccount;
-	var loadedChannel;
-	return AccessKey.findBySessionKey(sessionKey).then(function(accessKey) {
-		if (!accessKey) {
-			throw ERROR_NOTACCESSIBLE;
-		}
-		return Account.findById(accessKey.AccountId);
-	}).then(function(account) {
-		if (!account) {
-			throw ERROR_NOTACCESSIBLE;
-		}
-		loadedAccount = account;
-		return Channel.find({
-			where : {
-				accessKey : channelAccessKey
-			}
-		});
-	}).then(function(channel) {
-		if (!channel) {
-			throw ERROR_NOTFOUND;
-		}
-		loadedChannel = channel;
-		return AccountInChannel.find({
-			where : {
-				ChannelId : channel.id,
-				AccountId : loadedAccount.id
-			}
-		});
-	}).then(function(accountInChannel) {
-		if (!accountInChannel) {
-			throw ERROR_NOTACCESSIBLE;
-		}
-		return new Promise(function(success) {
-			success({
-				account : loadedAccount,
-				channel : loadedChannel
-			});
-		});
-	})
-}
+
 router.post('/:channelAccessKey/messages', function(req, res) {
 	var sessionKey = req.body.sessionKey || req.body.access_token;
 	if (!sessionKey) {
@@ -142,7 +102,7 @@ router.post('/:channelAccessKey/messages', function(req, res) {
 		res.status(400).end();
 		return;
 	}
-	loadAccessibleChannel(sessionKey, req.params.channelAccessKey).then(function(result) {
+	Channel.loadAccessibleChannel(sessionKey, req.params.channelAccessKey).then(function(result) {
 		return Message.handleMessage(result.account, result.channel, req.body.body);
 	}).then(function(result) {
 		res.status(201).json(result);
@@ -168,7 +128,7 @@ var startOrStopTalking = function(req, res, start) {
 		res.status(400).end();
 		return;
 	}
-	loadAccessibleChannel(sessionKey, req.params.channelAccessKey).then(function(result) {
+	Channel.loadAccessibleChannel(sessionKey, req.params.channelAccessKey).then(function(result) {
 		return socket[sendFunc](result.channel.accessKey, result.account);
 	}).then(function(result) {
 		res.status(201).json(result);

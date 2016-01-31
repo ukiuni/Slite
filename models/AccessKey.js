@@ -1,3 +1,4 @@
+var ERROR_NOTACCESSIBLE = "ERROR_NOTACCESSIBLE";
 module.exports = function(sequelize, DataTypes) {
 	var AccessKey = sequelize.define("AccessKey", {
 		secret : DataTypes.TEXT,
@@ -16,6 +17,11 @@ module.exports = function(sequelize, DataTypes) {
 		AccessKey.belongsTo(sequelize.Account);
 	}
 	AccessKey.findBySessionKey = function(sessionKey) {
+		if (!sessionKey) {
+			return new Promise(function(s, fail) {
+				fail(ERROR_NOTACCESSIBLE);
+			});
+		}
 		return global.db.AccessKey.find({
 			where : {
 				secret : sessionKey,

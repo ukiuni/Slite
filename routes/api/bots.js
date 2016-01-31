@@ -23,10 +23,14 @@ router.post('/', function(req, res) {
 			var type = Bot.TYPE_GITLAB;
 			var name = "gitlab";
 			var iconUrl = "/images/gitlab.png";
-		} else {
+		} else if ("gitlab" == req.body.type) {
 			var type = Bot.TYPE_GITHUB;
 			var name = "github";
 			var iconUrl = "/images/github.png";
+		} else {
+			var type = Bot.TYPE_API;
+			var name = "api";
+			var iconUrl = "/images/bot.png";
 		}
 		return Bot.create({
 			key : random,
@@ -41,6 +45,33 @@ router.post('/', function(req, res) {
 	})["catch"](function(error) {
 		if (ERROR_NOTACCESSIBLE == error) {
 			res.status(403).end();
+		} else {
+			console.log(error.stack);
+			res.status(500).end();
+		}
+	});
+});
+router.post('/messages', function(req, res) {
+	if (!req.body.key || !req.body.body) {
+		res.status(400).end();
+		return;
+	}
+	var loadedBot;
+	Bot.findForSendMessageTypeAPI(req.body.key).then(function(bot) {
+		if (!bot) {
+			throw ERROR_NOTFOUND;
+		}
+		loadedBot = bot;
+		return Channel.loadAccessibleChannel(bot.ownerId, bot.Channel.accessKey)
+	}).then(function(result) {
+		return loadedBot.sendMessage(result.channel, req.body.body);
+	}).then(function(message) {
+		res.status(201).json(message);
+	})["catch"](function(error) {
+		if (ERROR_NOTACCESSIBLE == error) {
+			res.status(403).end();
+		} else if (ERROR_NOTFOUND == error) {
+			res.status(404).end();
 		} else {
 			console.log(error.stack);
 			res.status(500).end();

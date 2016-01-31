@@ -180,6 +180,13 @@
 		"keys" : {
 			"typeLogin" : "With login",
 			"typeGenerated" : "Generated"
+		},
+		"bots" : {
+			"create" : "create Bot",
+			"created" : "Bot is created",
+			"keepKeySecret" : "Keep key secret.",
+			"key" : "Bot Key",
+			"channelAccessKey" : "Channen Access Key"
 		}
 	},
 	"ja" : {
@@ -364,6 +371,13 @@
 		"keys" : {
 			"typeLogin" : "ログインで生成",
 			"typeGenerated" : "手動で生成"
+		},
+		"bots" : {
+			"create" : "ボット作成",
+			"created" : "ボットが作成されました。",
+			"keepKeySecret" : "鍵は秘密にしてください。",
+			"key" : "Bot Key",
+			"channelAccessKey" : "Channen Access Key"
 		}
 	}
 }

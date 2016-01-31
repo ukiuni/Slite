@@ -181,6 +181,13 @@ module.exports = function(sequelize, DataTypes) {
 			foreignKey : "ownerId"
 		});
 	};
+	Account.sanitize = function(account) {
+		return {
+			id : account.id,
+			name : account.name,
+			iconUrl : account.iconUrl
+		}
+	}
 	Account.AUTHORIZATION_VIEWER = 1;
 	Account.AUTHORIZATION_EDITOR = 2;
 	Account.AUTHORIZATION_ADMIN = 3;

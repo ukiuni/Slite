@@ -13,12 +13,20 @@ var AccountInChannel = global.db.AccountInChannel;
 var Channel = global.db.Channel;
 var ERROR_NOTACCESSIBLE = "ERROR_NOTACCESSIBLE";
 var PRIVATE_ROOM_NAME_PREFIX = "accountId:";
+var BOT_NAME_PREFIX = "botId:";
 var socketIO = function(io) {
 	var connected;
 	var self = this;
 	self.context = io.sockets.on('connection', function(socket) {
 		connected = socket;
+		var auth = function() {
+			return socket.client.authorized;
+		}
 		socket.on('listenComment', function(contentKey) {
+			if (!auth()) {
+				socket.emit("exception", ERROR_NOTACCESSIBLE);
+				return;
+			}
 			Content.findAll({
 				where : {
 					accessKey : contentKey
@@ -95,6 +103,10 @@ var socketIO = function(io) {
 		}
 		var listenChannels = [];
 		socket.on('listenChannel', function(channelAccessKey) {
+			if (!auth()) {
+				socket.emit("exception", ERROR_NOTACCESSIBLE);
+				return;
+			}
 			loadAccessibleChannel(channelAccessKey).then(function(channel) {
 				if (channel) {
 					socket.join(channelAccessKey);
@@ -109,6 +121,10 @@ var socketIO = function(io) {
 			});
 		});
 		socket.on('requestMessage', function(requestParam) {
+			if (!auth()) {
+				socket.emit("exception", ERROR_NOTACCESSIBLE);
+				return;
+			}
 			requestParam = JSON.parse(requestParam);
 			var channelAccessKey = requestParam.channelAccessKey;
 			var limit = requestParam.limit || 10;
@@ -159,11 +175,19 @@ var socketIO = function(io) {
 			self.sendHello(channelAccessKey, socket.client.account);
 		});
 		socket.on('unListenChannel', function(channelAccessKey) {
+			if (!auth()) {
+				socket.emit("exception", ERROR_NOTACCESSIBLE);
+				return;
+			}
 			socket.leave(channelAccessKey);
 			self.sendReaveFromChannelEvent(channelAccessKey, socket.client.account);
 			delete listenChannels[channelAccessKey];
 		});
 		socket.on('authorize', function(accessKey) {
+			if (!accessKey) {
+				socket.emit("exception", "Key is required");
+				return;
+			}
 			AccessKey.findBySessionKey(accessKey).then(function(accessKey) {
 				if (!accessKey) {
 					throw ERROR_NOTACCESSIBLE;
@@ -175,8 +199,40 @@ var socketIO = function(io) {
 				}
 				socket.client.accountId = account.id;
 				socket.client.account = account;
+				socket.client.authorized = true;
 				socket.emit("authorized", account);
 				socket.join(PRIVATE_ROOM_NAME_PREFIX + account.id);
+			})["catch"](function(e) {
+				if (e.stack) {
+					console.log(e.stack);
+				} else {
+					console.log(e);
+				}
+				socket.emit("exception", e);
+			});
+		});
+		socket.on('authorizeAsBot', function(accessKey) {
+			if (!accessKey) {
+				socket.emit("exception", "Key is required");
+				return;
+			}
+			Bot.findForSendMessageTypeAPI(accessKey).then(function(bot) {
+				if (!bot) {
+					throw ERROR_NOTACCESSIBLE;
+				}
+				socket.client.accountId = bot.owner.id;
+				socket.client.account = bot.owner;
+				socket.client.bot = bot;
+				socket.client.isBot = true;
+				socket.emit("authorizedAsBot", JSON.stringify({
+					channel : bot.Channel
+				}));
+				socket.join(BOT_NAME_PREFIX + bot.id);
+				socket.join(bot.Channel.accessKey);
+				listenChannels[bot.Channel.accessKey] = bot.Channel.accessKey;
+				// how bot do?
+				// self.sendJoinToChannelEvent(bot.Channel.accessKey,
+				// socket.client.account);
 			})["catch"](function(e) {
 				if (e.stack) {
 					console.log(e.stack);

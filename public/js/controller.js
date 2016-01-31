@@ -2878,6 +2878,11 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 					value : target
 				});
 			};
+			$dialogScope.createBot = function() {
+				$modalInstance.close({
+					type : "createBot"
+				});
+			};
 			$dialogScope.message = $rootScope.messages.menu.setting;
 			$dialogScope.strongWords = $rootScope.myAccount.config.strongWords;
 			if (!$dialogScope.strongWords) {
@@ -2917,6 +2922,16 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 						$scope.channel.hasGithubBot = true;
 					}
 					$scope.showWebhookDialog(resp.data.key);
+				})["catch"](function(response) {
+					$rootScope.showErrorWithStatus(response.status);
+				});
+			} else if ("createBot" == complete.type) {
+				post($http, "/api/bots", {
+					sessionKey : $rootScope.getSessionKey(),
+					channelAccessKey : $scope.channel.accessKey,
+					type : "api"
+				}).then(function(response) {
+					showBotCreatedDialog(response.data.key);
 				})["catch"](function(response) {
 					$rootScope.showErrorWithStatus(response.status);
 				});
@@ -3000,6 +3015,24 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 			$rootScope.showErrorWithStatus(error.status);
 		});
 	});
+	var showBotCreatedDialog = function(botkey) {
+		var dialogController = [ "$scope", "$uibModalInstance", function($dialogScope, $modalInstance) {
+			$dialogScope.message = $rootScope.messages.bots.created;
+			$dialogScope.messageDetail = $rootScope.messages.bots.keepKeySecret;
+			$dialogScope.text = botkey;
+			$dialogScope.description = $rootScope.messages.bots.key;
+			$dialogScope.onCancelButtonMessage = $rootScope.messages.close;
+			$dialogScope.placeholder = "";
+			$dialogScope.hideCompleteButton = true;
+		} ];
+		var modalInstance = $modal.open({
+			templateUrl : 'template/confirmWithTextDialog.html',
+			controller : dialogController
+		});
+		modalInstance.result.then(function() {
+		}, function() {
+		});
+	}
 } ];
 var accountController = [ "$rootScope", "$scope", "$resource", "$location", "$http", "$uibModal", "$routeParams", function($rootScope, $scope, $resource, $location, $http, $modal, $routeParams) {
 	var id = $routeParams.id;
