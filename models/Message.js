@@ -76,8 +76,9 @@ module.exports = function(sequelize, DataTypes) {
 						type : global.db.Message.TYPE_MARKDOWN
 					})
 				}).then(function(message) {
-					message.dataValues.owner = account;
-					message.owner = account;
+					var sanitizedAccount = global.db.Account.sanitize(account);
+					message.dataValues.owner = sanitizedAccount;
+					message.owner = sanitizedAccount;
 					success(message);
 					global.socket.sendToChannel(channel.accessKey, message);
 					global.db.NotificationTarget.notifyToChannel(channel, message);
