@@ -14,9 +14,9 @@ router.post('/', function(req, res) {
 	}
 	var loadedAccount;
 	var loadedChannel;
-	Channel.resolveChannelInGroup(sessionKey, req.body.channelAccessKey).then(function(result) {
-		loadedAccount = result.loadedAccount;
-		loadedChannel = result.loadedChannel;
+	Channel.loadAccessibleChannel(sessionKey, req.body.channelAccessKey).then(function(result) {
+		loadedAccount = result.account;
+		loadedChannel = result.channel;
 		return Random.createRandomBase62();
 	}).then(function(random) {
 		if ("gitlab" == req.body.type) {
