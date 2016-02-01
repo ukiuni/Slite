@@ -21,6 +21,7 @@
 			"setting" : "Setting",
 			"profile" : "Profile",
 			"manageKey" : "Manage key",
+			"manageBot" : "Manage bot",
 			"changePassword" : "Change Password",
 			"signOut" : "Sign out"
 		},
@@ -186,7 +187,10 @@
 			"created" : "Bot is created",
 			"keepKeySecret" : "Keep key secret.",
 			"key" : "Bot Key",
-			"channelAccessKey" : "Channen Access Key"
+			"channelAccessKey" : "Channen Access Key",
+			"forGitlab" : "bot for Gitlab",
+			"forGithub" : "bot for Github",
+			"forAPI" : "bot for API"
 		}
 	},
 	"ja" : {
@@ -211,6 +215,7 @@
 			"setting" : "設定",
 			"profile" : "プロフィール",
 			"manageKey" : "鍵管理",
+			"manageBot" : "ボット管理",
 			"changePassword" : "パスワード変更",
 			"signOut" : "サインアウト"
 		},
@@ -377,7 +382,10 @@
 			"created" : "ボットが作成されました。",
 			"keepKeySecret" : "鍵は秘密にしてください。",
 			"key" : "Bot Key",
-			"channelAccessKey" : "Channen Access Key"
+			"channelAccessKey" : "Channen Access Key",
+			"forGitlab" : "Gitlab用ボット",
+			"forGithub" : "Github用ボット",
+			"forAPI" : "API用ボット"
 		}
 	}
 }

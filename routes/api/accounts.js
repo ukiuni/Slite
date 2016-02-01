@@ -601,6 +601,31 @@ router.get("/keys", function(req, res) {
 		res.status(500).end();
 	});
 });
+router.get("/bots", function(req, res) {
+	if (!req.query.sessionKey) {
+		res.status(400).end();
+		return;
+	}
+	AccessKey.findBySessionKey(req.query.sessionKey).then(function(accessKey) {
+		if (!accessKey) {
+			throw ERROR_NOTACCESSIBLE;
+		}
+		return Bot.findAll({
+			where : {
+				ownerId : accessKey.AccountId,
+			},
+			include : [ {
+				model : Channel
+			} ],
+			order : [ [ "createdAt", "DESC" ] ]
+		});
+	}).then(function(bots) {
+		res.status(200).json(bots);
+	})["catch"](function(error) {
+		console.log(error.stack);
+		res.status(500).end();
+	});
+});
 router.get("/channels/accessible", function(req, res) {
 	if (!req.query.sessionKey) {
 		res.status(400).end();
@@ -696,6 +721,39 @@ router["delete"]("/keys", function(req, res) {
 			throw ERROR_NOTFOUND;
 		}
 		accessKey.destroy();
+	}).then(function() {
+		res.status(200).end();
+	})["catch"](function(error) {
+		if (ERROR_NOTACCESSIBLE == error) {
+			res.status(403).end();
+		} else if (ERROR_NOTFOUND == error) {
+			res.status(404).end();
+		} else {
+			res.status(500).end();
+			console.log(error.stack);
+		}
+	});
+});
+router["delete"]("/bots", function(req, res) {
+	if (!req.query.sessionKey || !req.query.key) {
+		res.status(400).end();
+		return;
+	}
+	AccessKey.findBySessionKey(req.query.sessionKey).then(function(accessKey) {
+		if (!accessKey) {
+			throw ERROR_NOTACCESSIBLE;
+		}
+		return Bot.find({
+			where : {
+				ownerId : accessKey.AccountId,
+				key : req.query.key
+			}
+		});
+	}).then(function(bot) {
+		if (!bot) {
+			throw ERROR_NOTFOUND;
+		}
+		bot.destroy();
 	}).then(function() {
 		res.status(200).end();
 	})["catch"](function(error) {
