@@ -93,6 +93,12 @@ module.exports = function(sequelize, DataTypes) {
 		},
 		indexes : [ {
 			fields : [ "id", "ownerId", "type" ]
+		}, {
+			fields : [ "key", "type" ]
+		}, {
+			fields : [ "key" ]
+		}, {
+			fields : [ "ownerId" ]
 		} ]
 	});
 	Bot.associate = function(sequelize) {

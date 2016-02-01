@@ -80,6 +80,10 @@ myapp.config([ "$locationProvider", "$httpProvider", "$routeProvider", "markedPr
 		templateUrl : "template/manageKey.html",
 		controller : "manageKeyController"
 	});
+	$routeProvider.when("/manageBot", {
+		templateUrl : "template/manageBot.html",
+		controller : "manageBotController"
+	});
 	$routeProvider.when("/passwordChanged", {
 		templateUrl : "template/passwordChangedView.html"
 	});
@@ -1032,6 +1036,56 @@ var manageKeyController = [ "$rootScope", "$scope", "$resource", "$location", "$
 			$scope.myKeys.unshift(key);
 		}).error(function(error) {
 			$rootScope.showError($rootScope.messages.error.withServer);
+		});
+	}
+} ];
+var manageBotController = [ "$rootScope", "$scope", "$resource", "$location", "$http", "$uibModal", function($rootScope, $scope, $resource, $location, $http, $modal) {
+	if (!$rootScope.getSessionKey()) {
+		$location.path("/home");
+		return;
+	}
+	$resource('/api/accounts/bots').query({
+		sessionKey : $rootScope.getSessionKey()
+	}, function(bots) {
+		$scope.myBots = bots;
+		$scope.typeMessages = [];
+		var initTypeMessage = function() {
+			$scope.typeMessages[1] = $rootScope.messages.bots.forGitlab;
+			$scope.typeMessages[2] = $rootScope.messages.bots.forGithub;
+			$scope.typeMessages[99] = $rootScope.messages.bots.forAPI;
+		}
+		if ($rootScope.messages) {
+			initTypeMessage();
+		} else {
+			$rootScope.$watch("messages", initTypeMessage);
+		}
+	}, function(error) {
+		$rootScope.showError($rootScope.messages.error.withServer);
+	});
+	$scope.deleteBot = function(index, bot) {
+		var deleteBot = function() {
+			$resource('/api/accounts/bots')["delete"]({
+				sessionKey : $rootScope.getSessionKey(),
+				key : bot.key
+			}, function(bot) {
+				$scope.myBots.splice(index, 1)
+			}, function(error) {
+				$rootScope.showError($rootScope.messages.error.withServer);
+			});
+		}
+		var dialogController = [ "$scope", "$uibModalInstance", function($dialogScope, $modalInstance) {
+			$dialogScope["delete"] = function() {
+				$modalInstance.close();
+			};
+			$dialogScope.message = $rootScope.messages.confirmDelete + "\n\n";
+		} ];
+		var modalInstance = $modal.open({
+			templateUrl : 'template/confirmDialog.html',
+			controller : dialogController
+		});
+		modalInstance.result.then(function() {
+			deleteBot();
+		}, function() {
 		});
 	}
 } ];
@@ -3098,6 +3152,7 @@ myapp.controller('requestResetPasswordController', requestResetPasswordControlle
 myapp.controller('resetPasswordController', resetPasswordController);
 myapp.controller('editProfileController', editProfileController);
 myapp.controller('manageKeyController', manageKeyController);
+myapp.controller('manageBotController', manageBotController);
 myapp.controller('changePasswordController', changePasswordController);
 myapp.controller('editContentController', editContentController);
 myapp.controller('editCalendarAlbumController', editCalendarAlbumController);
