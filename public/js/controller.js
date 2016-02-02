@@ -656,11 +656,14 @@ myapp.run([ "$rootScope", "$location", "$resource", "$cookies", "$route", "$http
 				}
 			});
 		}
-		var notification = new Notification(title, {
-			body : body,
-			iconUrl : "images/application_icon.png",
-			icon : "images/application_icon.png"
-		});
+		var params = {
+			body : body
+		}
+		if (!isElectron) {
+			params.iconUrl = "images/application_icon.png";
+			params.icon = "images/application_icon.png"
+		}
+		var notification = new Notification(title, params);
 		notification.onclick = function() {
 			$("#messageInput").focus();
 			window.focus();
@@ -673,13 +676,17 @@ myapp.run([ "$rootScope", "$location", "$resource", "$cookies", "$route", "$http
 		if (!notification.stay) {
 			notifications.push(notification);
 			setTimeout(function() {
-				notification.close();
+				if (!isElectron) {
+					notification.close();
+				}
 				notifications.splice(notifications.indexOf(notification), 1);
 			}, 3000);
 		}
 		if (notifications.length > 3) {
 			for ( var i in notifications) {
-				notifications[i].close();
+				if (!isElectron) {
+					notifications[i].close();
+				}
 				notifications.splice(i, 1);
 				if (notifications.length <= 3) {
 					break;

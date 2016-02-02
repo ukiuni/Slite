@@ -1,6 +1,6 @@
 {
   "name": "Slite",
-  "version": "0.0.329",
+  "version": "0.0.330",
   "main": "index.js",
   "scripts": {
     "testInit": "./node_modules/selenium-standalone/bin/selenium-standalone install",
