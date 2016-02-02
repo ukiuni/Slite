@@ -2481,6 +2481,45 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 		});
 	}, function($itemScope, $event, account) {
 		return account.id != $rootScope.myAccount.id;
+	} ], [ $rootScope.messages.channels.invite, function($itemScope, $event, account) {
+		var dialogController = [ "$scope", "$uibModalInstance", function($dialogScope, $modalInstance) {
+			$dialogScope.selected = function(selecting) {
+				if (!selecting) {
+					return;
+				}
+				$modalInstance.close(selecting);
+			};
+			$dialogScope.select = function(selection) {
+				$dialogScope.selecting = selection;
+			}
+			$dialogScope.message = $rootScope.messages.channels.selectInviteChannel;
+			$dialogScope.selections = $scope.joiningChannels.filter(function(channel) {
+				return "private" == channel.type;
+			})
+			$dialogScope.onCompleteButtonMessage = $rootScope.messages.channels.invite;
+		} ];
+		var modalInstance = $modal.open({
+			templateUrl : 'template/selectionDialog.html',
+			controller : dialogController
+		});
+		modalInstance.result.then(function(channel) {
+			post($http, "/api/channels/" + channel.accessKey + "/invite", {
+				sessionKey : $rootScope.getSessionKey(),
+				targetAccountId : account.id
+			}).then(function(response) {
+				$rootScope.showInfo($rootScope.messages.channels.invited);
+			})["catch"](function(response) {
+				$rootScope.showErrorWithStatus(response.status, function(status) {
+					if (409 == status) {
+						$rootScope.showError($rootScope.messages.channels.error.aleadyIn);
+						return true;
+					}
+				});
+			});
+		}, function() {
+		});
+	}, function($itemScope, $event, account) {
+		return account.id != $rootScope.myAccount.id;
 	} ] ]
 	$scope.channelMenuOptions = [ [ $rootScope.messages.messages.awayFromchannel, function($itemScope, $event, channel) {
 		var dialogController = [ "$scope", "$uibModalInstance", function($dialogScope, $modalInstance) {

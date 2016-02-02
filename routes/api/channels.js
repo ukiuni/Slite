@@ -11,19 +11,9 @@ var socket = global.socket;
 var ERROR_NOTACCESSIBLE = "ERROR_NOTACCESSIBLE";
 var ERROR_NOTFOUND = "ERROR_NOTFOUND";
 var ERROR_DUPLICATED = "ERROR_DUPLICATED";
-router.post('/', function(req, res) {
-	var sessionKey = req.body.sessionKey || req.body.access_token;
-	if (!sessionKey) {
-		res.status(400).end();
-		return;
-	}
-	if (!req.body.name || !req.body.targetAccountId) {
-		res.status(400).end();
-		return;
-	}
+var loadAccountAndCheckJoinSameGroup = function(sessionKey, targetAccountId) {
 	var loadedAccount;
-	var createdChannel;
-	AccessKey.findBySessionKey(sessionKey).then(function(accessKey) {
+	return AccessKey.findBySessionKey(sessionKey).then(function(accessKey) {
 		if (!accessKey) {
 			throw ERROR_NOTACCESSIBLE;
 		}
@@ -47,16 +37,36 @@ router.post('/', function(req, res) {
 		});
 		return AccountInGroup.findAll({
 			where : {
-				AccountId : parseInt(req.body.targetAccountId),
+				AccountId : parseInt(targetAccountId),
 				GroupId : {
 					$in : ownerJoiningGroupIds
 				},
 			}
 		});
-	}).then(function(targetAccountInGroups) {
-		if (0 == targetAccountInGroups.length) {
-			throw ERROR_NOTACCESSIBLE
-		}
+	}).then(function(accountInGroups) {
+		return new Promise(function(success, fail) {
+			if (!accountInGroups || 0 == accountInGroups.length) {
+				fail(ERROR_NOTACCESSIBLE)
+			} else {
+				success(loadedAccount);
+			}
+		});
+	})
+}
+router.post('/', function(req, res) {
+	var sessionKey = req.body.sessionKey || req.body.access_token;
+	if (!sessionKey) {
+		res.status(400).end();
+		return;
+	}
+	if (!req.body.name || !req.body.targetAccountId || !parseInt(req.body.targetAccountId)) {
+		res.status(400).end();
+		return;
+	}
+	var createdChannel;
+	var loadedAccount;
+	loadAccountAndCheckJoinSameGroup(sessionKey, req.body.targetAccountId).then(function(account) {
+		loadedAccount = account;
 		return Random.createRandomBase62();
 	}).then(function(random) {
 		return Channel.create({
@@ -91,7 +101,71 @@ router.post('/', function(req, res) {
 		}
 	});
 });
-
+router.post("/:channelAccessKey/invite", function(req, res) {
+	var sessionKey = req.body.sessionKey || req.body.access_token;
+	if (!sessionKey) {
+		res.status(400).end();
+		return;
+	}
+	if (!req.params.channelAccessKey || !req.body.targetAccountId || !parseInt(req.body.targetAccountId)) {
+		res.status(400).end();
+		return;
+	}
+	var loadedChannel;
+	var loadedAccount;
+	loadAccountAndCheckJoinSameGroup(sessionKey, req.body.targetAccountId).then(function(account) {
+		loadedAccount = account;
+		return Channel.find({
+			where : {
+				accessKey : req.params.channelAccessKey
+			}
+		});
+	}).then(function(channel) {
+		if (!channel) {
+			throw ERROR_NOTFOUND;
+		}
+		loadedChannel = channel;
+		return AccountInChannel.find({
+			ChannelId : loadedChannel.id,
+			AccountId : loadedAccount.id,
+			type : AccountInChannel.TYPE_JOIN
+		});
+	}).then(function(accountInChannel) {
+		if (!accountInChannel) {
+			throw ERROR_NOTACCESSIBLE;
+		}
+		return AccountInChannel.find({
+			where : {
+				ChannelId : loadedChannel.id,
+				AccountId : parseInt(req.body.targetAccountId),
+				type : AccountInChannel.TYPE_JOIN
+			}
+		});
+	}).then(function(accountInChannel) {
+		if (accountInChannel) {
+			throw ERROR_DUPLICATED;
+		}
+		return AccountInChannel.create({
+			ChannelId : loadedChannel.id,
+			AccountId : parseInt(req.body.targetAccountId),
+			type : AccountInChannel.TYPE_JOIN
+		});
+	}).then(function() {
+		res.status(201).json(loadedChannel);
+		socket.sendAppendsChannelEvent(req.body.targetAccountId, loadedAccount, loadedChannel);
+	})["catch"](function(error) {
+		if (ERROR_NOTACCESSIBLE == error) {
+			res.status(403).end();
+		} else if (ERROR_NOTFOUND == error) {
+			res.status(404).end();
+		} else if (ERROR_DUPLICATED == error) {
+			res.status(409).end();
+		} else {
+			console.log(error.stack);
+			res.status(500).end();
+		}
+	});
+})
 router.post('/:channelAccessKey/messages', function(req, res) {
 	var sessionKey = req.body.sessionKey || req.body.access_token;
 	if (!sessionKey) {
