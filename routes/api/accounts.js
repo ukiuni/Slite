@@ -647,6 +647,9 @@ router.get("/channels/accessible", function(req, res) {
 			include : [ {
 				model : Bot,
 				attribute : [ "id", "name", "iconUrl" ]
+			}, {
+				model : Account,
+				attribute : [ "id", "name", "iconUrl" ]
 			} ]
 		});
 	}).then(function(privateChannels) {
