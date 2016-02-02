@@ -90,7 +90,14 @@
 			"connectedToGithub": "Connected to Github",
 			"invited": "You are invited to channel",
 			"from": "from",
-			"away" : "away"
+			"away" : "away",
+			"invite" : "invite to channel",
+			"selectInviteChannel" : "Select channel invite to.",
+			"selectChannel" : "Select channel",
+			"invited" : "Invited to channel",
+			"error" : {
+				"aleadyIn" : "Aleady in."
+			}
 		},
 		"message" : "message",
 		"messages" : {
@@ -132,6 +139,7 @@
 		"send" : "send",
 		"edit" : "edit",
 		"save" : "save",
+		"select" : "select",
 		"delete" : "delete",
 		"cancel" : "cancel",
 		"close" : "close",
@@ -285,7 +293,14 @@
 			"connectedToGithub": "Githubに接続されています",
 			"invited": "チャンネルに招待されました。",
 			"from": "招待者",
-			"away" : "離脱"
+			"away" : "離脱",
+			"invite" : "チャネルに招待",
+			"selectInviteChannel" : "招待するチャネルを選択してください。",
+			"selectChannel" : "チャネル選択",
+			"invited" : "チャネルに招待しました。",
+			"error" : {
+				"aleadyIn" : "すでにメンバーです。"
+			}
 		},
 		"message" : "メッセージ",
 		"messages" : {
@@ -327,6 +342,7 @@
 		"send" : "送信",
 		"edit" : "編集",
 		"save" : "保存",
+		"select" : "選択",
 		"delete" : "削除",
 		"cancel" : "キャンセル",
 		"close" : "閉じる",
