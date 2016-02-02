@@ -2582,7 +2582,7 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 		if (!channel.Group) {
 			channel.Group = {};
 			channel.Group.isTemporary = true;
-			channel.Group.Accounts = [];
+			channel.Group.Accounts = channel.Accounts;
 		}
 		$rootScope.listenChannel(channel.accessKey, listenComment);
 		channelMap[channel.accessKey] = channel;
