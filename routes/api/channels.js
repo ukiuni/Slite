@@ -217,9 +217,11 @@ var startOrStopTalking = function(req, res, start) {
 		}
 	});
 }
-router.post('/:channelAccessKey/messages/startTalking', function(req, res) {
+router.put('/:channelAccessKey/messages/startTalking', function(req, res) {
+	startOrStopTalking(req, res, true);
 })
-router.post('/:channelAccessKey/messages/stopTalking', function(req, res) {
+router.put('/:channelAccessKey/messages/stopTalking', function(req, res) {
+	startOrStopTalking(req, res, false);
 })
 router.put('/:channelAccessKey/away', function(req, res) {
 	var sessionKey = req.body.sessionKey;
