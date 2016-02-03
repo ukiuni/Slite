@@ -56,7 +56,6 @@ if (serverConfig.dropbox) {
 			}).then(function() {
 				return new Promise(function(success) {
 					var url = serverConfig.hostURL + "/api/image/" + key;
-					url = name ? url + "/" + name : url;
 					success(url);
 				})
 			});
