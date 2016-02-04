@@ -3133,6 +3133,11 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 		}, function() {
 		});
 	}
+	if ($(window).width() < 768) {
+		setTimeout(function() {
+			$(window).scrollTop($(window).height());
+		}, 100)
+	}
 } ];
 var accountController = [ "$rootScope", "$scope", "$resource", "$location", "$http", "$uibModal", "$routeParams", function($rootScope, $scope, $resource, $location, $http, $modal, $routeParams) {
 	var id = $routeParams.id;

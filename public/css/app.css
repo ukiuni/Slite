@@ -200,6 +200,16 @@ ul {
 	cursor: pointer;
 }
 
+@media ( max-width :767px) {
+	#messageInputArea {
+		position: fixed;
+		bottom: 3px;
+	}
+	#groupName {
+		margin-top: 10px;
+	}
+}
+
 @media ( min-width : 768px) {
 	#infoArea {
 		height: 100%;
