@@ -4,6 +4,7 @@
 			<ul class="nav nav-tabs">
 				<li role="presentation" ng-class="{'active' : is('markdown')}"><a href="#" ng-click="to('markdown')"><H4 ng-bind="messages.markdown"></H4></a></li>
 				<li role="presentation" ng-class="{'active' : is('dragAndDrop')}"><a href="#" ng-click="to('dragAndDrop')"><H4 ng-bind="messages.dragAndDrop"></H4></a></li>
+				<li role="presentation" ng-class="{'active' : is('slashCommands')}"><a href="#" ng-click="to('slashCommands')"><H4 ng-bind="messages.slashCommand"></H4></a></li>
 			</ul>
 		</div>
 		<div class="col-xs-12" ng-show="is('dragAndDrop')">
@@ -64,6 +65,15 @@
 				<div class="col-xs-12 helpOneDescription" ng-bind="messages.markdowns.hr"></div>
 				<div class="col-xs-12" marked='"```\nHorizon\n\n ---\n```"'></div>
 				<div class="col-xs-12" marked='"Horizon\n\n ---"'></div>
+			</div>
+		</div>
+		<div class="col-xs-12" ng-show="is('slashCommands')">
+			<div style="font-size: xx-small;" ng-bind="messages.slashCommands.description"></div>
+			<hr />
+			<div class="row helpOneColmn">
+				<h5 class="col-xs-12 helpOneTitle">Remind</h5>
+				<div class="col-xs-12" marked='"```\n/remind XX:XX messages\n```"'></div>
+				<div class="col-xs-12 helpOneDescription" ng-bind="messages.slashCommands.remind"></div>
 			</div>
 		</div>
 	</div>
