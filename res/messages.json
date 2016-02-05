@@ -134,6 +134,11 @@
 			"blockquote" : "Starts line with >, to be block. Space apfer > is required",
 			"hr" : "--- to be Horizonal line。 empty line is requires before."
 		},
+		"slashCommand" : "Slash Commands",
+		"slashCommands" : {
+			"description" : "When you messages start with / in channel, it might be command.",
+			"remind" : "Remind message will send at specify time."
+		},
 		"sendWithEnter" : "Send on enter",
 		"create" : "Create",
 		"send" : "send",
@@ -336,6 +341,11 @@
 			"code" : "行の前後を```で囲みます。",
 			"blockquote" : ">から行を始めるとブロックになります。>の後にはスペースが必要です。",
 			"hr" : "---を入れると、区切り線をひくことができます。前行に改行が必要です。"
+		},
+		"slashCommand" : "Slash Commands",
+		"slashCommands" : {
+			"description" : "チャンネルのメッセージ送信を / で始めると、コマンドを実行することができます。",
+			"remind" : "指定した時刻にメッセージを送信できます。"
 		},
 		"sendWithEnter" : "Enterで送信",
 		"create" : "作成",
