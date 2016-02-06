@@ -51,8 +51,12 @@
 	background-color: #0088cc;
 }
 
-body > .popover {
+body>.popover {
 	max-width: 50%;
 	height: 80%;
 	margin-left: -150px;
+}
+
+.navbar-header>button {
+	max-height: 30px;
 }
