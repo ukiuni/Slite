@@ -208,6 +208,25 @@ ul {
 	#groupName {
 		margin-top: 10px;
 	}
+	#messageChannelsArea {
+		position: fixed;
+		z-index: 999;
+		left: 100%;
+		width: 100%;
+		top: 10px;
+		margin-left: -50px;
+		max-height: 100%;
+		overflow-x: visible;
+		overflow-y: scroll;
+		opacity: 0.3;
+	}
+	.otherChannel {
+		background-color: #CCC;
+		padding: 5px;
+		border-radius: 5px;
+		margin-bottom: 5px;
+		color: white;
+	}
 }
 
 @media ( min-width : 768px) {
