@@ -3138,6 +3138,23 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 			$(window).scrollTop($(window).height());
 		}, 100)
 	}
+	$scope.channelToggleShown = false;
+	$scope.toggleChannelVisible = function() {
+		var animateParam;
+		$scope.channelToggleShown = !$scope.channelToggleShown;
+		if ($scope.channelToggleShown) {
+			animateParam = {
+				left : "30%",
+				opacity : 100
+			}
+		} else {
+			animateParam = {
+				left : "100%",
+				opacity : 0.3
+			}
+		}
+		$("#messageChannelsArea").animate(animateParam, 500, "swing")
+	}
 } ];
 var accountController = [ "$rootScope", "$scope", "$resource", "$location", "$http", "$uibModal", "$routeParams", function($rootScope, $scope, $resource, $location, $http, $modal, $routeParams) {
 	var id = $routeParams.id;

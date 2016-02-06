@@ -3,10 +3,13 @@
 		<div class="row" style="height: 100%;">
 			<div id="infoArea" class="col-sm-3 col-xs-12">
 				<div id="channelNameArea" class="row">
-					<div class="col-xs-7 col-sm-12" style="padding-left: 20px;">
+					<div class="col-xs-12 hidden-sm hidden-md hidden-lg" style="padding-left: 20px;">
+						<div id="channelName" class="ellipsis" style="font-size:medium;" ng-bind="channel.name"></div>
+					</div>
+					<div class="hidden-xs col-sm-12" style="padding-left: 20px;">
 						<h3 id="channelName" class="ellipsis" ng-bind="channel.name"></h3>
 					</div>
-					<div class="col-xs-5 col-sm-12" style="padding-left: 20px">
+					<div class="hidden-xs col-sm-12" style="padding-left: 20px">
 						<a ng-href="{{'/group/'+channel.Group.accessKey}}"><div id="groupName" ng-bind="channel.Group.name" class="ellipsis" style="font-size: 12px"></div></a>
 					</div>
 				</div>
@@ -30,12 +33,13 @@
 						<div id="messageAccountsBottomMarginArea" class="row hidden-xs"></div>
 					</div>
 				</div>
-				<div id="messageChannelsArea" class="row hidden-xs" ng-show="joiningChannels.length > 1">
+				<div id="messageChannelsArea" class="row" ng-show="joiningChannels.length > 1">
 					<div class="col-xs-12" ng-repeat="channel in joiningChannels track by channel.id">
 						<div class="otherChannel" ng-click="changeChannel(channel)" ng-class="{'brink':channel.notify}" context-menu="channelMenuOptions" model="channel">
-							<span ng-show="channel.Group.isTemporary" class="glyphicon glyphicon-envelope" style="margin-right: 5px"></span>{{channel.name}}<span ng-show="channel.Group.name">/</span>{{channel.Group.name}}<span ng-show="channel.unreadCount" class="badge" style="margin-left: 10px" ng-bind="channel.unreadCount"></span>
+							<span ng-show="channel.unreadCount" class="badge hidden-sm hidden-md hidden-lg" style="margin-right: -20px" ng-bind="channel.unreadCount"></span><span ng-show="channel.Group.isTemporary" class="glyphicon glyphicon-envelope" style="margin-right: 5px"></span><span ng-bind="channel.name"></span><span ng-show="channel.Group.name">/</span><span ng-bind="channel.Group.name"></span><span ng-show="channel.unreadCount" class="badge hidden-xs" style="margin-left: 10px" ng-bind="channel.unreadCount"></span>
 						</div>
 					</div>
+					<div id="channelTogle" class="col-xs-12 hidden-sm hidden-md hidden-lg glyphicon" ng-class="channelToggleShown ? 'glyphicon-chevron-right':'glyphicon-chevron-left'" ng-click="toggleChannelVisible()"></div>
 				</div>
 				<div id="messageControllArea" class="row hidden-xs">
 					<div class="col-xs-12" style="height: 100%" align="right">
@@ -113,7 +117,7 @@
 						<div id="fileDropArea" class="messageFileDropArea" ng-model="messageImage" ngf-drop ngf-drag-over-class="'dragover'" ondragleave="document.getElementById('fileDropArea').style.display='none'" ondrop="document.getElementById('fileDropArea').style.display='none'"></div>
 						<div style="width: 18%; float: left; margin-left: 82%" class="ellipsis">
 							<div class="checkbox">
-								<label> <input type="checkbox" ng-model="sendWithEnter"> <span class="ellipsis" ng-bind="messages.sendWithEnter"></span>
+								<label> <input type="checkbox" ng-model="chithEnter"> <span class="ellipsis" ng-bind="messages.sendWithEnter"></span>
 								</label>
 							</div>
 							<button type="submit" class="btn btn-default" ng-disabled="'' == text" ng-click="sendMessage()" ng-bind="messages.send"></button>
