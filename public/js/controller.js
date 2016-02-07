@@ -2659,6 +2659,7 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 				jqScrollPane.animate({
 					scrollTop : jqScrollInner.height()
 				}, 50);
+				$(window).scrollTop($(window).height());
 			}, 0);
 		}
 	}
@@ -3136,24 +3137,38 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 	if ($(window).width() < 768) {
 		setTimeout(function() {
 			$(window).scrollTop($(window).height());
-		}, 100)
-	}
-	$scope.channelToggleShown = false;
-	$scope.toggleChannelVisible = function() {
-		var animateParam;
-		$scope.channelToggleShown = !$scope.channelToggleShown;
-		if ($scope.channelToggleShown) {
-			animateParam = {
-				left : "30%",
-				opacity : 100
+		}, 100);
+		$scope.channelToggleShown = false;
+		$scope.toggleChannelVisible = function() {
+			var animateParam;
+			$scope.channelToggleShown = !$scope.channelToggleShown;
+			if ($scope.channelToggleShown) {
+				animateParam = {
+					left : "30%",
+					opacity : 100
+				}
+			} else {
+				animateParam = {
+					left : "100%",
+					opacity : 0.3
+				}
 			}
-		} else {
-			animateParam = {
-				left : "100%",
-				opacity : 0.3
-			}
+			$("#messageChannelsArea").animate(animateParam, 500, "swing")
 		}
-		$("#messageChannelsArea").animate(animateParam, 500, "swing")
+		var onResize = function() {
+			scrollBottomIfShowingBottom();
+		}
+		$(window).bind('resize', onResize);
+		$scope.$on('$destroy', function() {
+			$(window).unbind('resize', onResize);
+		});
+		var element = document.getElementById('messageInput');
+		element.focus();
+		element.onblur = function() {
+			setTimeout(function() {
+				element.focus();
+			}, 0);
+		};
 	}
 } ];
 var accountController = [ "$rootScope", "$scope", "$resource", "$location", "$http", "$uibModal", "$routeParams", function($rootScope, $scope, $resource, $location, $http, $modal, $routeParams) {
