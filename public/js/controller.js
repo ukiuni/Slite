@@ -2665,12 +2665,11 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 	}
 	var removeTalking = function(eventTargetChannel, accountId) {
 		for ( var i in eventTargetChannel.talkings) {
-			if (eventTargetChannel.talkings[i].account.id == accountId) {
+			while (eventTargetChannel.talkings[i] && eventTargetChannel.talkings[i].account.id == accountId) {
 				$scope["$apply"](function() {
 					eventTargetChannel.talkings.splice(i, 1);
 					scrollBottomIfShowingBottom();
 				});
-				return;
 			}
 		}
 	}
