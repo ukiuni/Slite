@@ -29,6 +29,15 @@ ul {
 	width: 100%;
 }
 
+.clickable {
+	
+}
+
+.clickable:HOVER {
+	opacity: 0.5;
+	cursor: pointer;
+}
+
 #calendarContentTitle {
 	font-size: 30px;
 	background-color: transparent;
@@ -63,7 +72,6 @@ ul {
 
 .contentListTitle {
 	padding-left: 5px;
-	font-size: 20px;
 }
 
 .contentListStatus {

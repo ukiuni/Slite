@@ -19,18 +19,24 @@
 					<div class="row" ng-repeat="content in myContents track by content.id">
 						<div class="col-xs-12 contentListColmun">
 							<div class="row">
-								<a class="contentListTitle col-sm-6 col-xs-12" href="/content/{{content.accessKey}}">
-									<div class="ellipsis">
-										<img ng-src="{{contentIcon[content.type] || '/images/article_icon.png'}}" style="height: 40px; margin-right: 5px" /><span ng-bind="content.ContentBodies[0].title"></span>
+								<div class="col-xs-6">
+									<div class="ellipsis row">
+										<div class="col-xs-3">
+											<img ng-src="{{contentIcon[content.type] || '/images/article_icon.png'}}" style="height: 30px; margin-right: 5px" />
+										</div>
+										<div class="col-xs-9">
+											<div class="contentListStatus" ng-bind="content.updatedAt | date:'yyyy-MM-dd'"></div>
+											<a href="/content/{{content.accessKey}}"><div ng-bind="content.ContentBodies[0].title"></div></a>
+										</div>
 									</div>
-								</a>
-								<div class="col-sm-2 col-xs-12">
-									<span class="contentListStatus row" ng-bind="statuses[content.ContentBodies[0].status - 1].message"></span> <span class="contentListStatus row" ng-bind="content.updatedAt | date:'yyyy-MM-dd'"></span>
 								</div>
-								<div class="col-sm-3 col-sm-offset-1 col-xs-12">
+								<div class="col-xs-3">
+									<div class="contentListStatus row" ng-bind="statuses[content.ContentBodies[0].status - 1].message"></div>
+									<div class="contentListStatus row" ng-bind="content.Group.name"></div>
+								</div>
+								<div class="col-xs-3">
 									<div class="row">
-										<button class="editButton col-xs-6 btn btn-primary" type="submit" ng-click="gotoEditContent(content)" ng-bind="messages.edit"></button>
-										<button class="deleteButton col-xs-6 btn btn-default" type="submit" ng-click="deleteContent($index, content.ContentBodies[0].title, content.accessKey)" ng-bind="messages.delete"></button>
+										<span class="editButton clickable col-xs-6 glyphicon glyphicon-pencil" type="submit" ng-click="gotoEditContent(content)"></span> <span class="deleteButton clickable col-xs-6 glyphicon glyphicon-trash" type="submit" ng-click="deleteContent($index, content.ContentBodies[0].title, content.accessKey)"></span>
 									</div>
 								</div>
 							</div>
