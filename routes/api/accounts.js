@@ -770,6 +770,35 @@ router["delete"]("/bots", function(req, res) {
 		}
 	});
 });
+router.get("/devices", function(req, res) {
+	if (!req.query.sessionKey) {
+		res.status(400).json({
+			sessionKey : req.query.sessionKey
+		});
+		return;
+	}
+	var loadedAccessKey;
+	AccessKey.findBySessionKey(req.query.sessionKey).then(function(accessKey) {
+		if (!accessKey) {
+			throw ERROR_NOTACCESSIBLE;
+		}
+		loadedAccessKey = accessKey;
+		return NotificationTarget.findAll({
+			where : {
+				ownerId : accessKey.AccountId
+			}
+		});
+	}).then(function(notificationTargets) {
+		res.status(200).json(notificationTargets);
+	})["catch"](function(error) {
+		if (ERROR_NOTACCESSIBLE == error) {
+			res.status(403).end();
+		} else {
+			console.log(error.stack);
+			res.status(500).end();
+		}
+	});
+});
 router.get("/:id", function(req, res) {
 	var loadedAccount;
 	Account.find({
