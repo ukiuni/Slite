@@ -81,7 +81,7 @@ var self = {
 		}
 		client.click('.btn-primary');
 		client.waitForElementVisible(".contentListColmun", testWaitTime);
-		client.assert.containsText("div > div > a > div", contentTitle);
+		client.assert.containsText(".contentListTitle", contentTitle);
 		client.getAttribute(".contentListTitle", "href", function(result) {
 			client.click("div > div > a > div");
 			client.waitForElementVisible(".contentTitle", testWaitTime);
@@ -120,7 +120,7 @@ var self = {
 		client.click("#statusUl >li:first-child");
 		client.click('.btn-primary');
 		client.waitForElementVisible(".contentListColmun", testWaitTime);
-		client.assert.containsText("div > div > a > div", contentTitle);
+		client.assert.containsText(".contentListTitle", contentTitle);
 		client.getAttribute(".contentListTitle", "href", function(result) {
 			client.click("div > div > a > div");
 			client.waitForElementVisible(".contentTitle", testWaitTime);
@@ -278,7 +278,7 @@ var self = {
 		client.waitForElementVisible('#saveButton', testWaitTime);
 		client.click('#saveButton');
 		client.pause(1000);
-		client.waitForElementVisible('.contentListColmun', testWaitTime);
+		client.waitForElementVisible('.contentListTitle', testWaitTime);
 		client.click('.contentListColmun a');
 		client.waitForElementVisible('#monthLabel', testWaitTime);
 		var currentDate = new Date();
