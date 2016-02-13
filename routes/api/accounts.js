@@ -786,7 +786,8 @@ router.get("/devices", function(req, res) {
 		return NotificationTarget.findAll({
 			where : {
 				ownerId : accessKey.AccountId
-			}
+			},
+			order : [ [ "createdAt", "DESC" ] ]
 		});
 	}).then(function(notificationTargets) {
 		res.status(200).json(notificationTargets);
