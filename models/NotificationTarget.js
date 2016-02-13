@@ -45,6 +45,30 @@ module.exports = function(sequelize, DataTypes) {
 			console.log("#### GCM failed " + error);
 		});
 	}
+	var notifyMessageToCordova = function(notificationTarget, channel, message) {
+		var pushValue = {
+			type : "message",
+			title : message.owner.name + "@" + channel.name,
+			message : message.body,
+			info : {
+				body : message.body,
+				fromAccount : {
+					id : message.owner.id,
+					name : message.owner.name,
+					iconUrl : message.owner.iconUrl
+				},
+				toAccountId : notificationTarget.ownerId,
+				createdAt : message.createdAt,
+				channel : channel,
+			}
+		}
+		if (message.bot) {
+			pushValue.message.bot = message.bot;
+		}
+		gcm.push(notificationTarget.endpoint, pushValue)["catch"](function(error) {
+			console.log("#### GCM failed " + error);
+		});
+	}
 	var webhookMessage = function(notificationTarget, channel, message) {
 		request(notificationTarget.endpoint, function(error, response, body) {
 			if (!error && response.statusCode == 200) {
@@ -121,6 +145,8 @@ module.exports = function(sequelize, DataTypes) {
 					}
 					if (NotificationTarget.PLATFORM_ANDROID == notificationTarget.platform) {
 						notifyMessageToAndroid(notificationTarget, channel, message);
+					} else if (NotificationTarget.PLATFORM_CORDOVA_ANDROID == notificationTarget.platform) {
+						notifyMessageToCordova(notificationTarget, channel, message);
 					} else if (NotificationTarget.PLATFORM_WEBHOOK == notificationTarget.platform) {
 						webhookMessage(notificationTarget, channel, message);
 					}
@@ -135,6 +161,7 @@ module.exports = function(sequelize, DataTypes) {
 	NotificationTarget.PLATFORM_IOS = 2;
 	NotificationTarget.PLATFORM_PUSHBULLET = 3;
 	NotificationTarget.PLATFORM_WEBHOOK = 4;
+	NotificationTarget.PLATFORM_CORDOVA_ANDROID = 5;
 	NotificationTarget.STATUS_CREATED = 1;
 	NotificationTarget.STATUS_DISABLED = 2;
 	return NotificationTarget;

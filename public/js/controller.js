@@ -80,6 +80,10 @@ myapp.config([ "$locationProvider", "$httpProvider", "$routeProvider", "markedPr
 		templateUrl : "template/manageKey.html",
 		controller : "manageKeyController"
 	});
+	$routeProvider.when("/manageDevice", {
+		templateUrl : "template/manageDevice.html",
+		controller : "manageDeviceController"
+	});
 	$routeProvider.when("/manageBot", {
 		templateUrl : "template/manageBot.html",
 		controller : "manageBotController"
@@ -1033,6 +1037,67 @@ var manageKeyController = [ "$rootScope", "$scope", "$resource", "$location", "$
 		});
 		modalInstance.result.then(function() {
 			deleteKey();
+		}, function() {
+		});
+	}
+	$scope.createKey = function() {
+		post($http, '/api/accounts/keys', {
+			sessionKey : $rootScope.getSessionKey(),
+		}).success(function(key) {
+			$scope.myKeys.unshift(key);
+		}).error(function(error) {
+			$rootScope.showError($rootScope.messages.error.withServer);
+		});
+	}
+} ];
+var manageDeviceController = [ "$rootScope", "$scope", "$resource", "$location", "$http", "$uibModal", function($rootScope, $scope, $resource, $location, $http, $modal) {
+	if (!$rootScope.getSessionKey()) {
+		$location.path("/home");
+		return;
+	}
+	$resource('/api/accounts/devices').query({
+		sessionKey : $rootScope.getSessionKey()
+	}, function(devices) {
+		$scope.myDevices = devices;
+		$scope.typeMessages = [];
+		var initTypeMessage = function() {
+			$scope.typeMessages[1] = $rootScope.messages.devices.forAndroid;
+			$scope.typeMessages[2] = $rootScope.messages.devices.forIOS;
+			$scope.typeMessages[3] = $rootScope.messages.devices.forPushbullet;
+			$scope.typeMessages[4] = $rootScope.messages.devices.forWebhook;
+			$scope.typeMessages[5] = $rootScope.messages.devices.forAndroidCordova;
+		}
+		if ($rootScope.messages) {
+			initTypeMessage();
+		} else {
+			$rootScope.$watch("messages", initTypeMessage);
+		}
+	}, function(error) {
+		$rootScope.showError($rootScope.messages.error.withServer);
+	});
+	$scope.deleteDevice = function(index, device) {
+		var deleteDevice = function() {
+			$resource('/api/accounts/devices')["delete"]({
+				sessionKey : $rootScope.getSessionKey(),
+				key : device.key
+			}, function(key) {
+				$scope.myDevices.splice(index, 1)
+			}, function(error) {
+				$rootScope.showError($rootScope.messages.error.withServer);
+			});
+		}
+		var dialogController = [ "$scope", "$uibModalInstance", function($dialogScope, $modalInstance) {
+			$dialogScope["delete"] = function() {
+				$modalInstance.close();
+			};
+			$dialogScope.message = $rootScope.messages.confirmDelete + "\n\n";
+		} ];
+		var modalInstance = $modal.open({
+			templateUrl : 'template/confirmDialog.html',
+			controller : dialogController
+		});
+		modalInstance.result.then(function() {
+			deleteDevice();
 		}, function() {
 		});
 	}
@@ -3234,6 +3299,7 @@ myapp.controller('requestResetPasswordController', requestResetPasswordControlle
 myapp.controller('resetPasswordController', resetPasswordController);
 myapp.controller('editProfileController', editProfileController);
 myapp.controller('manageKeyController', manageKeyController);
+myapp.controller('manageDeviceController', manageDeviceController);
 myapp.controller('manageBotController', manageBotController);
 myapp.controller('changePasswordController', changePasswordController);
 myapp.controller('editContentController', editContentController);
