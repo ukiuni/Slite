@@ -209,6 +209,9 @@ ul {
 }
 
 @media ( max-width :767px) {
+	#searchArea {
+		display:none;
+	}
 	#messageInputArea {
 		position: fixed;
 		bottom: 3px;

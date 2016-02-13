@@ -93,7 +93,7 @@
 							<li><a id="signoutButton" href="#" ng-click="signout()" ng-bind="messages.menu.signOut"></a></li>
 						</ul></li>
 				</ul>
-				<form class="nav navbar-nav navbar-right navbar-form" ng-show="myAccount && isSearchable">
+				<form id="searchArea" class="nav navbar-nav navbar-right navbar-form" ng-show="myAccount && isSearchable">
 					<div class="form-group">
 						<input type="text" class="form-control" style="border-radius: 20px;" placeholder="{{messages.search}}" ng-model="searchWord">
 					</div>
