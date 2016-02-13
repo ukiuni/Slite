@@ -51,10 +51,12 @@
 	background-color: #0088cc;
 }
 
-body>.popover {
-	max-width: 50%;
-	height: 80%;
-	margin-left: -150px;
+@media ( min-width : 768px) {
+	body>.popover {
+		max-width: 50%;
+		height: 80%;
+		margin-left: -150px;
+	}
 }
 
 .navbar-header>button {
