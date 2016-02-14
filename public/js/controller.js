@@ -1129,7 +1129,8 @@ var manageDeviceController = [ "$rootScope", "$scope", "$resource", "$location",
 				$rootScope.showError($rootScope.messages.error.withServer);
 			});
 		} else {
-			window.addActionListener("message", function(dataSrc) {
+			alert("go----------" + window.addEventListener);
+			window.addEventListener("message", function(dataSrc) {
 				var data = JSON.parse(dataSrc);
 				if ("registPushResult" == data.action) {
 					if ("success" == data.result) {
@@ -1152,16 +1153,10 @@ var manageDeviceController = [ "$rootScope", "$scope", "$resource", "$location",
 			window.parent.postMessage(JSON.stringify({
 				action : "registPush"
 			}), "*");
+			console.log("-----------");
 		}
 	}
 } ];
-if (window.parent) {//TODO delete
-	$(function() {
-		window.parent.postMessage(JSON.stringify({
-			action : "registPush"
-		}), "*");
-	})
-}
 var manageBotController = [ "$rootScope", "$scope", "$resource", "$location", "$http", "$uibModal", function($rootScope, $scope, $resource, $location, $http, $modal) {
 	if (!$rootScope.getSessionKey()) {
 		$location.path("/home");
