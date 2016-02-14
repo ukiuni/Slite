@@ -1129,7 +1129,8 @@ var manageDeviceController = [ "$rootScope", "$scope", "$resource", "$location",
 				$rootScope.showError($rootScope.messages.error.withServer);
 			});
 		} else {
-			window.addActionListener("message", function(data) {
+			window.addActionListener("message", function(dataSrc) {
+				var data = JSON.parse(dataSrc);
 				if ("registPushResult" == data.action) {
 					if ("success" == data.result) {
 						post($http, "/api/accounts/devices", {
@@ -1148,9 +1149,9 @@ var manageDeviceController = [ "$rootScope", "$scope", "$resource", "$location",
 					}
 				}
 			});
-			window.parent.postMessage({
+			window.parent.postMessage(JSON.stringify({
 				action : "registPush"
-			}, "*");
+			}), "*");
 		}
 	}
 } ];
