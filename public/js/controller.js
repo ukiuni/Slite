@@ -326,7 +326,7 @@ myapp.run([ "$rootScope", "$location", "$resource", "$cookies", "$route", "$http
 		$rootScope.setSessionKey(null);
 	}
 	$rootScope.getSessionKey = function() {
-		var sessionKey = $cookies.getObject(SESSION_KEY) || $rootScope.$storage[SESSION_KEY] || localStorage.getItem(SESSION_KEY);
+		var sessionKey = $rootScope.$storage[SESSION_KEY] || localStorage.getItem(SESSION_KEY) || $cookies.getObject(SESSION_KEY);
 		return sessionKey;
 	}
 	$rootScope.signout = function() {
