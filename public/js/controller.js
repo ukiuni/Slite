@@ -22,6 +22,14 @@ function bounce() {
 toastr.options = {
 	"positionClass" : "toast-bottom-right"
 }
+if (!('localStorage' in window && window.localStorage !== null)) {
+	var localStorage = {
+		getItem : function() {
+		},
+		setItem : function() {
+		}
+	}
+}
 var myapp = angular.module("app", [ "ui.bootstrap", "ngRoute", "ngResource", "ngCookies", "ngFileUpload", "ngTagsInput", "hc.marked", 'ui.bootstrap.contextMenu', "ngStorage" ]);
 myapp.config([ "$locationProvider", "$httpProvider", "$routeProvider", "markedProvider", function($locationProvider, $httpProvider, $routeProvider, $markedProvider) {
 	$locationProvider.html5Mode(true);
@@ -308,15 +316,17 @@ myapp.run([ "$rootScope", "$location", "$resource", "$cookies", "$route", "$http
 		}
 		if (sessionKey) {
 			$rootScope.$storage[SESSION_KEY] = sessionKey;
+			localStorage.setItem(SESSION_KEY, sessionKey);
 		} else {
 			delete $rootScope.$storage[SESSION_KEY]
+			localStorage.removeItem(SESSION_KEY);
 		}
 	}
 	$rootScope.removeSessionKey = function() {
 		$rootScope.setSessionKey(null);
 	}
 	$rootScope.getSessionKey = function() {
-		var sessionKey = $cookies.getObject(SESSION_KEY) || $rootScope.$storage[SESSION_KEY];
+		var sessionKey = $cookies.getObject(SESSION_KEY) || $rootScope.$storage[SESSION_KEY] || localStorage.getItem(SESSION_KEY);
 		return sessionKey;
 	}
 	$rootScope.signout = function() {
