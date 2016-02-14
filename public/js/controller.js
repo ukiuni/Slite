@@ -1129,21 +1129,28 @@ var manageDeviceController = [ "$rootScope", "$scope", "$resource", "$location",
 				$rootScope.showError($rootScope.messages.error.withServer);
 			});
 		} else {
-			window.parent.window.registPush(function(event) {
-				post($http, "/api/accounts/devices", {
-					sessionKey : $rootScope.getSessionKey(),
-					platform : 5,
-					endpoint : event.regid
-				}).then(function(response) {
-					$scope.myDevices.push(response.data);
-					$scope.$storage.pushRegistationKey = response.data.key;
-					$rootScope.showInfo($rootScope.messages.devices.pushSetted);
-				})["catch"](function(response) {
-					$rootScope.showErrorWithStatus(response.status);
-				});
-			}, function() {
-				$rootScope.showError($rootScope.messages.devices.error.pushSet);
-			})
+			window.addActionListener("message", function(data) {
+				if ("registPushResult" = data.action) {
+					if ("success" == data.result) {
+						post($http, "/api/accounts/devices", {
+							sessionKey : $rootScope.getSessionKey(),
+							platform : 5,
+							endpoint : data.regid
+						}).then(function(response) {
+							$scope.myDevices.push(response.data);
+							$scope.$storage.pushRegistationKey = response.data.key;
+							$rootScope.showInfo($rootScope.messages.devices.pushSetted);
+						})["catch"](function(response) {
+							$rootScope.showErrorWithStatus(response.status);
+						});
+					} else {
+						$rootScope.showError($rootScope.messages.devices.error.pushSet);
+					}
+				}
+			});
+			window.parent.postMessage({
+				action : "registPush"
+			}, "*");
 		}
 	}
 } ];
