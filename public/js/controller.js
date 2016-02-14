@@ -1131,6 +1131,7 @@ var manageDeviceController = [ "$rootScope", "$scope", "$resource", "$location",
 		} else {
 			window.addEventListener("message", function(event) {
 				var data = JSON.parse(event.data);
+				alert("---------- event.data"+event.data);
 				if ("registPushResult" == data.action) {
 					if ("success" == data.result) {
 						post($http, "/api/accounts/devices", {
