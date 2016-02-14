@@ -1131,7 +1131,6 @@ var manageDeviceController = [ "$rootScope", "$scope", "$resource", "$location",
 		} else {
 			window.addEventListener("message", function(event) {
 				var data = JSON.parse(event.data);
-				alert("---------- event.data"+event.data);
 				if ("registPushResult" == data.action) {
 					if ("success" == data.result) {
 						post($http, "/api/accounts/devices", {
@@ -1143,7 +1142,6 @@ var manageDeviceController = [ "$rootScope", "$scope", "$resource", "$location",
 							$scope.$storage.pushRegistationKey = response.data.key;
 							$rootScope.showInfo($rootScope.messages.devices.pushSetted);
 						})["catch"](function(response) {
-							alert("------" + response.status + ":" + response);
 							$rootScope.showErrorWithStatus(response.status);
 						});
 					} else {
