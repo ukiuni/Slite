@@ -33,6 +33,7 @@
     "multer": "^1.0.3",
     "ng-file-upload": "^6.0.4",
     "ng-tags-input": "^3.0.0",
+    "ngstorage": "^0.3.10",
     "nodemailer": "^1.8.0",
     "nodemailer-smtp-transport": "^1.0.3",
     "pg": "^4.3.0",

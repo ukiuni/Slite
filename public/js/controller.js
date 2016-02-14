@@ -22,7 +22,7 @@ function bounce() {
 toastr.options = {
 	"positionClass" : "toast-bottom-right"
 }
-var myapp = angular.module("app", [ "ui.bootstrap", "ngRoute", "ngResource", "ngCookies", "ngFileUpload", "ngTagsInput", "hc.marked", 'ui.bootstrap.contextMenu' ]);
+var myapp = angular.module("app", [ "ui.bootstrap", "ngRoute", "ngResource", "ngCookies", "ngFileUpload", "ngTagsInput", "hc.marked", 'ui.bootstrap.contextMenu', "ngStorage" ]);
 myapp.config([ "$locationProvider", "$httpProvider", "$routeProvider", "markedProvider", function($locationProvider, $httpProvider, $routeProvider, $markedProvider) {
 	$locationProvider.html5Mode(true);
 	$httpProvider.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded;charset=utf-8';
@@ -1050,7 +1050,8 @@ var manageKeyController = [ "$rootScope", "$scope", "$resource", "$location", "$
 		});
 	}
 } ];
-var manageDeviceController = [ "$rootScope", "$scope", "$resource", "$location", "$http", "$uibModal", function($rootScope, $scope, $resource, $location, $http, $modal) {
+var manageDeviceController = [ "$rootScope", "$scope", "$resource", "$location", "$http", "$uibModal", "$localStorage", function($rootScope, $scope, $resource, $location, $http, $modal, $localStorage) {
+	$scope.$storage = $localStorage;
 	if (!$rootScope.getSessionKey()) {
 		$location.path("/home");
 		return;
@@ -1101,14 +1102,49 @@ var manageDeviceController = [ "$rootScope", "$scope", "$resource", "$location",
 		}, function() {
 		});
 	}
-	$scope.createKey = function() {
-		post($http, '/api/accounts/keys', {
-			sessionKey : $rootScope.getSessionKey(),
-		}).success(function(key) {
-			$scope.myKeys.unshift(key);
-		}).error(function(error) {
-			$rootScope.showError($rootScope.messages.error.withServer);
-		});
+	$scope.selfPushRegistationKey = $scope.$storage.pushRegistationKey;
+	$scope.isPushable = function() {
+		return window.parent && window.parent.window.registPush;
+	}
+	$scope.isPushing = function() {
+		return $scope.$storage.pushRegistationKey;
+	}
+	$scope.getToggleMessage = function() {
+		return $scope.isPushing() ? $rootScope.messages.devices.pushing : $rootScope.messages.devices.notPushing;
+	}
+	$scope.changePushState = function() {
+		if ($scope.isPushing()) {
+			$resource("/api/accounts/devices")["delete"]({
+				sessionKey : $rootScope.getSessionKey(),
+				key : $scope.$storage.pushRegistationKey
+			}, function(device) {
+				for (var i = 0; i < $scope.myDevices.length; i++) {
+					if ($scope.myDevices[i].key == $scope.$storage.pushRegistationKey) {
+						$scope.myDevices.splice(i, 1);
+					}
+				}
+				delete $scope.$storage.pushRegistationKey;
+			}, function(error) {
+				delete $scope.$storage.pushRegistationKey;
+				$rootScope.showError($rootScope.messages.error.withServer);
+			});
+		} else {
+			window.parent.window.registPush(function(event) {
+				post($http, "/api/accounts/devices", {
+					sessionKey : $rootScope.getSessionKey(),
+					platform : 5,
+					endpoint : event.regid
+				}).then(function(response) {
+					$scope.myDevices.push(response.data);
+					$scope.$storage.pushRegistationKey = response.data.key;
+					$rootScope.showInfo($rootScope.messages.devices.pushSetted);
+				})["catch"](function(response) {
+					$rootScope.showErrorWithStatus(response.status);
+				});
+			}, function() {
+				$rootScope.showError($rootScope.messages.devices.error.pushSet);
+			})
+		}
 	}
 } ];
 var manageBotController = [ "$rootScope", "$scope", "$resource", "$location", "$http", "$uibModal", function($rootScope, $scope, $resource, $location, $http, $modal) {

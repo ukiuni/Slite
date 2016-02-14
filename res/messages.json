@@ -31,7 +31,13 @@
 			"forIOS" : "iOS",
 			"forPushbullet" : "PushBullet",
 			"forWebhook" : "Webhook",
-			"forAndroidCordova" : "Android"
+			"forAndroidCordova" : "Android",
+			"pushing" : "Pushing",
+			"notPushing" : "Request push",
+			"pushSetted" : "PushSetted",
+			"error" : {
+				"pushSet" : "Fail to setting push"
+			}
 		},
 		"passwordChanged" : "Password Changed",
 		"passwordReset" : "Reset Password",
@@ -247,7 +253,13 @@
 			"forIOS" : "iOS",
 			"forPushbullet" : "PushBullet",
 			"forWebhook" : "Webhook",
-			"forAndroidCordova" : "Android"
+			"forAndroidCordova" : "Android",
+			"pushing" : "プッシュ通知中",
+			"notPushing" : "プッシュを設定",
+			"pushSetted" : "プッシュ通知を設定しました。",
+			"error" : {
+				"pushSet" : "プッシュの設定に失敗しました。"
+			}
 		},
 		"passwordChanged" : "パスワードを変更しました。",
 		"passwordReset" : "パスワードリセット",
