@@ -1130,7 +1130,7 @@ var manageDeviceController = [ "$rootScope", "$scope", "$resource", "$location",
 			});
 		} else {
 			window.addActionListener("message", function(data) {
-				if ("registPushResult" = data.action) {
+				if ("registPushResult" == data.action) {
 					if ("success" == data.result) {
 						post($http, "/api/accounts/devices", {
 							sessionKey : $rootScope.getSessionKey(),
