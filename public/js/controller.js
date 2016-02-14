@@ -190,8 +190,7 @@ myapp.config([ "$locationProvider", "$httpProvider", "$routeProvider", "markedPr
 		controller : "indexController"
 	});
 } ]);
-myapp.run([ "$rootScope", "$location", "$resource", "$cookies", "$route", "$http", "$uibModal", "Upload", "$localStorage", function($rootScope, $location, $resource, $cookies, $route, $http, $modal, $uploader, $localStorage) {
-	$rootScope.$storage = $localStorage;
+myapp.run([ "$rootScope", "$location", "$resource", "$cookies", "$route", "$http", "$uibModal", "Upload", function($rootScope, $location, $resource, $cookies, $route, $http, $modal, $uploader) {
 	$resource('/api/resource/messages').get({
 		lang : ((navigator.languages && navigator.languages[0]) || navigator.browserLanguage || navigator.language || navigator.userLanguage).substr(0, 2)
 	}, function(messages) {
@@ -314,19 +313,12 @@ myapp.run([ "$rootScope", "$location", "$resource", "$cookies", "$route", "$http
 				secure : "https" == $location.protocol()
 			});
 		}
-		if (sessionKey) {
-			$rootScope.$storage[SESSION_KEY] = sessionKey;
-			localStorage.setItem(SESSION_KEY, sessionKey);
-		} else {
-			delete $rootScope.$storage[SESSION_KEY]
-			localStorage.removeItem(SESSION_KEY);
-		}
 	}
 	$rootScope.removeSessionKey = function() {
 		$rootScope.setSessionKey(null);
 	}
 	$rootScope.getSessionKey = function() {
-		var sessionKey = $rootScope.$storage[SESSION_KEY] || localStorage.getItem(SESSION_KEY) || $cookies.getObject(SESSION_KEY);
+		var sessionKey = $cookies.getObject(SESSION_KEY);
 		return sessionKey;
 	}
 	$rootScope.signout = function() {
