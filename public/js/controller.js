@@ -190,7 +190,7 @@ myapp.config([ "$locationProvider", "$httpProvider", "$routeProvider", "markedPr
 		controller : "indexController"
 	});
 } ]);
-myapp.run([ "$rootScope", "$location", "$resource", "$cookies", "$route", "$http", "$uibModal", "Upload", function($rootScope, $location, $resource, $cookies, $route, $http, $modal, $uploader, $localStorage) {
+myapp.run([ "$rootScope", "$location", "$resource", "$cookies", "$route", "$http", "$uibModal", "Upload", function($rootScope, $location, $resource, $cookies, $route, $http, $modal, $uploader) {
 	$resource('/api/resource/messages').get({
 		lang : ((navigator.languages && navigator.languages[0]) || navigator.browserLanguage || navigator.language || navigator.userLanguage).substr(0, 2)
 	}, function(messages) {
