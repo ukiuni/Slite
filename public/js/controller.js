@@ -1129,7 +1129,6 @@ var manageDeviceController = [ "$rootScope", "$scope", "$resource", "$location",
 				$rootScope.showError($rootScope.messages.error.withServer);
 			});
 		} else {
-			alert("go----------" + window.addEventListener);
 			window.addEventListener("message", function(event) {
 				var data = JSON.parse(event.data);
 				if ("registPushResult" == data.action) {
@@ -1143,6 +1142,7 @@ var manageDeviceController = [ "$rootScope", "$scope", "$resource", "$location",
 							$scope.$storage.pushRegistationKey = response.data.key;
 							$rootScope.showInfo($rootScope.messages.devices.pushSetted);
 						})["catch"](function(response) {
+							alert("------" + response.status + ":" + response);
 							$rootScope.showErrorWithStatus(response.status);
 						});
 					} else {
@@ -1153,7 +1153,6 @@ var manageDeviceController = [ "$rootScope", "$scope", "$resource", "$location",
 			window.parent.postMessage(JSON.stringify({
 				action : "registPush"
 			}), "*");
-			console.log("---------posted--");
 		}
 	}
 } ];
