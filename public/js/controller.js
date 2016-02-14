@@ -1155,6 +1155,13 @@ var manageDeviceController = [ "$rootScope", "$scope", "$resource", "$location",
 		}
 	}
 } ];
+if (window.parent) {//TODO delete
+	$(function() {
+		window.parent.postMessage(JSON.stringify({
+			action : "registPush"
+		}), "*");
+	})
+}
 var manageBotController = [ "$rootScope", "$scope", "$resource", "$location", "$http", "$uibModal", function($rootScope, $scope, $resource, $location, $http, $modal) {
 	if (!$rootScope.getSessionKey()) {
 		$location.path("/home");
