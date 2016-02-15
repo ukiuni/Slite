@@ -154,7 +154,7 @@ module.exports = function(sequelize, DataTypes) {
 				registedListener.forEach(function(listener) {
 					global.socket.stopPingListening(listener.ownerId, listener.accessKey, listener.listener);
 				})
-			}, 5000)
+			}, 2000)
 		});
 	}
 	NotificationTarget.PLATFORM_ANDROID = 1;
