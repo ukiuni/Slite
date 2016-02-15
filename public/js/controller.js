@@ -733,19 +733,14 @@ myapp.run([ "$rootScope", "$location", "$resource", "$cookies", "$route", "$http
 		});
 	}
 	if (isCordova) {
-		alert("cordova----")
-		try {
-			window.addEventListener("message", function(event) {
-				var data = JSON.parse(event.data)
-				if ("notificationPushed" == data.action) {
-					$location.path("/group/" + data.value.channel.Group.accessKey + "/channel/" + data.value.channel.accessKey + "/messages");
-					alert("/group/" + data.value.channel.Group.accessKey + "/channel/" + data.value.channel.accessKey + "/messages");
-					alert("-----" + event.data);
-				}
-			});
-		} catch (e) {
-			alert("----" + e)
-		}
+		window.addEventListener("message", function(event) {
+			var data = JSON.parse(event.data)
+			if ("notificationPushed" == data.action) {
+				$location.path("/group/" + data.value.channel.Group.accessKey + "/channel/" + data.value.channel.accessKey + "/messages");
+				alert("/group/" + data.value.channel.Group.accessKey + "/channel/" + data.value.channel.accessKey + "/messages");
+				alert("-----" + event.data);
+			}
+		});
 	}
 } ]);
 var openWithBrowser = function(url, event) {
