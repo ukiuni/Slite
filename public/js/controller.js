@@ -22,6 +22,7 @@ function bounce() {
 toastr.options = {
 	"positionClass" : "toast-bottom-right"
 }
+var isCordova = !!(window.parent && window.parent.window && window.parent.window.registPush);
 var myapp = angular.module("app", [ "ui.bootstrap", "ngRoute", "ngResource", "ngCookies", "ngFileUpload", "ngTagsInput", "hc.marked", 'ui.bootstrap.contextMenu', "ngStorage" ]);
 myapp.config([ "$locationProvider", "$httpProvider", "$routeProvider", "markedProvider", function($locationProvider, $httpProvider, $routeProvider, $markedProvider) {
 	$locationProvider.html5Mode(true);
@@ -731,6 +732,16 @@ myapp.run([ "$rootScope", "$location", "$resource", "$cookies", "$route", "$http
 		}, function() {
 		});
 	}
+	if (isCordova) {
+		window.addEventListener("message", function(event) {
+			var data = JSON.parse(event.data)
+			if ("notificationPushed" == data.action) {
+				$location.path("/group/" + data.value.channel.Group.accessKey + "/channel/" + data.value.channel.accessKey + "/messages");
+				alert("/group/" + data.value.channel.Group.accessKey + "/channel/" + data.value.channel.accessKey + "/messages");
+				alert("-----" + event.data);
+			}
+		});
+	}
 } ]);
 var openWithBrowser = function(url, event) {
 	if (isElectron) {
@@ -1128,6 +1139,9 @@ var manageDeviceController = [ "$rootScope", "$scope", "$resource", "$location",
 				delete $scope.$storage.pushRegistationKey;
 				$rootScope.showError($rootScope.messages.error.withServer);
 			});
+			window.parent.postMessage(JSON.stringify({
+				action : "unRegistPush"
+			}), "*");
 		} else {
 			var onRegustPushResult = function(event) {
 				var data = JSON.parse(event.data);
