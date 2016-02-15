@@ -22,11 +22,7 @@ function bounce() {
 toastr.options = {
 	"positionClass" : "toast-bottom-right"
 }
-try {
-	var isCordova = !!(window.parent && window.parent.window && window.parent.window.registPush);
-} catch (e) {
-	alert("----" + e);
-}
+var isCordova = (window != parent);
 var myapp = angular.module("app", [ "ui.bootstrap", "ngRoute", "ngResource", "ngCookies", "ngFileUpload", "ngTagsInput", "hc.marked", 'ui.bootstrap.contextMenu', "ngStorage" ]);
 myapp.config([ "$locationProvider", "$httpProvider", "$routeProvider", "markedProvider", function($locationProvider, $httpProvider, $routeProvider, $markedProvider) {
 	$locationProvider.html5Mode(true);
