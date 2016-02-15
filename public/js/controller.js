@@ -22,14 +22,6 @@ function bounce() {
 toastr.options = {
 	"positionClass" : "toast-bottom-right"
 }
-if (!('localStorage' in window && window.localStorage !== null)) {
-	var localStorage = {
-		getItem : function() {
-		},
-		setItem : function() {
-		}
-	}
-}
 var myapp = angular.module("app", [ "ui.bootstrap", "ngRoute", "ngResource", "ngCookies", "ngFileUpload", "ngTagsInput", "hc.marked", 'ui.bootstrap.contextMenu', "ngStorage" ]);
 myapp.config([ "$locationProvider", "$httpProvider", "$routeProvider", "markedProvider", function($locationProvider, $httpProvider, $routeProvider, $markedProvider) {
 	$locationProvider.html5Mode(true);
@@ -1137,7 +1129,7 @@ var manageDeviceController = [ "$rootScope", "$scope", "$resource", "$location",
 				$rootScope.showError($rootScope.messages.error.withServer);
 			});
 		} else {
-			window.addEventListener("message", function(event) {
+			var onRegustPushResult = function(event) {
 				var data = JSON.parse(event.data);
 				if ("registPushResult" == data.action) {
 					if ("success" == data.result) {
@@ -1156,7 +1148,9 @@ var manageDeviceController = [ "$rootScope", "$scope", "$resource", "$location",
 						$rootScope.showError($rootScope.messages.devices.error.pushSet);
 					}
 				}
-			});
+				window.removeEventListener("message", onRegustPushResult);
+			}
+			window.addEventListener("message", onRegustPushResult);
 			window.parent.postMessage(JSON.stringify({
 				action : "registPush"
 			}), "*");
