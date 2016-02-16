@@ -733,16 +733,14 @@ myapp.run([ "$rootScope", "$location", "$resource", "$cookies", "$route", "$http
 		});
 	}
 	if (isCordova) {
-		alert("set----- notificationPushed");
 		window.addEventListener("message", function(event) {
 			var data = JSON.parse(event.data);
 			if ("notificationPushed" == data.action) {
-				alert("-----" + event.data);
-				$location.path("/group/" + data.value.channel.Group.accessKey + "/channel/" + data.value.channel.accessKey + "/messages");
-				alert("/group/" + data.value.channel.Group.accessKey + "/channel/" + data.value.channel.accessKey + "/messages");
+				$rootScope.$apply(function() {
+					$location.path("/group/" + data.value.channel.Group.accessKey + "/channel/" + data.value.channel.accessKey + "/messages");
+				});
 			}
 		});
-		alert("set----- notificationPushed eo");
 	}
 } ]);
 var openWithBrowser = function(url, event) {
