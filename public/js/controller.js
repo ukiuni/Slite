@@ -742,6 +742,7 @@ myapp.run([ "$rootScope", "$location", "$resource", "$cookies", "$route", "$http
 				alert("/group/" + data.value.channel.Group.accessKey + "/channel/" + data.value.channel.accessKey + "/messages");
 			}
 		});
+		alert("set----- notificationPushed eo");
 	}
 } ]);
 var openWithBrowser = function(url, event) {
