@@ -413,8 +413,8 @@ router.post('/sendResetpasswordMail', function(req, res) {
 		return SendMail.send({
 			from : serverConfig.admin.mail,
 			to : req.body.mail,
-			subject : 'Welcome to ' + serverConfig.app.name,
-			body : renderer.render('resetPasswordMailTemplate.ect', dataForTemplate)
+			subject : 'Reset your password of ' + serverConfig.app.name,
+			text : renderer.render('resetPasswordMailTemplate.ect', dataForTemplate)
 		});
 	}).then(function(activationKey) {
 		res.status(200).json(activationKey);
