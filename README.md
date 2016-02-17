@@ -14,6 +14,7 @@ And you can setup your own site.
 ```sh
 git clone https://github.com/ukiuni/Slite.git
 npm install
+npm start
 ```
 and access to http://localhost:3030
 
