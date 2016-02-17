@@ -516,6 +516,7 @@ router.put('/password', function(req, res) {
 		}
 		return AccessKey.destroy({
 			where : {
+				AccountId : accountId,
 				type : AccessKey.TYPE_LOGIN
 			}
 		});
