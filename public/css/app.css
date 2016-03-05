@@ -3,6 +3,14 @@ h2, h3 {
 	padding: 0;
 }
 
+#infoArea ::-webkit-scrollbar {
+	background: rgba(0, 0, 0, 0);
+}
+
+#infoArea ::-webkit-scrollbar-corner {
+	background: rgba(0, 0, 0, 0);
+}
+
 button {
 	overflow: hidden;
 }
@@ -206,7 +214,7 @@ ul {
 
 @media ( max-width :767px) {
 	#searchArea {
-		display:none;
+		display: none;
 	}
 	#messageInputArea {
 		position: fixed;
