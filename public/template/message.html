@@ -20,7 +20,7 @@
 							<div class="col-sm-12 col-xs-1" ng-repeat="account in channel.Group.Accounts track by account.id">
 								<div class="row messageAccountArea" ng-class="{'messageAccountAreaNow' : account.now}" context-menu="accountMenuOptions" model="account">
 									<div class="hidden-sm hidden-md hidden-lg col-xs-12">
-										<img class="accountIcon" style="height: 20px" ng-src="{{account.iconUrl}}" />
+										<img class="accountIcon" ng-class="{hardbrink: isTalking(account.id)}" style="height: 20px" ng-src="{{account.iconUrl}}" />
 									</div>
 									<div class="accountName col-sm-10 hidden-xs" style="display: table; height: 20px;">
 										<div style="vertical-align: middle; display: table-cell;">

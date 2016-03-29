@@ -2788,6 +2788,15 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 			}, 0);
 		}
 	}
+	$scope.isTalking = function(accountId) {
+		console.log(JSON.stringify($scope.channel.talkings));
+		for ( var i in $scope.channel.talkings) {
+			if ($scope.channel.talkings[i].account.id == accountId) {
+				return true;
+			}
+		}
+		return false;
+	}
 	var removeTalking = function(eventTargetChannel, accountId) {
 		for ( var i in eventTargetChannel.talkings) {
 			while (eventTargetChannel.talkings[i] && eventTargetChannel.talkings[i].account.id == accountId) {
