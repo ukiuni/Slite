@@ -2789,7 +2789,6 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 		}
 	}
 	$scope.isTalking = function(accountId) {
-		console.log(JSON.stringify($scope.channel.talkings));
 		for ( var i in $scope.channel.talkings) {
 			if ($scope.channel.talkings[i].account.id == accountId) {
 				return true;
