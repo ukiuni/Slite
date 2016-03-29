@@ -4,7 +4,7 @@
 			<div id="infoArea" class="col-sm-3 col-xs-12">
 				<div id="channelNameArea" class="row">
 					<div class="col-xs-12 hidden-sm hidden-md hidden-lg" style="padding-left: 20px;">
-						<div id="channelName" class="ellipsis" style="font-size:medium;" ng-bind="channel.name"></div>
+						<div id="channelName" class="ellipsis" style="font-size: medium;" ng-bind="channel.name"></div>
 					</div>
 					<div class="hidden-xs col-sm-12" style="padding-left: 20px;">
 						<h3 id="channelName" class="ellipsis" ng-bind="channel.name"></h3>
@@ -114,6 +114,7 @@
 					<div class="hidden-sm col-xs-1"></div>
 					<div class="col-sm-12 col-xs-10" style="margin: 0; padding: 0; position: relative" ondragenter="document.getElementById('fileDropArea').style.display='table-cell'" ondrop="event.preventDefault();">
 						<textarea id="messageInput" class="form-control" rows="3" style="width: 80%; position: absolute; float: left; resize: none;" ng-keydown="handleKeydown($event)" ng-model="text" ondrop="event.preventDefault();"></textarea>
+						<div id="uploadingStatusArea" class="progressAnimate" ng-show="isFileUploading" style="position: absolute;border-radius:3px 0px 5px 0px">&nbsp;uploading</div>
 						<div id="fileDropArea" class="messageFileDropArea" ng-model="messageImage" ngf-drop ngf-drag-over-class="'dragover'" ondragleave="document.getElementById('fileDropArea').style.display='none'" ondrop="document.getElementById('fileDropArea').style.display='none'"></div>
 						<div style="width: 18%; float: left; margin-left: 82%" class="ellipsis">
 							<div class="checkbox">

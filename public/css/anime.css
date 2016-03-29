@@ -1,0 +1,25 @@
+.brink {
+	animation: blinkAnimation 1.0s ease-in-out infinite alternate;
+}
+
+@keyframes blinkAnimation {
+	from {opacity: 0.5;}
+	to {opacity: 1;}
+}
+
+.progressAnimate {
+	opacity:0.5;
+	color:white; 
+	overflow:hidden;
+	animation-name: progress;
+	animation-iteration-count: infinite;
+	padding:0;
+	animation-duration: 5s;
+	animation-timing-function: ease;
+}
+@keyframes progress {
+	0% {width: 0px; background-color: white;}
+	50% {margin-left:0px;width: 200px; background-color: #448;}
+	100% {margin-left:200px; width: 0px; background-color:  white;}
+}
+

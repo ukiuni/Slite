@@ -3217,6 +3217,7 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 		} else {
 			uploadApi = '/api/image/groups/' + $scope.channel.Group.accessKey;
 		}
+		$scope.isFileUploading = true;
 		var uploader = $uploader.upload({
 			url : uploadApi,
 			fields : {
@@ -3236,8 +3237,10 @@ var messageController = [ "$rootScope", "$scope", "$resource", "$location", "$ht
 			} else {
 				$scope.text = text;
 			}
+			$scope.isFileUploading = false;
 		}).error(function(error) {
 			$rootScope.showErrorWithStatus(error.status);
+			$scope.isFileUploading = false;
 		});
 	});
 	var showBotCreatedDialog = function(botkey) {
