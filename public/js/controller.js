@@ -472,6 +472,9 @@ myapp.run([ "$rootScope", "$location", "$resource", "$cookies", "$route", "$http
 				channelSocketListeners.forEach(function(value, key) {
 					$rootScope.socket.emit('listenChannel', key);
 				});
+				if (onConnectListener) {
+					onConnectListener();
+				}
 			};
 			$rootScope.socket.on('authorized', reconnectFunction);
 		});
