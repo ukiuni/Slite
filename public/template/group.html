@@ -139,7 +139,7 @@
 				<div class="col-xs-12" ng-repeat="channel in group.Channels track by channel.id">
 					<div class="row">
 						<div class="col-xs-12">
-							<a class="toChannelLink" ng-href="{{ isMemberOrInviting() ? 'group/' + group.accessKey + '/channel/' + channel.accessKey + '/messages' : '#'}}"><div class="block" style="margin-top: 3px" ng-bind="channel.name"></div></a>
+							<a class="toChannelLink" ng-href="{{ isMember() ? 'group/' + group.accessKey + '/channel/' + channel.accessKey + '/messages' : '#'}}"><div class="block" style="margin-top: 3px" ng-bind="channel.name"></div></a>
 						</div>
 					</div>
 				</div>
