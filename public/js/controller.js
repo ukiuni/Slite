@@ -421,7 +421,7 @@ myapp.run([ "$rootScope", "$location", "$resource", "$cookies", "$route", "$http
 			if (groupListeners[data.info.group.accessKey]) {
 				groupListeners[data.info.group.accessKey](data);
 			}
-			$rootScope.showInfo($rootScope.messages.groups.invitationRequested + " : " + data.info.account.name + " => " + data.info.group.name, function() {
+			$rootScope.showInfo($rootScope.messages.groups.invitationRequested + " : " + (data.info.account.name || data.info.account.mail || "") + " => " + data.info.group.name, function() {
 				$rootScope.$apply(function() {
 					$location.path("/group/" + data.info.group.accessKey);
 				});
