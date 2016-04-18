@@ -278,8 +278,8 @@ var self = {
 		client.waitForElementVisible('#saveButton', testWaitTime);
 		client.click('#saveButton');
 		client.pause(1000);
-		client.waitForElementVisible('.contentListTitle', testWaitTime);
-		client.click('.contentListColmun a');
+		client.waitForElementVisible('.contentListColmun', testWaitTime);
+		client.click('.contentListColmun img');
 		client.waitForElementVisible('#monthLabel', testWaitTime);
 		var currentDate = new Date();
 		var prevMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1);

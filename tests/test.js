@@ -96,6 +96,10 @@ var tests = {
 			}
 			client.waitForElementVisible(inviteButtonId, 10000);
 			client.click(inviteButtonId);
+			client.waitForElementVisible('.toast', 1000);
+			client.click(".toast");// For hide toast caz it hides sign out
+			// button
+			client.waitForElementNotPresent('.toast', 10000);
 			Actions.signout(client);
 			Actions.signin(client, account);
 			client.url(groupUrl);
