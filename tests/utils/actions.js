@@ -153,6 +153,7 @@ var self = {
 		var contentComment = "contentComment" + contentRandom;
 		var article = "article" + contentRandom;
 		client.url(contentUrl);
+		client.pause(1000);
 		client.waitForElementVisible('textarea', testWaitTime, "goto " + contentUrl);
 		client.setValue('textarea', contentComment);
 		client.click('.btn-primary');
