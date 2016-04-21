@@ -360,7 +360,7 @@ var tests = {
 };
 var testModule = {};
 var appended = false;
-[].forEach(function(arg) {
+["Create Comment"].forEach(function(arg) {
 	if (tests[arg]) {
 		testModule[arg] = tests[arg];
 		appended = true;
