@@ -7,12 +7,16 @@
 			<div class="col-sm-6 col-xs-12">
 				<div ng-bind="messages.accounts.signup"></div>
 				<form class="form-signin">
-					<label for="inputName" class="sr-only">Name</label> <input type="name" id="inputName" class="form-control" placeholder="Name" required autofocus ng-model="signupAccount.name"> <label for="inputEmail" class="sr-only">Email address</label> <input type="email" id="inputMail" class="form-control" placeholder="Email address" required autofocus ng-model="signupAccount.mail"> <label for="inputPassword" class="sr-only">Password</label> <input type="password" id="inputPassword" class="form-control" placeholder="Password" required ng-model="signupAccount.password">
+					<label for="inputName" class="sr-only">Name</label> <input type="name" id="inputName" class="form-control" placeholder="Name" ng-pattern="/^[a-zA-Z0-9]{4,}$/" required autofocus ng-model="signupAccount.name">
+					<div ng-show="!signupAccount.name">
+						<div class="col-xs-12 label label-warning" ng-bind="messages.accounts.nameIsAlphanumericOver5"></div>
+					</div>
+					<label for="inputEmail" class="sr-only">Email address</label> <input type="email" id="inputMail" class="form-control" placeholder="Email address" required autofocus ng-model="signupAccount.mail"> <label for="inputPassword" class="sr-only">Password</label> <input type="password" id="inputPassword" class="form-control" placeholder="Password" required ng-model="signupAccount.password">
 					<div class="checkbox">
 						<label> <input type="checkbox" value="remember-me" ng-model="persist"> Remember me
 						</label>
 					</div>
-					<button class="btn btn-lg btn-primary btn-block" type="submit" id="signinButton" ng-click="signup()" ng-bind="messages.accounts.signup"></button>
+					<button class="btn btn-lg btn-primary btn-block" type="submit" id="signinButton" ng-disabled="!signupAccount.name" ng-click="signup()" ng-bind="messages.accounts.signup"></button>
 				</form>
 			</div>
 			<div class="col-sm-6 col-xs-12">

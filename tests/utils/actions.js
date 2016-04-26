@@ -39,6 +39,25 @@ var self = {
 		client.assert.containsText("p", "Hi");
 		return account;
 	},
+	cantCreateAccountWithWrongName : function(client) {
+		var accountRandom = new Date().getTime();
+		account = {
+			name : 'testAccount_' + accountRandom,
+			mail : 'testAccount' + accountRandom + "@example.com",
+			password : accountRandom
+		}
+		client.url(url);
+		client.waitForElementVisible('#createAccountButton', testWaitTime);
+		client.assert.visible('#createAccountButton');
+		client.click('#createAccountButton');
+		client.waitForElementVisible('.modal-dialog', testWaitTime);
+		client.assert.visible('#inputName').assert.visible("#inputMail").assert.visible("#inputPassword");
+		client.setValue('#inputName', account.name);
+		client.setValue('#inputMail', account.mail);
+		client.setValue('#inputPassword', account.password);
+		client.assert.attributeEquals('#saveButton', 'disabled', "true") 
+		return account;
+	},
 	signin : function(client, account) {
 		client.url(url + "/signin");
 		client.waitForElementVisible("#inputMail", testWaitTime);
