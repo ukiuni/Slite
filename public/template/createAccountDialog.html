@@ -4,7 +4,7 @@
 			<div class="form-group">
 				<label for="inputName" class="col-sm-2 control-label">Name</label>
 				<div class="col-sm-10">
-					<input type="text" class="form-control" id="inputName" placeholder="Name" name="name" ng-model="name" ng-pattern="/^[a-zA-Z0-9][a-zA-Z0-9][a-zA-Z0-9][a-zA-Z0-9]+$/" required>
+					<input type="text" class="form-control" id="inputName" placeholder="Name" name="name" ng-model="name" ng-pattern="/^[a-zA-Z0-9]{4,}$/" required>
 				</div>
 			</div>
 			<div ng-show="form.name.$error.pattern">
@@ -31,5 +31,5 @@
 </div>
 <div class="modal-footer">
 	<button type="button" id="closeButton" class="btn btn-default" ng-disabled="'' == editingTodo.description" ng-click="$dismiss()" ng-bind="messages.cancel"></button>
-	<button type="button" id="saveButton" class="btn btn-primary" ng-disabled="'' == mail || '' == password" ng-click="create()" ng-bind="messages.regist"></button>
+	<button type="button" id="saveButton" class="btn btn-primary" ng-disabled="form.name.$error.pattern || isNameDuplicateName || '' == mail || '' == password" ng-click="create()" ng-bind="messages.regist"></button>
 </div>

@@ -5,6 +5,10 @@ var tests = {
 		Actions.createAccountAndSignin(client);
 		client.end();
 	},
+	'Cant create wrong name account' : function(client) {
+		Actions.cantCreateAccountWithWrongName(client);
+		client.end();
+	},
 	'Create Content' : function(client) {
 		Actions.createAccountAndSignin(client);
 		Actions.createContentAndCheckExists(client, function(contentUrl) {
