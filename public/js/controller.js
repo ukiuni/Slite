@@ -460,9 +460,6 @@ myapp.run([ "$rootScope", "$location", "$resource", "$cookies", "$route", "$http
 		$rootScope.disconnected = false;
 		$rootScope.socket.on('connect', function(data) {
 			$rootScope.socket.emit('authorize', $rootScope.getSessionKey());
-			if (!$rootScope.disconnected) {
-				return;
-			}
 			$rootScope.disconnected = false;
 			var reconnectFunction = function() {
 				$rootScope.socket.removeListener('authorized', reconnectFunction);
