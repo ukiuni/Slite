@@ -745,6 +745,10 @@ myapp.run([ "$rootScope", "$location", "$resource", "$cookies", "$route", "$http
 } ]);
 var openWithBrowser = function(url, event) {
 	if (isElectron) {
+		if (0 == url.indexOf("/")) {
+			url = location.protocol + "//" + location.host + url;
+		}
+		console.log("url " + url);
 		require('shell').openExternal(url);
 	} else {
 		window.open(url);

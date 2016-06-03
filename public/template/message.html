@@ -10,7 +10,8 @@
 						<h3 id="channelName" class="ellipsis" ng-bind="channel.name"></h3>
 					</div>
 					<div class="hidden-xs col-sm-12" style="padding-left: 20px">
-						<a ng-href="{{'/group/'+channel.Group.accessKey}}"><div id="groupName" ng-bind="channel.Group.name" class="ellipsis" style="font-size: 12px"></div></a>
+						<a ng-href="{{'/group/'+channel.Group.accessKey}}"><span id="groupName" ng-bind="channel.Group.name" class="ellipsis" style="font-size: 12px"></span></a>
+						<a href ng-click="openWithBrowser('/group/'+channel.Group.accessKey, $event)" target="_blank"><span class="glyphicon glyphicon-new-window"></span></a>
 					</div>
 				</div>
 				<div id="infoAreaInner" class="row">
